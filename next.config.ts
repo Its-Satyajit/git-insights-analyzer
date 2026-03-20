@@ -6,6 +6,8 @@
 import "~/env";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+	reactCompiler: true,
+};
 
 export default config;
