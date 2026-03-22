@@ -72,3 +72,25 @@ export async function getFileContent({
 
 	return Buffer.from(file.content, "base64").toString("utf8");
 }
+
+export async function getFileContentFromRaw({
+	owner,
+	repo,
+	branch,
+	path,
+}: {
+	owner: string;
+	repo: string;
+	branch: string;
+	path: string;
+}): Promise<string | null> {
+	try {
+		const encodedPath = encodeURIComponent(path);
+		const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${encodedPath}`;
+		const res = await fetch(url);
+		if (!res.ok) return null;
+		return res.text();
+	} catch {
+		return null;
+	}
+}

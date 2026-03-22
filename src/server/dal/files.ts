@@ -1,4 +1,4 @@
-import "server-only";
+import { eq } from "drizzle-orm";
 import type { Static } from "elysia";
 import type { dbSchema } from "../api/dbSchema";
 import { db } from "../db";
@@ -9,4 +9,12 @@ type Insert = Static<typeof dbSchema.files.insert>;
 export async function insertFiles(data: Insert | Insert[]) {
 	const values = Array.isArray(data) ? data : [data];
 	await db.insert(files).values(values);
+}
+
+export async function getFilesByRepoId(repoId: string) {
+	return db.select().from(files).where(eq(files.repositoryId, repoId));
+}
+
+export async function updateFileContent(id: string, content: string) {
+	await db.update(files).set({ content }).where(eq(files.id, id));
 }

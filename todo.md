@@ -49,12 +49,80 @@
 
 # Phase 5: Search & Filtering (Day 10-12)
 
-## Planning & Design (Guided Learning)
+## Planning & Design (Grill-Me)
 - [x] Search Strategy (Client vs Server) -> **Decision: Client-side for instant feedback.**
-- [ ] UI Placement -> **Decision: Inside `VirtualizedFileTree` header.**
+- [x] UI Placement -> **Decision: Inside `VirtualizedFileTree` header.**
 
 ## Implementation
-- [/] Add `searchQuery` state to `VirtualizedFileTree`
-- [ ] Implement filtering logic in `visibleNodes` memo
-- [ ] UI: Add `Input` component and search icon
-- [ ] Add "No results found" empty state
+- [x] Add `searchQuery` state to `VirtualizedFileTree`
+- [x] Implement filtering logic in `visibleNodes` memo
+- [x] UI: Add `Input` component and search icon
+- [x] Add "No results found" empty state
+
+# Phase 6: Dependency Graph (Day 13-16)
+
+## Planning & Design (Grill-Me)
+
+### Architecture
+- [x] Pipeline Integration -> **Decision: Synchronous - new `performDependencyAnalysis` function called after `performBasicAnalysis` in `/analyze` pipeline.**
+- [x] File Scope -> **Decision: Sub-limit of 500 code files (max 1000 total).**
+- [x] API Modularization -> **Decision: Route-per-file Elysia plugin pattern. Each route in its own file under `src/server/api/`.**
+
+### Language Support
+- [x] Languages Supported -> **Decision: Tier 1 - JavaScript/TypeScript + Python + Go + Rust. Excludes C/C++, Java, Ruby, PHP for MVP.**
+- [x] Parser Approach -> **Decision: Tree-sitter WASM via `web-tree-sitter` package.**
+- [x] WASM Storage -> **Decision: Bundled in `/public/tree-sitter/` directory.**
+- [x] WASM Loading -> **Decision: Lazy per language - load on first use, cache in memory.**
+
+### Parser Implementation
+- [x] Parser Structure -> **Decision: Language-specific classes with shared `ImportParser` interface in `src/server/logic/parsers/`.**
+- [x] Path Resolution -> **Decision: Heuristic resolution - relative paths + alias stripping + common extensions. Unresolved imports tracked for debugging.**
+- [x] Error Handling -> **Decision: Skip failed files + track in `unresolvedImports` metadata. Pipeline always completes.**
+
+### Graph Data
+- [x] Graph Data Structure -> **Decision: `{ nodes: GraphNode[]; edges: GraphEdge[]; metadata: GraphMetadata }` - separate nodes and edges.**
+- [x] Node Data -> **Decision: `{ path, language, imports: number, loc?: number }` - includes LOC from Phase 3.**
+- [x] Edge Deduplication -> **Decision: One edge per unique (source, target) pair.**
+- [x] Self-loops -> **Decision: Excluded from graph.**
+- [x] External Dependencies -> **Decision: Stripped - internal imports only.**
+- [x] Storage -> **Decision: Store in existing `analysis_results.dependencyGraphJson` column. Re-analysis replaces existing.**
+- [x] File Size Limit -> **Decision: Skip files >1MB before parsing.**
+
+### Visualization & UI
+- [x] Visualization -> **Decision: "Most connected files" ranked list with drill-down showing immediate connections.**
+- [x] Dashboard Integration -> **Decision: Separate page - `/dependencies/[repoId]`.**
+- [x] Data Fetching -> **Decision: Separate endpoint - `GET /dashboard/:repoId/graph`.**
+
+## Implementation
+
+### API Modularization
+- [x] Create `src/server/api/routes/analyze.ts`
+- [x] Create `src/server/api/routes/dashboard.ts`
+- [x] Create `src/server/api/routes/file-content.ts`
+- [x] Refactor `src/server/api/index.ts` to compose plugins
+
+### Tree-sitter Setup
+- [ ] Install dependencies (`web-tree-sitter`, tree-sitter language parsers)
+- [ ] Download WASM files to `public/tree-sitter/`
+- [ ] Add WASM MIME type to `next.config.ts`
+- [ ] Create `src/server/logic/parsers/index.ts` with shared interface
+- [ ] Create `src/server/logic/parsers/typescript.ts`
+- [ ] Create `src/server/logic/parsers/python.ts`
+- [ ] Create `src/server/logic/parsers/go.ts`
+- [ ] Create `src/server/logic/parsers/rust.ts`
+
+### Core Logic
+- [ ] Create `src/server/logic/dependencyAnalysis.ts` with `performDependencyAnalysis`
+- [ ] Implement path resolution utility
+- [ ] Integrate into `/analyze` pipeline
+
+### API Routes
+- [ ] Add `GET /dashboard/:repoId/graph` endpoint
+- [ ] Add route plugin file for graph endpoint
+
+### Frontend
+- [ ] Create `src/app/dependencies/[repoId]/page.tsx`
+- [ ] Create `src/components/dependencies/HubFilesList.tsx`
+- [ ] Create `src/components/dependencies/ConnectionDrawer.tsx`
+- [ ] Add React Query hook for graph data
+- [ ] Add loading skeleton for dependencies page
