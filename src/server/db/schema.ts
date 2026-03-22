@@ -101,6 +101,8 @@ export const repositories = pgTable(
 		isPrivate: boolean("is_private").default(false),
 		stars: integer("stars"),
 		forks: integer("forks"),
+		analysisStatus: text("analysis_status").default("pending"),
+		analysisPhase: text("analysis_phase"),
 		createdAt: timestamp("created_at")
 			.$defaultFn(() => /* @__PURE__ */ new Date())
 			.notNull(),
@@ -129,6 +131,7 @@ export const files = pgTable("files", {
 	depth: integer("depth"),
 	extension: text("extension"),
 	isDirectory: boolean("is_directory").default(false),
+	content: text("content"),
 	createdAt: timestamp("created_at")
 		.$defaultFn(() => /* @__PURE__ */ new Date())
 		.notNull(),

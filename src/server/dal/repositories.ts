@@ -1,4 +1,3 @@
-import "server-only";
 import { eq } from "drizzle-orm";
 import type { Static } from "elysia";
 import type { dbSchema } from "../api/dbSchema";
@@ -28,4 +27,18 @@ export async function getRepositoryData(repoId: string) {
 	});
 	if (!result) return null;
 	return result;
+}
+
+export async function updateRepositoryStatus(
+	repoId: string,
+	status: string,
+	phase?: string,
+) {
+	await db
+		.update(repositories)
+		.set({
+			analysisStatus: status,
+			analysisPhase: phase ?? null,
+		})
+		.where(eq(repositories.id, repoId));
 }

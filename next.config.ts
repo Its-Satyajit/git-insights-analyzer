@@ -1,20 +1,26 @@
 import type { NextConfig } from "next";
-
-/**
- * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
- * for Docker builds.
- */
 import "~/env";
 
 const config: NextConfig = {
 	reactCompiler: true,
+	experimental: {},
+	cacheComponents: true,
 	images: {
 		formats: ["image/avif", "image/webp"],
 	},
-	experimental: {
-		// experimental settings
+	async headers() {
+		return [
+			{
+				source: "/tree-sitter/:path*\\.wasm",
+				headers: [
+					{
+						key: "Content-Type",
+						value: "application/wasm",
+					},
+				],
+			},
+		];
 	},
-	cacheComponents: true,
 };
 
 export default config;

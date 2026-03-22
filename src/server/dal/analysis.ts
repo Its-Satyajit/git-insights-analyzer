@@ -1,4 +1,3 @@
-import "server-only";
 import type { Static } from "elysia";
 import type { dbSchema } from "../api/dbSchema";
 import { db } from "../db";
