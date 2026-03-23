@@ -1,19 +1,26 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import {
 	ArrowLeft,
 	ArrowLeftFromLine,
 	ArrowRight,
+	BarChart3,
 	Check,
 	Copy,
 	FileCode,
+	FileType,
+	FolderTree,
+	Layers,
 	Loader2,
+	Network,
 	Search,
+	Target,
 	X,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import React, { Activity, Suspense, useMemo, useState } from "react";
 import {
 	Bar,
 	BarChart,
@@ -28,6 +35,7 @@ import {
 import { FilterBar, type FilterState } from "~/components/dashboard/FilterBar";
 import { Treemap } from "~/components/dashboard/Treemap";
 import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
@@ -35,6 +43,7 @@ import {
 	DialogTitle,
 } from "~/components/ui/dialog";
 import { Skeleton } from "~/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useRepoStatus } from "~/hooks/useRepoStatus";
 import { api } from "~/lib/eden";
 
@@ -48,18 +57,31 @@ type Node = {
 
 const COLORS = [
 	"#3b82f6",
-	"#10b981",
-	"#f59e0b",
-	"#ef4444",
-	"#8b5cf6",
-	"#ec4899",
-	"#06b6d4",
-	"#84cc16",
-	"#f97316",
-	"#6366f1",
+	"#64748b",
+	"#93c5fd",
+	"#cbd5e1",
+	"#1e3a8a",
+	"#94a3b8",
+	"#e2e8f0",
+	"#8b9dbf",
+	"#8ab4f8",
+	"#c7d2fe",
 ];
 
-function DependenciesContent() {
+const containerVariants = {
+	hidden: { opacity: 0 },
+	visible: {
+		opacity: 1,
+		transition: { staggerChildren: 0.08 },
+	},
+};
+
+const itemVariants = {
+	hidden: { opacity: 0, y: 16 },
+	visible: { opacity: 1, y: 0 },
+};
+
+function AnalysisContent() {
 	const params = useParams();
 	const router = useRouter();
 	const repoId = params.repoId as string;
@@ -69,8 +91,8 @@ function DependenciesContent() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 	const [activeTab, setActiveTab] = useState<
-		"files" | "charts" | "treemap" | "hotspots"
-	>("files");
+		"overview" | "files" | "charts" | "treemap" | "hotspots"
+	>("overview");
 	const [selectedHotspotFile, setSelectedHotspotFile] = useState<string | null>(
 		null,
 	);
@@ -86,9 +108,9 @@ function DependenciesContent() {
 
 	const graph = status?.analysis?.dependencyGraph;
 	const hotSpotData = status?.analysis?.hotSpotData;
+	const summary = status?.analysis?.summary;
 	const { metadata } = status ?? {};
 
-	// Get all unique extensions from the file tree
 	const allExtensions = useMemo(() => {
 		if (!graph?.nodes) return [];
 		const exts = new Set<string>();
@@ -117,7 +139,6 @@ function DependenciesContent() {
 					return res.text();
 				}
 
-				// For private repos, use server API
 				const res = await api["file-content"].get({
 					query: { repoId, path: selectedHotspotFile },
 				});
@@ -143,10 +164,7 @@ function DependenciesContent() {
 		const query = searchQuery.toLowerCase();
 		return graph.nodes
 			.filter((node) => {
-				// Text search
 				if (query && !node.path.toLowerCase().includes(query)) return false;
-
-				// Extension filter
 				const ext = node.path.split(".").pop() ?? "";
 				if (
 					filters.selectedExtensions.length > 0 &&
@@ -154,7 +172,6 @@ function DependenciesContent() {
 				) {
 					return false;
 				}
-
 				return true;
 			})
 			.sort((a, b) => b.imports - a.imports);
@@ -212,7 +229,10 @@ function DependenciesContent() {
 	if (error || !status) {
 		return (
 			<div className="flex h-screen flex-col items-center justify-center gap-4">
-				<p className="text-red-500">Failed to load repository status</p>
+				<p className="text-red-500">
+					Unable to load repository. The repository may not exist or may be
+					private.
+				</p>
 				<button
 					className="text-muted-foreground text-sm hover:text-foreground"
 					onClick={() => router.push("/")}
@@ -240,98 +260,314 @@ function DependenciesContent() {
 	const connections = selectedNode ? getConnections(selectedNode.id) : null;
 
 	return (
-		<div className="min-h-screen bg-background">
+		<motion.div
+			animate="visible"
+			className="min-h-screen bg-background"
+			initial="hidden"
+			variants={containerVariants}
+		>
 			<div className="border-b p-4">
 				<div className="mx-auto max-w-7xl">
-					<div className="mb-4 flex items-center justify-between">
-						<div>
-							<button
-								className="mb-2 flex items-center gap-2 text-muted-foreground text-sm hover:text-foreground"
-								onClick={() => router.push(`/dashboard/${repoId}`)}
-								type="button"
-							>
-								<ArrowLeft className="h-4 w-4" />
-								Back to Dashboard
-							</button>
-							<h1 className="font-bold text-xl">
-								{metadata?.fullName ?? "..."}
-							</h1>
-							<p className="text-muted-foreground text-sm">
-								Dependency Analysis
-							</p>
+					<motion.div className="mb-4" variants={itemVariants}>
+						<div className="mb-4 flex items-center justify-between">
+							<div>
+								<button
+									className="mb-2 flex items-center gap-2 text-muted-foreground text-sm hover:text-foreground"
+									onClick={() => router.push(`/dashboard/${repoId}`)}
+									type="button"
+								>
+									<ArrowLeft className="h-4 w-4" />
+									Back to Dashboard
+								</button>
+								<h1 className="font-bold text-xl">
+									{metadata?.fullName ?? "..."}
+								</h1>
+								<p className="text-muted-foreground text-sm">
+									{status?.analysis?.summary
+										? "Comprehensive Analysis"
+										: "Dependency Analysis"}
+								</p>
+							</div>
+							<div className="flex gap-6 text-sm">
+								<div className="rounded-lg border bg-card p-4 text-center">
+									<p className="font-bold text-2xl">
+										{graph?.metadata.totalNodes ?? 0}
+									</p>
+									<p className="text-muted-foreground text-xs">Files</p>
+								</div>
+								<div className="rounded-lg border bg-card p-4 text-center">
+									<p className="font-bold text-2xl">
+										{graph?.metadata.totalEdges ?? 0}
+									</p>
+									<p className="text-muted-foreground text-xs">Connections</p>
+								</div>
+								<div className="rounded-lg border bg-card p-4 text-center">
+									<p className="font-bold text-2xl">
+										{
+											Object.keys(graph?.metadata.languageBreakdown ?? {})
+												.length
+										}
+									</p>
+									<p className="text-muted-foreground text-xs">Languages</p>
+								</div>
+							</div>
 						</div>
-						<div className="flex gap-6 text-sm">
-							<div className="rounded-lg border bg-card p-4 text-center">
-								<p className="font-bold text-2xl">
-									{graph?.metadata.totalNodes ?? 0}
-								</p>
-								<p className="text-muted-foreground text-xs">Files</p>
-							</div>
-							<div className="rounded-lg border bg-card p-4 text-center">
-								<p className="font-bold text-2xl">
-									{graph?.metadata.totalEdges ?? 0}
-								</p>
-								<p className="text-muted-foreground text-xs">Connections</p>
-							</div>
-							<div className="rounded-lg border bg-card p-4 text-center">
-								<p className="font-bold text-2xl">
-									{Object.keys(graph?.metadata.languageBreakdown ?? {}).length}
-								</p>
-								<p className="text-muted-foreground text-xs">Languages</p>
-							</div>
-						</div>
-					</div>
 
-					<div className="flex gap-2">
-						<button
-							className={`rounded-lg px-4 py-2 font-medium text-sm transition-colors ${
-								activeTab === "files"
-									? "bg-primary text-primary-foreground"
-									: "bg-muted text-muted-foreground hover:text-foreground"
-							}`}
-							onClick={() => setActiveTab("files")}
-							type="button"
+						<Tabs
+							className="w-full"
+							onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+							value={activeTab}
 						>
-							File Explorer
-						</button>
-						<button
-							className={`rounded-lg px-4 py-2 font-medium text-sm transition-colors ${
-								activeTab === "charts"
-									? "bg-primary text-primary-foreground"
-									: "bg-muted text-muted-foreground hover:text-foreground"
-							}`}
-							onClick={() => setActiveTab("charts")}
-							type="button"
-						>
-							Charts
-						</button>
-						<button
-							className={`rounded-lg px-4 py-2 font-medium text-sm transition-colors ${
-								activeTab === "treemap"
-									? "bg-primary text-primary-foreground"
-									: "bg-muted text-muted-foreground hover:text-foreground"
-							}`}
-							onClick={() => setActiveTab("treemap")}
-							type="button"
-						>
-							Treemap
-						</button>
-						<button
-							className={`rounded-lg px-4 py-2 font-medium text-sm transition-colors ${
-								activeTab === "hotspots"
-									? "bg-primary text-primary-foreground"
-									: "bg-muted text-muted-foreground hover:text-foreground"
-							}`}
-							onClick={() => setActiveTab("hotspots")}
-							type="button"
-						>
-							Hotspots
-						</button>
-					</div>
+							<TabsList>
+								<TabsTrigger value="overview">Overview</TabsTrigger>
+								<TabsTrigger value="files">File Explorer</TabsTrigger>
+								<TabsTrigger value="charts">Charts</TabsTrigger>
+								<TabsTrigger value="treemap">Treemap</TabsTrigger>
+								<TabsTrigger value="hotspots">Hotspots</TabsTrigger>
+							</TabsList>
+						</Tabs>
+					</motion.div>
 				</div>
 			</div>
 
-			{activeTab === "files" ? (
+			{activeTab === "overview" ? (
+				<motion.div className="mx-auto max-w-7xl p-6" variants={itemVariants}>
+					<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+						{summary ? (
+							<>
+								<Card>
+									<CardHeader className="flex flex-row items-center gap-3">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+											<BarChart3 className="h-5 w-5 text-blue-600" />
+										</div>
+										<CardTitle className="text-lg">Basic Statistics</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-3">
+										<div className="flex justify-between border-b py-2">
+											<span className="text-muted-foreground">Total Files</span>
+											<span className="font-medium font-mono">
+												{summary.basic.totalFiles}
+											</span>
+										</div>
+										<div className="flex justify-between border-b py-2">
+											<span className="text-muted-foreground">Directories</span>
+											<span className="font-medium font-mono">
+												{summary.basic.totalDirectories}
+											</span>
+										</div>
+										<div className="flex justify-between py-2">
+											<span className="text-muted-foreground">
+												Lines of Code
+											</span>
+											<span className="font-medium font-mono">
+												{summary.basic.totalLines.toLocaleString()}
+											</span>
+										</div>
+									</CardContent>
+								</Card>
+
+								<Card>
+									<CardHeader className="flex flex-row items-center gap-3">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+											<Layers className="h-5 w-5 text-blue-600" />
+										</div>
+										<CardTitle className="text-lg">Languages</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="mb-4 flex items-center gap-2">
+											<span className="font-semibold text-lg">
+												{summary.languages.primaryLanguage}
+											</span>
+											<span className="text-muted-foreground text-sm">
+												(Primary)
+											</span>
+										</div>
+										<div className="space-y-2">
+											{summary.languages.topLanguages.map((lang) => (
+												<div
+													className="flex items-center justify-between"
+													key={lang.name}
+												>
+													<span className="text-sm">{lang.name}</span>
+													<div className="flex items-center gap-2">
+														<div className="h-2 w-20 overflow-hidden rounded-full bg-muted">
+															<div
+																className="h-full rounded-full bg-blue-500"
+																style={{ width: `${lang.percentage}%` }}
+															/>
+														</div>
+														<span className="w-12 text-right font-mono text-sm">
+															{lang.percentage.toFixed(1)}%
+														</span>
+													</div>
+												</div>
+											))}
+										</div>
+									</CardContent>
+								</Card>
+
+								<Card>
+									<CardHeader className="flex flex-row items-center gap-3">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+											<FolderTree className="h-5 w-5 text-blue-600" />
+										</div>
+										<CardTitle className="text-lg">Structure</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-4">
+										<div className="flex justify-between border-b py-2">
+											<span className="text-muted-foreground">
+												Maximum Depth
+											</span>
+											<span className="font-medium font-mono">
+												{summary.structure.maxDepth}
+											</span>
+										</div>
+										<div>
+											<span className="text-muted-foreground text-sm">
+												Top-level Directories
+											</span>
+											<div className="mt-2 flex flex-wrap gap-1.5">
+												{summary.structure.topLevelDirectories.map((dir) => (
+													<span
+														className="rounded-full bg-gray-100 px-3 py-1 font-medium text-xs dark:bg-gray-800"
+														key={dir}
+													>
+														{dir}
+													</span>
+												))}
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+
+								<Card>
+									<CardHeader className="flex flex-row items-center gap-3">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+											<Network className="h-5 w-5 text-blue-600" />
+										</div>
+										<CardTitle className="text-lg">Dependencies</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-4">
+										<div className="flex justify-between border-b py-2">
+											<span className="text-muted-foreground">Total Files</span>
+											<span className="font-medium font-mono">
+												{summary.dependencies.totalNodes}
+											</span>
+										</div>
+										<div className="flex justify-between border-b py-2">
+											<span className="text-muted-foreground">Connections</span>
+											<span className="font-medium font-mono">
+												{summary.dependencies.totalEdges}
+											</span>
+										</div>
+										{summary.dependencies.mostDependedUpon.length > 0 && (
+											<div>
+												<h4 className="mb-2 font-medium text-sm">
+													Most Depended Upon
+												</h4>
+												<div className="space-y-1.5">
+													{summary.dependencies.mostDependedUpon
+														.slice(0, 5)
+														.map((item) => (
+															<div
+																className="flex items-center justify-between text-sm"
+																key={item.path}
+															>
+																<span className="max-w-[180px] truncate font-mono text-xs">
+																	{item.path.split("/").pop()}
+																</span>
+																<span className="font-mono text-blue-600">
+																	{item.fanIn}
+																</span>
+															</div>
+														))}
+												</div>
+											</div>
+										)}
+									</CardContent>
+								</Card>
+
+								<Card>
+									<CardHeader className="flex flex-row items-center gap-3">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+											<Target className="h-5 w-5 text-blue-600" />
+										</div>
+										<CardTitle className="text-lg">Hotspots</CardTitle>
+									</CardHeader>
+									<CardContent>
+										{summary.hotspots.topHotspots.length > 0 ? (
+											<div className="space-y-2">
+												{summary.hotspots.topHotspots
+													.slice(0, 5)
+													.map((hotspot) => (
+														<div
+															className="flex items-center justify-between rounded-lg border p-2.5"
+															key={hotspot.path}
+														>
+															<div className="min-w-0 flex-1">
+																<p className="truncate font-mono text-sm">
+																	{hotspot.path.split("/").pop()}
+																</p>
+																<p className="text-muted-foreground text-xs">
+																	Score: {hotspot.score.toFixed(2)}
+																</p>
+															</div>
+															<span className="ml-2 rounded-full bg-blue-100 px-2.5 py-0.5 font-medium text-blue-700 text-xs dark:bg-blue-900 dark:text-blue-300">
+																#{hotspot.rank}
+															</span>
+														</div>
+													))}
+											</div>
+										) : (
+											<p className="text-muted-foreground">
+												No hotspots detected.
+											</p>
+										)}
+									</CardContent>
+								</Card>
+
+								<Card>
+									<CardHeader className="flex flex-row items-center gap-3">
+										<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+											<FileType className="h-5 w-5 text-blue-600" />
+										</div>
+										<CardTitle className="text-lg">File Types</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="space-y-2">
+											{summary.fileTypes.topExtensions.map((ext) => (
+												<div
+													className="flex items-center justify-between border-b py-1.5 last:border-0"
+													key={ext.extension}
+												>
+													<div className="flex items-center gap-2">
+														<span className="font-mono text-sm">
+															.{ext.extension}
+														</span>
+													</div>
+													<span className="font-mono text-sm">{ext.count}</span>
+												</div>
+											))}
+										</div>
+									</CardContent>
+								</Card>
+							</>
+						) : (
+							<Card className="col-span-full">
+								<CardContent className="flex flex-col items-center justify-center py-12">
+									<BarChart3 className="mb-4 h-12 w-12 text-muted-foreground" />
+									<p className="text-muted-foreground">
+										Analysis in progress...
+									</p>
+									<p className="text-muted-foreground text-sm">
+										Summary data will appear once analysis completes.
+									</p>
+								</CardContent>
+							</Card>
+						)}
+					</div>
+				</motion.div>
+			) : activeTab === "files" ? (
 				<div className="flex h-[calc(100vh-180px)]">
 					<div className="w-1/2 overflow-auto border-r">
 						<div className="sticky top-0 z-10 border-b bg-background p-4">
@@ -519,14 +755,15 @@ function DependenciesContent() {
 									/>
 									<Tooltip
 										content={({ active, payload }) => {
-											if (active && payload && payload.length) {
+											if (active && payload && payload.length && payload[0]) {
+												const data = payload[0];
 												return (
 													<div className="rounded-lg border bg-background p-2 shadow-lg">
 														<p className="font-mono text-sm">
-															{payload[0].payload.path}
+															{data.payload.path}
 														</p>
 														<p className="text-muted-foreground text-xs">
-															{payload[0].value} imports
+															{data.value} imports
 														</p>
 													</div>
 												);
@@ -549,7 +786,7 @@ function DependenciesContent() {
 										data={languageData}
 										dataKey="value"
 										innerRadius={60}
-										label={({ name, percent }) =>
+										label={({ name, percent = 0 }) =>
 											`${name} (${(percent * 100).toFixed(0)}%)`
 										}
 										outerRadius={100}
@@ -594,14 +831,16 @@ function DependenciesContent() {
 									<YAxis />
 									<Tooltip
 										content={({ active, payload }) => {
-											if (active && payload && payload.length) {
+											if (active && payload && payload.length && payload[0]) {
+												const data = payload[0];
+												if (!data?.payload || !data?.value) return null;
 												return (
 													<div className="rounded-lg border bg-background p-2 shadow-lg">
 														<p className="font-medium text-sm">
-															{payload[0].payload.name}
+															{data.payload.name}
 														</p>
 														<p className="text-muted-foreground text-xs">
-															{Number(payload[0].value).toLocaleString()} lines
+															{Number(data.value).toLocaleString()} lines
 														</p>
 													</div>
 												);
@@ -682,11 +921,13 @@ function DependenciesContent() {
 						</div>
 					</div>
 					<div className="h-[calc(100vh-240px)]">
-						<Treemap
-							colorMode={treemapColorMode}
-							onFileClick={(file) => setSelectedHotspotFile(file.path)}
-							repoId={repoId}
-						/>
+						<Activity mode={activeTab === "treemap" ? "visible" : "hidden"}>
+							<Treemap
+								colorMode={treemapColorMode}
+								onFileClick={(file) => setSelectedHotspotFile(file.path)}
+								repoId={repoId}
+							/>
+						</Activity>
 					</div>
 				</div>
 			) : (
@@ -707,8 +948,8 @@ function DependenciesContent() {
 									</tr>
 								</thead>
 								<tbody>
-									{Array.from({ length: 5 }).map((_, i) => (
-										<tr className="border-b" key={i}>
+									{Array.from({ length: 5 }).map((_, idx) => (
+										<tr className="border-b" key={`hotspot-loading-${idx}`}>
 											<td className="px-4 py-2">
 												<Skeleton className="h-4 w-8" />
 											</td>
@@ -780,7 +1021,6 @@ function DependenciesContent() {
 						</div>
 					)}
 
-					{/* File viewer dialog for hotspot files */}
 					<Dialog
 						onOpenChange={(open) => !open && setSelectedHotspotFile(null)}
 						open={!!selectedHotspotFile}
@@ -826,18 +1066,16 @@ function DependenciesContent() {
 									</div>
 								) : (
 									<div className="flex">
-										{/* Line numbers */}
 										<div className="select-none border-slate-800 border-r bg-slate-950 py-4 text-right text-slate-500">
 											{hotspotFileContent?.split("\n").map((_, i) => (
 												<div
 													className="px-4 font-mono text-xs"
-													key={`line-${i}`}
+													key={`line-${i}-${hotspotFileContent?.split("\n")[i]?.slice(0, 8) ?? i}`}
 												>
 													{i + 1}
 												</div>
 											))}
 										</div>
-										{/* Code content */}
 										<pre className="flex-1 whitespace-pre-wrap py-4 pr-4 pl-4 font-mono text-slate-50 text-sm">
 											<code>{hotspotFileContent}</code>
 										</pre>
@@ -848,7 +1086,7 @@ function DependenciesContent() {
 					</Dialog>
 				</div>
 			)}
-		</div>
+		</motion.div>
 	);
 }
 
@@ -860,10 +1098,10 @@ function LoadingFallback() {
 	);
 }
 
-export default function DependenciesPage() {
+export default function AnalysisPage() {
 	return (
 		<Suspense fallback={<LoadingFallback />}>
-			<DependenciesContent />
+			<AnalysisContent />
 		</Suspense>
 	);
 }

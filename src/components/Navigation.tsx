@@ -3,7 +3,6 @@
 import {
 	Database,
 	FileJson,
-	FileText,
 	GitBranch,
 	Home,
 	LayoutDashboard,
@@ -162,27 +161,14 @@ export function Navigation() {
 							<span className="text-muted-foreground">/</span>
 							<Link
 								className={`flex items-center gap-2 font-medium text-sm hover:text-foreground ${
-									pathname === `/dashboard/${repoId}/dependencies`
+									pathname === `/dashboard/${repoId}/analysis`
 										? "text-foreground"
 										: "text-muted-foreground"
 								}`}
-								href={`/dashboard/${repoId}/dependencies`}
+								href={`/dashboard/${repoId}/analysis`}
 							>
 								<GitBranch className="h-4 w-4" />
-								Dependencies
-							</Link>
-
-							<span className="text-muted-foreground">/</span>
-							<Link
-								className={`flex items-center gap-2 font-medium text-sm hover:text-foreground ${
-									pathname === `/dashboard/${repoId}/summary`
-										? "text-foreground"
-										: "text-muted-foreground"
-								}`}
-								href={`/dashboard/${repoId}/summary`}
-							>
-								<FileText className="h-4 w-4" />
-								Summary
+								Analysis
 							</Link>
 						</>
 					)}

@@ -84,6 +84,8 @@
 	--sidebar-accent-foreground: oklch(0.205 0 0);
 	--sidebar-border: oklch(0.922 0 0);
 	--sidebar-ring: oklch(0.708 0 0);
+	/* Default fallback color for dynamic extension-based fills in charts */
+	--color-default: #3b82f6;
 }
 
 .dark {
@@ -118,6 +120,18 @@
 	--sidebar-accent-foreground: oklch(0.985 0 0);
 	--sidebar-border: oklch(1 0 0 / 10%);
 	--sidebar-ring: oklch(0.556 0 0);
+}
+/* Dark fallback for dynamic fills */
+.dark {
+	--color-default: #93c5fd;
+}
+
+/* Global SVG color helpers for shadcn-ui palette */
+.fill-foreground {
+	fill: var(--color-foreground, currentColor);
+}
+.fill-muted-foreground {
+	fill: var(--color-muted-foreground, #6b7280);
 }
 
 @layer base {

@@ -1,3 +1,6 @@
+export { getExtension } from "./getExtension";
+export { getHotspotColor } from "./utils";
+
 const EXTENSION_LANGUAGE_MAP: Record<string, string> = {
 	ts: "TypeScript",
 	tsx: "TypeScript",
@@ -96,12 +99,4 @@ export function getLanguageColor(extension: string | undefined): string {
 	const language = getLanguageFromExtension(extension);
 	const color = LANGUAGE_COLORS[language];
 	return color ?? "#6b7280";
-}
-
-export function getHotspotColor(score: number): string {
-	if (score === 0) return "#e5e7eb";
-	const r = Math.round(255 - score * 155);
-	const g = Math.round(200 - score * 150);
-	const b = Math.round(50 - score * 50);
-	return `rgb(${r},${g},${b})`;
 }
