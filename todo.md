@@ -45,6 +45,7 @@
 - [x] Build Stat Cards (Total Files, LOC, etc.)
 - [x] Build File Type Chart (Donut/Bar)
 - [x] Implement Virtualized File Explorer (`@tanstack/react-virtual`)
+- [x] Sort directories to top in file explorer
 - [x] Add Skeleton Loaders and Empty States
 
 # Phase 5: Search & Filtering (Day 10-12)
@@ -102,27 +103,115 @@
 - [x] Refactor `src/server/api/index.ts` to compose plugins
 
 ### Tree-sitter Setup
-- [ ] Install dependencies (`web-tree-sitter`, tree-sitter language parsers)
-- [ ] Download WASM files to `public/tree-sitter/`
-- [ ] Add WASM MIME type to `next.config.ts`
-- [ ] Create `src/server/logic/parsers/index.ts` with shared interface
-- [ ] Create `src/server/logic/parsers/typescript.ts`
-- [ ] Create `src/server/logic/parsers/python.ts`
-- [ ] Create `src/server/logic/parsers/go.ts`
-- [ ] Create `src/server/logic/parsers/rust.ts`
+- [x] Install dependencies (`web-tree-sitter`, tree-sitter language parsers)
+- [x] Download WASM files to `public/tree-sitter/`
+- [x] Add WASM MIME type to `next.config.ts`
+- [x] Create `src/server/logic/parsers/index.ts` with shared interface
+- [x] Create `src/server/logic/parsers/typescript.ts`
+- [x] Create `src/server/logic/parsers/python.ts`
+- [x] Create `src/server/logic/parsers/go.ts`
+- [x] Create `src/server/logic/parsers/rust.ts`
 
 ### Core Logic
-- [ ] Create `src/server/logic/dependencyAnalysis.ts` with `performDependencyAnalysis`
-- [ ] Implement path resolution utility
-- [ ] Integrate into `/analyze` pipeline
+- [x] Create `src/server/logic/dependencyAnalysis.ts` with `performDependencyAnalysis`
+- [x] Implement path resolution utility
+- [x] Improve path resolution to handle file extensions correctly
+- [x] Integrate into `/analyze` pipeline
 
 ### API Routes
-- [ ] Add `GET /dashboard/:repoId/graph` endpoint
-- [ ] Add route plugin file for graph endpoint
+- [x] Add `GET /dashboard/:repoId/graph` endpoint (via `/dashboard/:repoId/status`)
+- [x] Add route plugin file for graph endpoint (integrated in status route)
 
 ### Frontend
-- [ ] Create `src/app/dependencies/[repoId]/page.tsx`
-- [ ] Create `src/components/dependencies/HubFilesList.tsx`
-- [ ] Create `src/components/dependencies/ConnectionDrawer.tsx`
-- [ ] Add React Query hook for graph data
-- [ ] Add loading skeleton for dependencies page
+- [x] Create `src/app/dependencies/[repoId]/page.tsx` (at `src/app/dashboard/[repoId]/dependencies/page.tsx`)
+- [x] Create `src/components/dependencies/HubFilesList.tsx` (cancelled - functionality integrated)
+- [x] Create `src/components/dependencies/ConnectionDrawer.tsx` (cancelled - functionality integrated)
+- [x] Add React Query hook for graph data (`useRepoStatus`)
+- [x] Add loading skeleton for dependencies page
+
+# Phase 7: Hotspot Detection (Day 13–15)
+
+## Planning & Design (Grill-Me)
+### Metrics
+- [x] **Churn (Commit Frequency)** -> **Decision: Skip for MVP due to API limits; approximate using fan-in as proxy for "touches many files".**
+- [x] **Fan-in (Incoming Dependencies)** -> **Decision: Compute from dependency graph edges; count how many files import each file.**
+- [x] **Fan-out (Outgoing Dependencies)** -> **Decision: Already available as `imports` count in nodes.**
+- [x] **Lines of Code (LOC)** -> **Decision: Use existing `loc` from dependency nodes (or `linesCount` from files table).**
+- [x] **Composite Score Weighting** -> **Decision: Hardcoded weights: Fan-in 40%, Fan-out 20%, LOC 40%. Normalize each metric 0‑1 via min‑max scaling.**
+
+### Data Storage
+- [x] **Hotspot JSON Structure** -> **Decision: `{ path, language, fanIn, fanOut, loc, score, rank }[]` sorted by score descending. Store top 50 files max.**
+- [x] **Database Column** -> **Decision: Use existing `hotSpotDataJson` column in `analysis_results`.**
+
+### Pipeline Integration
+- [x] **Trigger** -> **Decision: Automatic, after dependency analysis in same worker job.**
+- [x] **New Logic File** -> **Decision: Create `src/server/logic/hotspotAnalysis.ts` with `performHotspotAnalysis`.**
+- [x] **API Endpoint** -> **Decision: Include hotspot data in existing `/dashboard/:repoId/status` response under `analysis.hotSpotData`.**
+
+### UI
+- [x] **Visualization** -> **Decision: Add “Hotspots” tab to existing dependencies page (`/dashboard/[repoId]/dependencies`). Show ranked list with file details, fan‑in/out, LOC, and score.**
+- [x] **Interaction** -> **Decision: Click file → open file viewer (reuse existing dialog).**
+
+## Implementation
+### Core Logic
+- [x] Create `src/server/logic/hotspotAnalysis.ts`
+- [x] Implement `computeFanIn(nodes, edges)` helper
+- [x] Implement `normalizeMetric(values: number[]): number[]` (min‑max scaling)
+- [x] Implement `performHotspotAnalysis(dependencyGraph)` returning hotspot array
+- [x] Integrate into worker pipeline after dependency analysis
+- [x] Pass hotspot data to `insertAnalysisResults`
+
+### API & Data
+- [x] Extend status route to include `hotSpotData` from `analysisResults.hotSpotDataJson`
+- [x] Update `useRepoStatus` hook to expose hotspot data
+
+### Frontend
+- [x] Add “Hotspots” tab to dependencies page
+- [x] Create `HotspotsList` component (ranked list)
+- [x] Reuse existing file viewer dialog (optional)
+- [x] Add loading skeleton for hotspots (optional)
+- [x] Add empty state when no hotspots
+
+### Testing & Validation
+- [x] Test with sample repositories (small, medium, large)
+- [x] Verify fan‑in computation matches expected dependencies
+- [x] Ensure hotspot ranking makes intuitive sense (high fan‑in + high LOC = high score)
+
+# Phase 8: Repo Summary (Day 15–17)
+
+## Planning & Design (Grill‑Me)
+### Content
+- [x] **Summary Components** -> **Decision: Basic stats, language breakdown, structural overview, dependency highlights, hotspot highlights, file type distribution.**
+- [x] **Data Sources** -> **Decision: Compute from existing analysis JSON columns (fileTreeJson, fileTypeBreakdownJson, dependencyGraphJson, hotSpotDataJson).**
+- [x] **Narrative vs Structured** -> **Decision: Structured data with bullet points for MVP.**
+- [x] **Computation Location** -> **Decision: Server-side computation in new `src/server/logic/repoSummary.ts`.**
+- [x] **Caching** -> **Decision: Compute on‑the‑fly; cache in `summaryText` column for future use.**
+
+### API
+- [x] **Endpoint** -> **Decision: Extend `/dashboard/:repoId/status` response with `summary` object.**
+- [x] **Summary Object Schema** -> **Decision: `{ basic: { totalFiles, totalDirectories, totalLines }, languages: { primaryLanguage, topLanguages: [{ name, percentage }] }, structure: { maxDepth, topLevelDirectories: string[] }, dependencies: { totalNodes, totalEdges, mostDependedUpon: [{ path, fanIn }], mostDependent: [{ path, fanOut }] }, hotspots: { topHotspots: [{ path, score, rank }] }, fileTypes: { topExtensions: [{ extension, count }] } }`**
+
+### UI
+- [x] **Placement** -> **Decision: Separate page `/dashboard/[repoId]/summary`.**
+- [x] **Navigation** -> **Decision: Add button on dashboard header to open summary page.**
+- [x] **Interactive Elements** -> **Decision: Clickable file links that open file viewer dialog.**
+- [x] **Loading State** -> **Decision: Skeleton while summary loads.**
+
+## Implementation
+### Core Logic
+- [ ] Create `src/server/logic/repoSummary.ts`
+- [ ] Implement `computeRepoSummary(analysisResults)` returning structured object
+- [ ] Integrate into status route (add `summary` field)
+- [ ] Update `useRepoStatus` hook to expose summary data
+
+### Frontend
+- [ ] Create `src/app/dashboard/[repoId]/summary/page.tsx`
+- [ ] Create `RepoSummary` component with sections for each component
+- [ ] Add navigation link from dashboard page
+- [ ] Reuse file viewer dialog for clickable files
+- [ ] Add loading skeleton
+
+### Testing & Validation
+- [ ] Test with sample repositories
+- [ ] Verify summary matches actual repository characteristics
+- [ ] Ensure performance (no noticeable delay)

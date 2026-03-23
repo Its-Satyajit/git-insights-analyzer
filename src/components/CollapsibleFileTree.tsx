@@ -8,9 +8,25 @@ import {
 } from "~/components/ui/collapsible";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-export type FileTreeItem = { name: string } | { name: string; items: FileTreeItem[] };
+export type FileTreeItem =
+	| { name: string }
+	| { name: string; items: FileTreeItem[] };
 
-export function CollapsibleFileTree({ fileTree }: { fileTree: FileTreeItem[] }) {
+function sortFileTreeItems(items: FileTreeItem[]): FileTreeItem[] {
+	return [...items].sort((a, b) => {
+		const aIsDir = "items" in a;
+		const bIsDir = "items" in b;
+		if (aIsDir && !bIsDir) return -1;
+		if (!aIsDir && bIsDir) return 1;
+		return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+	});
+}
+
+export function CollapsibleFileTree({
+	fileTree,
+}: {
+	fileTree: FileTreeItem[];
+}) {
 	// const fileTree: FileTreeItem[] = [
 	// 	{
 	// 		name: "components",
@@ -82,7 +98,9 @@ export function CollapsibleFileTree({ fileTree }: { fileTree: FileTreeItem[] }) 
 					/>
 					<CollapsibleContent className="mt-1 ml-5 style-lyra:ml-4">
 						<div className="flex flex-col gap-1">
-							{fileItem.items.map((child) => renderItem(child))}
+							{sortFileTreeItems(fileItem.items).map((child) =>
+								renderItem(child),
+							)}
 						</div>
 					</CollapsibleContent>
 				</Collapsible>
@@ -113,7 +131,7 @@ export function CollapsibleFileTree({ fileTree }: { fileTree: FileTreeItem[] }) 
 			</CardHeader>
 			<CardContent>
 				<div className="flex flex-col gap-1">
-					{fileTree.map((item) => renderItem(item))}
+					{sortFileTreeItems(fileTree).map((item) => renderItem(item))}
 				</div>
 			</CardContent>
 		</Card>

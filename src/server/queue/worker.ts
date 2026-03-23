@@ -12,12 +12,80 @@ import {
 	type FileContent,
 	performDependencyAnalysis,
 } from "../logic/dependencyAnalysis";
+import { performHotspotAnalysis } from "../logic/hotspotAnalysis";
 import { getFileContentFromRaw, getRepoCommits, getRepoTree } from "../octokit";
 import type { AnalysisJob } from "./index";
 import { analysisQueue } from "./index";
 
 const CONTENT_MAX_SIZE = 50 * 1024;
-const CODE_EXTENSIONS = ["ts", "tsx", "js", "jsx", "py", "go", "rs"];
+const CODE_EXTENSIONS = [
+	// TypeScript/JavaScript
+	"ts",
+	"tsx",
+	"js",
+	"jsx",
+	// Python
+	"py",
+	// Go
+	"go",
+	// Rust
+	"rs",
+	// Java
+	"java",
+	// C/C++
+	"c",
+	"h",
+	"cpp",
+	"cc",
+	"cxx",
+	"c++",
+	"hpp",
+	"hh",
+	"hxx",
+	"h++",
+	// C#
+	"cs",
+	// Kotlin
+	"kt",
+	"kts",
+	// Swift
+	"swift",
+	// PHP
+	"php",
+	// Dart
+	"dart",
+	// R
+	"r",
+	// Ruby
+	"rb",
+	// MATLAB/Octave
+	"m",
+	// Scala
+	"scala",
+	// Shell
+	"sh",
+	"bash",
+	"zsh",
+	// Julia
+	"jl",
+	// Objective-C
+	"mm",
+	// Assembly
+	"asm",
+	"s",
+	"S",
+	// Groovy
+	"groovy",
+	"gradle",
+	// Haskell
+	"hs",
+	"lhs",
+	// Elixir
+	"ex",
+	"exs",
+	// SQL
+	"sql",
+];
 
 async function updateStatus(repoId: string, status: string, phase: string) {
 	await updateRepositoryStatus(repoId, status, phase);
@@ -27,6 +95,7 @@ async function processAnalysisJob(job: Job<AnalysisJob>) {
 	const { repoId, owner, repo, branch } = job.data;
 
 	console.log(`[Worker] Starting analysis for ${owner}/${repo} (${repoId})`);
+	console.log(`[Worker] Job data:`, job.data);
 
 	try {
 		await updateStatus(repoId, "fetching", "Fetching repository data");
@@ -131,6 +200,8 @@ async function processAnalysisJob(job: Job<AnalysisJob>) {
 
 		const dependencyResults = await performDependencyAnalysis(filesContent);
 
+		const hotspotResults = performHotspotAnalysis(dependencyResults.graph);
+
 		await job.updateProgress(90);
 
 		await insertAnalysisResults({
@@ -141,6 +212,7 @@ async function processAnalysisJob(job: Job<AnalysisJob>) {
 			totalLines: basicResults.totalLines,
 			fileTypeBreakdownJson: basicResults.fileTypeBreakdownJson,
 			dependencyGraphJson: dependencyResults.graph,
+			hotSpotDataJson: hotspotResults.hotspots,
 		});
 
 		await updateStatus(repoId, "complete", "Analysis complete");
@@ -193,6 +265,7 @@ export function startAnalysisWorker() {
 }
 
 export async function addAnalysisJob(data: AnalysisJob) {
+	console.log(`[Queue] Adding analysis job for ${data.repoId}`);
 	return analysisQueue.add("analyze", data, {
 		jobId: data.repoId,
 	});

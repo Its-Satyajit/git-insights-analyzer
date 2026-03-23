@@ -51,6 +51,15 @@ export interface RepoStatus {
 				unresolvedImports: number;
 			};
 		} | null;
+		hotSpotData: Array<{
+			path: string;
+			language: string;
+			fanIn: number;
+			fanOut: number;
+			loc: number;
+			score: number;
+			rank: number;
+		}> | null;
 	} | null;
 }
 
