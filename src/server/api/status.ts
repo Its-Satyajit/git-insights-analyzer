@@ -34,6 +34,7 @@ export const statusRoute = new Elysia().get(
 						fileTypeBreakdown:
 							repoData.analysisResults[0].fileTypeBreakdownJson,
 						dependencyGraph: repoData.analysisResults[0].dependencyGraphJson,
+						hotSpotData: repoData.analysisResults[0].hotSpotDataJson,
 					}
 				: null,
 		};

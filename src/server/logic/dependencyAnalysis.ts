@@ -2,6 +2,7 @@ import { parseGo } from "./parsers/go";
 import type { ParsedFile } from "./parsers/index";
 import { resolveImport } from "./parsers/pathResolver";
 import { parsePython } from "./parsers/python";
+import { createRegexParser } from "./parsers/regexParser";
 import { parseRust } from "./parsers/rust";
 import { parseTypescript } from "./parsers/typescript";
 
@@ -54,22 +55,100 @@ const LANGUAGE_PARSERS: Record<
 > = {
 	typescript: parseTypescript,
 	tsx: parseTypescript,
-	js: parseTypescript,
+	javascript: parseTypescript,
 	jsx: parseTypescript,
 	python: parsePython,
 	go: parseGo,
 	rust: parseRust,
+	java: createRegexParser("java", [
+		/import\s+static\s+([\w.]+)/,
+		/import\s+([\w.]+)/,
+	]),
+	cpp: createRegexParser("cpp", [/#include\s*[<"]([^>"]+)[>"]/]),
+	c: createRegexParser("c", [/#include\s*[<"]([^>"]+)[>"]/]),
+	csharp: createRegexParser("csharp", [/using\s+([\w.]+);/]),
+	kotlin: createRegexParser("kotlin", [/import\s+([\w.]+)/]),
+	swift: createRegexParser("swift", [/import\s+(\w+)/, /@import\s+([\w.]+);/]),
+	php: createRegexParser("php", [
+		/(?:require|require_once|include|include_once)\s*['"]([^'"]+)['"]/,
+		/use\s+([\w\\]+);/,
+	]),
+	dart: createRegexParser("dart", [
+		/import\s+['"]([^'"]+)['"]/,
+		/part\s+of\s+['"]([^'"]+)['"]/,
+		/part\s+['"]([^'"]+)['"]/,
+	]),
+	r: createRegexParser("r", [
+		/library\s*\(\s*(\w+)\s*\)/,
+		/(?:source|suppressPackageStartupMessages)\s*\(\s*['"]([^'"]+)['"]\s*\)/,
+	]),
+	ruby: createRegexParser("ruby", [
+		/require\s+['"]([^'"]+)['"]/,
+		/require_relative\s+['"]([^'"]+)['"]/,
+	]),
+	matlab: createRegexParser("matlab", [
+		/(?:import|addpath|genpath)\s+([\w.]+)/,
+	]),
+	scala: createRegexParser("scala", [/import\s+([\w.]+)/]),
+	shell: createRegexParser("shell", [
+		/source\s+['"]?([^'";\s]+)['"]?/,
+		/\.\s+['"]?([^'";\s]+)['"]?/,
+	]),
+	bash: createRegexParser("bash", [
+		/source\s+['"]?([^'";\s]+)['"]?/,
+		/\.\s+['"]?([^'";\s]+)['"]?/,
+	]),
+	julia: createRegexParser("julia", [/(?:using|import)\s+([\w.]+)/]),
+	objective_c: createRegexParser("objective_c", [
+		/#import\s+[<"]([^>"]+)[>"]/,
+		/#import\s+['"]([^'"]+)['"]/,
+	]),
+	assembly: createRegexParser("assembly", [/include\s+['"]?([^'";\s]+)['"]?/]),
+	groovy: createRegexParser("groovy", [/import\s+([\w.]+)/]),
+	haskell: createRegexParser("haskell", [/import\s+(?:qualified\s+)?([\w.]+)/]),
+	elixir: createRegexParser("elixir", [
+		/(?:import|require|alias|use)\s+([\w.]+)/,
+	]),
+	sql: createRegexParser("sql", [/(?:SOURCE|INCLUDE)\s+['"]?([^'";\s]+)['"]?/]),
 };
 
 export function detectLanguage(filePath: string): string | null {
 	const ext = filePath.split(".").pop()?.toLowerCase();
-	const name = filePath.toLowerCase();
+	const basename = filePath.toLowerCase();
 
 	if (ext === "ts" || ext === "tsx") return "typescript";
 	if (ext === "js" || ext === "jsx") return "javascript";
 	if (ext === "py") return "python";
 	if (ext === "go") return "go";
 	if (ext === "rs") return "rust";
+	if (ext === "java") return "java";
+	if (ext === "cpp" || ext === "cc" || ext === "cxx" || ext === "c++")
+		return "cpp";
+	if (ext === "c" && basename.endsWith(".h")) return "c";
+	if (ext === "c") return "c";
+	if (ext === "h") return "c";
+	if (ext === "cs") return "csharp";
+	if (ext === "kt" || ext === "kts") return "kotlin";
+	if (ext === "swift") return "swift";
+	if (ext === "php") return "php";
+	if (ext === "dart") return "dart";
+	if (
+		ext === "r" &&
+		!basename.endsWith(".rs") &&
+		!basename.endsWith(".rhistory")
+	)
+		return "r";
+	if (ext === "rb") return "ruby";
+	if (ext === "m" || ext === "mm") return "matlab";
+	if (ext === "scala") return "scala";
+	if (ext === "sh" || ext === "bash" || ext === "zsh") return "shell";
+	if (ext === "jl") return "julia";
+	if (ext === "m" || ext === "mm") return "objective_c";
+	if (ext === "asm" || ext === "s" || ext === "S") return "assembly";
+	if (ext === "groovy" || ext === "gradle") return "groovy";
+	if (ext === "hs" || ext === "lhs") return "haskell";
+	if (ext === "ex" || ext === "exs") return "elixir";
+	if (ext === "sql") return "sql";
 
 	return null;
 }
@@ -167,8 +246,15 @@ export async function performDependencyAnalysis(
 						);
 					}
 				} else {
+					console.log(
+						`[DependencyAnalysis]   Unresolved: ${file.path} → ${imp.source} (resolved to ${normalizedTarget})`,
+					);
 					unresolvedImports.push(`${file.path} → ${imp.source}`);
 				}
+			} else {
+				console.log(
+					`[DependencyAnalysis]   No resolution: ${file.path} → ${imp.source} (isExternal: ${resolved.isExternal})`,
+				);
 			}
 		}
 

@@ -2,12 +2,14 @@ import { performBasicAnalysis } from "../src/server/logic/analysis";
 
 // Mock Octokit getFileContent
 import * as octokit from "../src/server/octokit";
-// @ts-ignore
+
+// @ts-expect-error
 octokit.getFileContent = async () => "line1\nline2\nline3\nline4\nline5";
 
 // Mock DAL insertAnalysisResults
 import * as dal from "../src/server/dal/analysis";
-// @ts-ignore
+
+// @ts-expect-error
 dal.insertAnalysisResults = async (data) => {
 	console.log("DAL Inserted:", data);
 	return data;
@@ -33,9 +35,11 @@ async function runTest() {
 	console.log("Results:", JSON.stringify(results, null, 2));
 
 	if (results.totalFiles !== 4) throw new Error("Total files mismatch");
-	if (results.totalDirectories !== 1) throw new Error("Total directories mismatch");
-	if (results.fileTypeBreakdownJson.ts !== 1) throw new Error("Extension breakdown mismatch");
-	
+	if (results.totalDirectories !== 1)
+		throw new Error("Total directories mismatch");
+	if (results.fileTypeBreakdownJson.ts !== 1)
+		throw new Error("Extension breakdown mismatch");
+
 	console.log("Test Passed!");
 }
 

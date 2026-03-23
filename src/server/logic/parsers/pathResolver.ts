@@ -1,3 +1,5 @@
+import path from "node:path";
+
 export interface ResolvedImport {
 	original: string;
 	resolved: string | null;
@@ -11,7 +13,7 @@ export interface PathResolverOptions {
 }
 
 const DEFAULT_OPTIONS: PathResolverOptions = {
-	aliasPrefix: "@/",
+	aliasPrefix: "~/",
 	aliasBase: "src",
 	baseDir: "",
 };
@@ -27,7 +29,7 @@ const EXTENSIONS = [
 ];
 
 const EXTERNAL_PATTERNS = [
-	/^[^./@]/, // doesn't start with ./, ../, or @/
+	/^[^./@~]/, // doesn't start with ./, ../, @/, or ~/
 	/^@?[a-z-]+\//, // @scope/package or package/subpath
 ];
 
@@ -35,7 +37,25 @@ function isExternal(source: string): boolean {
 	return EXTERNAL_PATTERNS.some((pattern) => pattern.test(source));
 }
 
-function tryExtensions(basePath: string): string | null {
+function normalizePath(p: string): string {
+	// Use POSIX normalization to resolve . and ..
+	return path.posix.normalize(p);
+}
+
+function hasKnownExtension(source: string): boolean {
+	const ext = source.split(".").pop()?.toLowerCase();
+	return ["ts", "tsx", "js", "jsx", "mjs", "cjs"].includes(ext || "");
+}
+
+function tryExtensions(
+	basePath: string,
+	sourceHasExtension: boolean,
+): string | null {
+	// If source already has a known extension, don't add more extensions
+	if (sourceHasExtension) {
+		return basePath;
+	}
+	// Try adding extensions in order of preference
 	for (const ext of EXTENSIONS) {
 		const fullPath = basePath + ext;
 		if (fullPath) {
@@ -61,12 +81,18 @@ export function resolveImport(
 	}
 
 	let resolved: string | null = null;
+	const sourceHasExt = hasKnownExtension(source);
 
-	// Handle alias imports (e.g., @/components/Button)
-	if (source.startsWith(opts.aliasPrefix)) {
-		const withoutAlias = source.slice(opts.aliasPrefix.length);
-		const basePath = `${opts.baseDir}/${opts.aliasBase}/${withoutAlias}`;
-		resolved = tryExtensions(basePath);
+	// Handle alias imports (e.g., @/components/Button or ~/components/Button)
+	if (source.startsWith("~/") || source.startsWith("@/")) {
+		const prefix = source.startsWith("~/") ? "~/" : "@/";
+		const withoutAlias = source.slice(prefix.length);
+		const basePath = opts.baseDir
+			? `${opts.baseDir}/${opts.aliasBase}/${withoutAlias}`
+			: `${opts.aliasBase}/${withoutAlias}`;
+		const normalizedBasePath = normalizePath(basePath);
+		resolved = tryExtensions(normalizedBasePath, sourceHasExt);
+		console.log(`[PathResolver] Resolved alias ${source} -> ${resolved}`);
 	}
 	// Handle relative imports
 	else if (source.startsWith("./") || source.startsWith("../")) {
@@ -74,7 +100,8 @@ export function resolveImport(
 			? filePath.slice(0, filePath.lastIndexOf("/"))
 			: "";
 		const basePath = `${fileDir}/${source}`;
-		resolved = tryExtensions(basePath);
+		const normalizedBasePath = normalizePath(basePath);
+		resolved = tryExtensions(normalizedBasePath, sourceHasExt);
 	}
 	// Bare imports without ./ or @/ - treat as external
 	else {

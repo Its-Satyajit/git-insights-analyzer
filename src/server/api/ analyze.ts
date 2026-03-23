@@ -34,6 +34,7 @@ export const analyzeRoute = new Elysia().post(
 		}
 
 		try {
+			console.log(`[API] Adding analysis job for ${repoRecord.id}`);
 			await addAnalysisJob({
 				repoId: repoRecord.id,
 				owner: parseResult.owner,
