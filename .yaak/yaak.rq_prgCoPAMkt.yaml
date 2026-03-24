@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_prgCoPAMkt
 createdAt: 2026-03-22T14:50:54.471003681
-updatedAt: 2026-03-22T14:50:57.272071371
+updatedAt: 2026-03-24T11:16:35.366288457
 workspaceId: wk_dPMYXCvCgM
 folderId: null
 authentication: {}
@@ -27,7 +27,7 @@ headers:
 method: GET
 name: localhost:3000/api/analyze Copy 2
 sortPriority: -1774015248234.998
-url: http://localhost:3000/api/dashboard/bfca21d8-3a8c-4f85-9794-741ddfe9cc85
+url: http://localhost:3000/api/dashboard/f26559d7-5dbc-4df0-b54a-da024eca82c7/analysis
 urlParameters:
 - enabled: true
   name: ''
