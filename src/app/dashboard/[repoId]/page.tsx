@@ -32,7 +32,7 @@ export default function RepoPage({
 	return (
 		<main className="relative min-h-screen overflow-hidden bg-background pt-14">
 			<div className="absolute inset-0 -z-10">
-				<div className="absolute inset-0 bg-[linear-gradient(rgba(100,100,100,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(100,100,100,0.1)_1px,transparent_1px)] bg-[size:30px_30px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] dark:bg-[linear-gradient(rgba(20,20,20,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(20,20,20,0.4)_1px,transparent_1px)]" />
+				<div className="mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] absolute inset-0 bg-[linear-gradient(rgba(100,100,100,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(100,100,100,0.1)_1px,transparent_1px)] bg-size-[30px_30px] dark:bg-[linear-gradient(rgba(20,20,20,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(20,20,20,0.4)_1px,transparent_1px)]" />
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(245,158,11,0.06),transparent_40%)]" />
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(6,182,212,0.05),transparent_40%)]" />
 				<div
@@ -60,7 +60,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 	const { data: response, isLoading } = useQuery({
 		queryKey: ["repo-dashboard", repoId],
 		queryFn: async () => {
-			const res = await api.dashboard({ repoId: repoId as any }).get();
+			const res = await api.dashboard({ repoId }).get();
 			return res;
 		},
 		enabled: !!repoId,
@@ -82,6 +82,20 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 				defaultBranch: string;
 				isPrivate: boolean;
 			};
+
+			const ext = selectedFile.split(".").pop()?.toLowerCase();
+			const isImage = [
+				"png",
+				"jpg",
+				"jpeg",
+				"gif",
+				"svg",
+				"webp",
+				"ico",
+			].includes(ext || "");
+			if (isImage) {
+				return "IMAGE_PLACEHOLDER";
+			}
 
 			if (!data.isPrivate) {
 				const branch = data.defaultBranch || "main";
@@ -255,7 +269,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 						ANALYSIS_STATUS
 					</span>
 				</div>
-				<div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.03] p-4">
+				<div className="rounded-lg border border-emerald-500/20 bg-emerald-500/3 p-4">
 					<AnalysisProgress repoId={repoId} />
 				</div>
 			</section>
@@ -311,6 +325,12 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 									error={fileError ?? null}
 									filePath={selectedFile}
 									isLoading={isFileLoading ?? false}
+									repo={{
+										owner: data.owner,
+										name: data.name,
+										branch: data.defaultBranch || "main",
+										isPrivate: data.isPrivate,
+									}}
 								/>
 							) : (
 								<div className="flex h-full min-h-[400px] flex-col items-center justify-center text-muted-foreground">
