@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { Language, Parser } from "web-tree-sitter";
 import type { ImportStatement, ParsedFile } from "./index";
@@ -11,9 +12,10 @@ async function getTsParser(): Promise<Parser> {
 		parser = new Parser();
 		const wasmPath = path.join(
 			process.cwd(),
-			"public/tree-sitter/tree-sitter-typescript.wasm",
+			"public/tree-sitter/wasm/tree-sitter-typescript.wasm",
 		);
-		tsLanguage = await Language.load(wasmPath);
+		const wasmBuffer = fs.readFileSync(wasmPath);
+		tsLanguage = await Language.load(wasmBuffer);
 		parser.setLanguage(tsLanguage);
 	}
 	return parser;
@@ -58,12 +60,17 @@ export async function parseTypescript(
 						nodeType === "call_expression" ||
 						findChildByPattern(node, "import")?.text === "import";
 
+					// Check if this is a require() call
+					const isRequire =
+						nodeType === "call_expression" &&
+						findChildByPattern(node, "identifier")?.text === "require";
+
 					const raw = content.slice(node.startIndex, node.endIndex);
 
 					imports.push({
 						raw: raw.trim(),
 						source,
-						isDynamic: nodeType === "call_expression" && isDynamic,
+						isDynamic: isDynamic && !isRequire,
 					});
 				}
 			}

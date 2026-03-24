@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Label, Pie, PieChart } from "recharts";
 import {
 	Card,
@@ -20,18 +21,17 @@ interface FileTypeChartProps {
 	data: Record<string, number>;
 }
 
-export function FileTypeChart({ data }: FileTypeChartProps) {
-	// Transform Record<string, number> to Recharts format: { name, value, fill }
+export const FileTypeChart = memo(function FileTypeChart({
+	data,
+}: FileTypeChartProps) {
 	const chartData = Object.entries(data)
 		.map(([name, value]) => ({
 			name,
 			value,
-			// We'll use CSS variables for colors, mapping them to the chart config
-			fill: `var(--color-${name})`,
+			fill: `var(--color-${name}, var(--color-default))`,
 		}))
-		.sort((a, b) => b.value - a.value); // Sort by count descending
+		.sort((a, b) => b.value - a.value);
 
-	// Dynamically generate chart config based on extensions
 	const chartConfig = Object.keys(data).reduce((acc, key, index) => {
 		acc[key] = {
 			label: key.toUpperCase(),
@@ -43,10 +43,12 @@ export function FileTypeChart({ data }: FileTypeChartProps) {
 	const totalFiles = Object.values(data).reduce((acc, curr) => acc + curr, 0);
 
 	return (
-		<Card className="flex flex-col border-none shadow-none">
+		<Card className="flex flex-col border-white/10 bg-white/[0.02] shadow-sm">
 			<CardHeader className="items-center pb-0">
-				<CardTitle>File Type Distribution</CardTitle>
-				<CardDescription>Breakdown by extension</CardDescription>
+				<CardTitle className="text-white">File Type Distribution</CardTitle>
+				<CardDescription className="text-white/50">
+					Breakdown by extension
+				</CardDescription>
 			</CardHeader>
 			<CardContent className="flex-1 pb-0">
 				<ChartContainer
@@ -55,7 +57,9 @@ export function FileTypeChart({ data }: FileTypeChartProps) {
 				>
 					<PieChart>
 						<ChartTooltip
-							content={<ChartTooltipContent hideLabel />}
+							content={
+								<ChartTooltipContent className="border-zinc-700 bg-zinc-900" />
+							}
 							cursor={false}
 						/>
 						<Pie
@@ -76,14 +80,14 @@ export function FileTypeChart({ data }: FileTypeChartProps) {
 												y={viewBox.cy}
 											>
 												<tspan
-													className={cn("fill-foreground font-bold text-3xl")}
+													className={cn("fill-white font-bold text-3xl")}
 													x={viewBox.cx}
 													y={viewBox.cy}
 												>
 													{totalFiles.toLocaleString()}
 												</tspan>
 												<tspan
-													className="fill-muted-foreground"
+													className="fill-white/50"
 													x={viewBox.cx}
 													y={(viewBox.cy || 0) + 24}
 												>
@@ -100,4 +104,4 @@ export function FileTypeChart({ data }: FileTypeChartProps) {
 			</CardContent>
 		</Card>
 	);
-}
+});

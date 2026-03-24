@@ -117,7 +117,7 @@ async function processAnalysisJob(job: Job<AnalysisJob>) {
 			})),
 		);
 
-		const limitedTree = repoTree.slice(0, 1000);
+		const limitedTree = repoTree.slice(0, 2000);
 		await insertFiles(
 			limitedTree.map((item) => ({
 				repositoryId: repoId,
@@ -174,10 +174,20 @@ async function processAnalysisJob(job: Job<AnalysisJob>) {
 				CODE_EXTENSIONS.includes(getExtension(f.path) || ""),
 		);
 
-		console.log(`Found ${codeFiles.length} code files to analyze`);
+		console.log(
+			`Found ${codeFiles.length} code files to analyze. Sample:`,
+			codeFiles.slice(0, 5).map((f) => f.path),
+		);
 
 		const filesContent: FileContent[] = [];
-		for (const file of codeFiles.slice(0, 500)) {
+		let failedFetches = 0;
+
+		for (const file of codeFiles.slice(0, 1000)) {
+			if (!file.path) {
+				console.log(`Skipping file with no path:`, file);
+				continue;
+			}
+
 			const content = await getFileContentFromRaw({
 				owner,
 				repo,
@@ -191,7 +201,16 @@ async function processAnalysisJob(job: Job<AnalysisJob>) {
 					content,
 					language: detectLanguage(file.path) || "typescript",
 				});
+			} else {
+				failedFetches++;
+				if (failedFetches <= 5) {
+					console.log(`Failed to fetch content for: ${file.path}`);
+				}
 			}
+		}
+
+		if (failedFetches > 0) {
+			console.log(`Total failed fetches: ${failedFetches}`);
 		}
 
 		console.log(`Fetched content for ${filesContent.length} files`);
@@ -224,6 +243,24 @@ async function processAnalysisJob(job: Job<AnalysisJob>) {
 		await updateStatus(repoId, "failed", "Analysis failed");
 		throw error;
 	}
+}
+
+export async function runAnalysisDirect(data: {
+	repoId: string;
+	owner: string;
+	repo: string;
+	branch: string;
+	githubUrl: string;
+}) {
+	const mockJob = {
+		data,
+		updateProgress: async (progress: number) => {
+			console.log(`[DirectAnalysis] Progress: ${progress}%`);
+		},
+	};
+
+	// Call the core logic directly
+	return processAnalysisJob(mockJob as unknown as Job<AnalysisJob>);
 }
 
 let worker: Worker | null = null;

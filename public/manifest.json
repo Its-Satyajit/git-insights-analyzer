@@ -1,0 +1,21 @@
+{
+	"name": "Repository Analyzer",
+	"short_name": "RepoAnalyzer",
+	"description": "Get deep insights into any GitHub repository",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#050505",
+	"theme_color": "#f59e0b",
+	"icons": [
+		{
+			"src": "/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}

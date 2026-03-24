@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Check, Search, SlidersHorizontal, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 
 interface FilterBarProps {
 	availableExtensions: string[];
@@ -98,20 +100,16 @@ export function FilterBar({
 				>
 					<div className="grid gap-4 md:grid-cols-2">
 						<div>
-							<label
-								className="mb-2 block font-medium text-sm"
-								htmlFor="extension-search"
-							>
+							<Label className="mb-2" htmlFor="extension-search">
 								File Types
-							</label>
+							</Label>
 							<div className="relative mb-2">
 								<Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-								<input
-									className="w-full rounded-md border bg-background py-2 pr-4 pl-9 text-sm"
+								<Input
+									className="pr-9"
 									id="extension-search"
 									onChange={(e) => setSearchQuery(e.target.value)}
 									placeholder="Search extensions..."
-									type="text"
 									value={searchQuery}
 								/>
 								{searchQuery && (
@@ -148,12 +146,9 @@ export function FilterBar({
 						</div>
 
 						<div>
-							<label
-								className="mb-2 block font-medium text-sm"
-								htmlFor="hotspot-slider"
-							>
+							<Label className="mb-2" htmlFor="hotspot-slider">
 								Hotspot Filter
-							</label>
+							</Label>
 							<div className="mb-4 flex items-center gap-2">
 								<input
 									className="h-2 w-full cursor-pointer accent-primary"
@@ -167,7 +162,7 @@ export function FilterBar({
 									{hotspotThreshold}%
 								</span>
 							</div>
-							<label className="flex items-center gap-2">
+							<Label className="flex items-center gap-2">
 								<input
 									checked={showHotspotsOnly}
 									className="accent-primary"
@@ -175,7 +170,7 @@ export function FilterBar({
 									type="checkbox"
 								/>
 								<span className="text-sm">Show hotspots only</span>
-							</label>
+							</Label>
 						</div>
 					</div>
 

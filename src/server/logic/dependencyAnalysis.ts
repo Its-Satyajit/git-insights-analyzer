@@ -33,7 +33,7 @@ export interface DependencyGraph {
 }
 
 const MAX_FILE_SIZE = 1024 * 1024;
-const MAX_FILES = 500;
+const MAX_FILES = 1000;
 
 export interface FileContent {
 	path: string;
@@ -195,7 +195,37 @@ export async function performDependencyAnalysis(
 	const errorFiles: string[] = [];
 	const unresolvedImports: string[] = [];
 
-	const filePathSet = new Set(codeFiles.map((f) => f.path));
+	// Normalize all file paths to POSIX format for consistent matching
+	const normalizedFilePaths = codeFiles.map((f) => f.path.replace(/\\/g, "/"));
+	const filePathSet = new Set(normalizedFilePaths);
+
+	// Build Rust crate mapping from file paths
+	// e.g., files in core/src/ -> crate name "core" (from Cargo.toml name "devbind_core")
+	const rustCrateMapping: Record<string, string> = {};
+	const crateDirs = new Set<string>();
+	for (const filePath of normalizedFilePaths) {
+		// Match patterns like "core/src/lib.rs" or "cli/src/main.rs"
+		const match = filePath.match(/^([^/]+)\/src\/.*\.rs$/);
+		if (match?.[1]) {
+			crateDirs.add(match[1]);
+		}
+	}
+	// Map crate directory names to themselves for now
+	// In a real implementation, we'd parse Cargo.toml to get the actual crate names
+	for (const dir of crateDirs) {
+		rustCrateMapping[dir] = dir;
+		// Also try common naming patterns: core -> devbind_core, etc.
+		// This is a heuristic and may not work for all projects
+	}
+	console.log(
+		`[DependencyAnalysis] Rust crate directories found:`,
+		Array.from(crateDirs),
+	);
+
+	console.log(
+		`[DependencyAnalysis] File path set (sample):`,
+		Array.from(filePathSet).slice(0, 5),
+	);
 
 	for (const file of codeFiles) {
 		const language = detectLanguage(file.path) || "typescript";
@@ -227,40 +257,49 @@ export async function performDependencyAnalysis(
 
 		const fileEdges: GraphEdge[] = [];
 
+		// Normalize source path to match format in filePathSet
+		const normalizedSource = file.path.replace(/\\/g, "/");
+
 		for (const imp of parsed.imports) {
 			const resolved = resolveImport(imp.source, file.path);
 
 			if (resolved.isExternal) {
 				// External package - skip
 			} else if (resolved.resolved) {
-				const normalizedTarget = resolved.resolved;
+				// Normalize the target path to match the format in filePathSet
+				const normalizedTarget = resolved.resolved.replace(/\\/g, "/");
+
+				// Debug: log the resolution
+				console.log(
+					`[DependencyAnalysis] "${normalizedSource}" → "${imp.source}" resolved to "${normalizedTarget}" (in set: ${filePathSet.has(normalizedTarget)})`,
+				);
 
 				if (filePathSet.has(normalizedTarget)) {
-					if (file.path !== normalizedTarget) {
+					if (normalizedSource !== normalizedTarget) {
 						fileEdges.push({
-							source: file.path,
+							source: normalizedSource,
 							target: normalizedTarget,
 						});
 						console.log(
-							`[DependencyAnalysis]   Edge: ${file.path} → ${normalizedTarget}`,
+							`[DependencyAnalysis]   Edge created: ${normalizedSource} → ${normalizedTarget}`,
 						);
 					}
 				} else {
 					console.log(
-						`[DependencyAnalysis]   Unresolved: ${file.path} → ${imp.source} (resolved to ${normalizedTarget})`,
+						`[DependencyAnalysis]   Not in filePathSet: ${normalizedTarget}`,
 					);
-					unresolvedImports.push(`${file.path} → ${imp.source}`);
+					unresolvedImports.push(`${normalizedSource} → ${imp.source}`);
 				}
 			} else {
 				console.log(
-					`[DependencyAnalysis]   No resolution: ${file.path} → ${imp.source} (isExternal: ${resolved.isExternal})`,
+					`[DependencyAnalysis]   No resolution: ${normalizedSource} → ${imp.source} (isExternal: ${resolved.isExternal})`,
 				);
 			}
 		}
 
 		nodes.push({
-			id: file.path,
-			path: file.path,
+			id: normalizedSource,
+			path: normalizedSource,
 			language,
 			imports: parsed.imports.length,
 			loc: countLoc(file.content),
