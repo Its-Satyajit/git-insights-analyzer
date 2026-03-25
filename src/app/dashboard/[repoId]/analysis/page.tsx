@@ -1330,15 +1330,6 @@ function AnalysisContent() {
 																	</div>
 																</div>
 															</div>
-															<button
-																className="mt-3 w-full rounded border border-amber-500/30 bg-amber-500/10 py-1.5 font-mono text-amber-400 text-xs uppercase tracking-wider transition-colors hover:bg-amber-500/20"
-																onClick={() =>
-																	setSelectedHotspotFile(data.path)
-																}
-																type="button"
-															>
-																View Source Code →
-															</button>
 														</div>
 													);
 												}
@@ -1348,13 +1339,6 @@ function AnalysisContent() {
 										/>
 										<Scatter
 											data={hotSpotData ?? undefined}
-											onClick={(data) => {
-												if (data && "path" in data) {
-													setSelectedHotspotFile(
-														(data as unknown as HotspotDataPoint).path,
-													);
-												}
-											}}
 											shape={(props: {
 												cx?: number;
 												cy?: number;
@@ -1433,11 +1417,6 @@ function AnalysisContent() {
 															cy={cy}
 															fill={fillColor}
 															fillOpacity={0.6}
-															r={baseRadius}
-															stroke={fillColor}
-															strokeOpacity={1}
-															strokeWidth={severity === "critical" ? 2.5 : 1.5}
-															style={{ cursor: "pointer" }}
 														/>
 													</g>
 												);
@@ -1577,11 +1556,7 @@ function AnalysisContent() {
 									</thead>
 									<tbody>
 										{hotSpotData.map((hotspot) => (
-											<tr
-												className="cursor-pointer"
-												key={hotspot.path}
-												onClick={() => setSelectedHotspotFile(hotspot.path)}
-											>
+											<tr key={hotspot.path}>
 												<td className="font-data text-amber-500">
 													{hotspot.rank}
 												</td>
@@ -1692,7 +1667,6 @@ function AnalysisContent() {
 										]),
 									)
 								}
-								onFileClick={(path) => setSelectedHotspotFile(path)}
 							/>
 						</div>
 					</motion.div>

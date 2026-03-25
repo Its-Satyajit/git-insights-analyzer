@@ -14,9 +14,22 @@ CREATE TABLE "account" (
 	"updated_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "analysis_logs" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"repository_id" uuid,
+	"event" text NOT NULL,
+	"status" text NOT NULL,
+	"phase" text,
+	"message" text,
+	"metadata" json,
+	"duration_ms" integer,
+	"created_at" timestamp NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "analysis_results" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"repository_id" uuid,
+	"file_tree" json,
 	"total_files" integer,
 	"total_directories" integer,
 	"total_lines" integer,
@@ -25,7 +38,8 @@ CREATE TABLE "analysis_results" (
 	"dependency_graph_json" json,
 	"summary_text" text,
 	"created_at" timestamp NOT NULL,
-	"updated_at" timestamp NOT NULL
+	"updated_at" timestamp NOT NULL,
+	CONSTRAINT "analysis_results_repository_id_unique" UNIQUE("repository_id")
 );
 --> statement-breakpoint
 CREATE TABLE "commits" (
@@ -38,6 +52,19 @@ CREATE TABLE "commits" (
 	"created_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "contributors" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"repository_id" uuid,
+	"github_login" text NOT NULL,
+	"avatar_url" text,
+	"html_url" text,
+	"contributions" integer DEFAULT 0,
+	"first_contribution_at" timestamp,
+	"last_contribution_at" timestamp,
+	"created_at" timestamp NOT NULL,
+	"updated_at" timestamp NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "files" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"repository_id" uuid,
@@ -47,6 +74,7 @@ CREATE TABLE "files" (
 	"depth" integer,
 	"extension" text,
 	"is_directory" boolean DEFAULT false,
+	"parsed_imports" json,
 	"created_at" timestamp NOT NULL
 );
 --> statement-breakpoint
@@ -60,8 +88,12 @@ CREATE TABLE "repositories" (
 	"description" text,
 	"default_branch" text,
 	"primary_language" text,
+	"is_private" boolean DEFAULT false,
 	"stars" integer,
 	"forks" integer,
+	"avatar_url" text,
+	"analysis_status" text DEFAULT 'pending',
+	"analysis_phase" text,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp NOT NULL,
 	CONSTRAINT "repositories_owner_name_unique" UNIQUE("owner","name")
@@ -100,8 +132,10 @@ CREATE TABLE "verification" (
 );
 --> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "analysis_logs" ADD CONSTRAINT "analysis_logs_repository_id_repositories_id_fk" FOREIGN KEY ("repository_id") REFERENCES "public"."repositories"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "analysis_results" ADD CONSTRAINT "analysis_results_repository_id_repositories_id_fk" FOREIGN KEY ("repository_id") REFERENCES "public"."repositories"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "commits" ADD CONSTRAINT "commits_repository_id_repositories_id_fk" FOREIGN KEY ("repository_id") REFERENCES "public"."repositories"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "contributors" ADD CONSTRAINT "contributors_repository_id_repositories_id_fk" FOREIGN KEY ("repository_id") REFERENCES "public"."repositories"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_repository_id_repositories_id_fk" FOREIGN KEY ("repository_id") REFERENCES "public"."repositories"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "repositories" ADD CONSTRAINT "repositories_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;

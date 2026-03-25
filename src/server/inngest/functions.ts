@@ -3,6 +3,10 @@ import { convertToFileTree } from "~/lib/treeUtils";
 import { getLatestAnalysis, insertAnalysisResults } from "../dal/analysis";
 import { insertLog } from "../dal/analysisLogs";
 import { insertCommits } from "../dal/commit";
+import {
+	deleteContributorsByRepoId,
+	upsertContributors,
+} from "../dal/contributors";
 import { insertFiles } from "../dal/files";
 import { updateRepositoryStatus } from "../dal/repositories";
 import { performBasicAnalysis } from "../logic/analysis";
@@ -12,7 +16,12 @@ import {
 	performDependencyAnalysis,
 } from "../logic/dependencyAnalysis";
 import { performHotspotAnalysis } from "../logic/hotspotAnalysis";
-import { getFileContentFromRaw, getRepoCommits, getRepoTree } from "../octokit";
+import {
+	getFileContentFromRaw,
+	getRepoCommits,
+	getRepoContributors,
+	getRepoTree,
+} from "../octokit";
 import { inngest } from "./client";
 
 const CONTENT_MAX_SIZE = 50 * 1024;
@@ -285,6 +294,36 @@ export async function coreAnalysisLogic(
 				skippedFiles: dependencyResults.skippedFiles,
 			},
 		);
+	});
+
+	// 4. Contributors sync
+	await step.run("contributors-sync", async () => {
+		await updateStatus(repoId, "contributors", "Syncing contributors");
+		await deleteContributorsByRepoId(repoId);
+
+		const contributors = await getRepoContributors({ owner, repo });
+		if (contributors.length > 0) {
+			await upsertContributors(
+				contributors.map((c) => ({
+					repositoryId: repoId,
+					githubLogin: c.login,
+					avatarUrl: c.avatar_url,
+					htmlUrl: c.html_url,
+					contributions: c.contributions,
+					firstContributionAt: null,
+					lastContributionAt: null,
+				})),
+			);
+			await logEvent(
+				repoId,
+				"contributors.sync",
+				"success",
+				"contributors",
+				`Synced ${contributors.length} contributors`,
+				{ count: contributors.length },
+			);
+		}
+		await updateStatus(repoId, "complete", "Analysis complete");
 	});
 
 	return { success: true, repoId };

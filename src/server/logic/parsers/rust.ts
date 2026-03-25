@@ -143,6 +143,38 @@ function rustImportToFilePath(
 	return null;
 }
 
+/**
+ * Resolve a Rust import to a file path
+ * This is the exported function used by the dependency analysis
+ */
+export function resolveRustImport(
+	source: string,
+	currentFilePath: string,
+): { resolved: string; isExternal: boolean } {
+	if (!source || source.trim() === "") {
+		return { resolved: "", isExternal: true };
+	}
+
+	const result = rustImportToFilePath(source, currentFilePath);
+
+	if (!result) {
+		const baseImport = source.split("::")[0] || source;
+		if (
+			baseImport &&
+			!RUST_EXTERNAL_CRATES.has(baseImport) &&
+			baseImport[0] === baseImport[0].toLowerCase()
+		) {
+			return { resolved: "", isExternal: false };
+		}
+		return { resolved: "", isExternal: true };
+	}
+
+	return {
+		resolved: result.filePath,
+		isExternal: result.isExternal,
+	};
+}
+
 export async function parseRust(
 	content: string,
 	filePath: string,

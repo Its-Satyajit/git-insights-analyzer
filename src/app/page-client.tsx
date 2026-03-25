@@ -1,6 +1,6 @@
 "use client";
 import { useForm } from "@tanstack/react-form-nextjs";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
 	GitBranch,
@@ -9,6 +9,7 @@ import {
 	Star,
 	Terminal,
 	Type,
+	Users,
 	Workflow,
 	Zap,
 } from "lucide-react";
@@ -75,6 +76,7 @@ const itemVariants = {
 };
 
 export default function HomeClient() {
+	const queryClient = useQueryClient();
 	const form = useForm({
 		defaultValues: {
 			githubUrl: "",
@@ -88,6 +90,7 @@ export default function HomeClient() {
 				);
 				return;
 			}
+			queryClient.invalidateQueries({ queryKey: ["top-repos"] });
 			redirect(`/dashboard/${(res.data as any).repoId}`);
 		},
 	});
@@ -321,6 +324,17 @@ export default function HomeClient() {
 														<GitFork className="h-3 w-3" />
 														<span>{repo.forks?.toLocaleString()}</span>
 													</div>
+													{repo.contributorCount !== undefined &&
+														repo.contributorCount > 0 && (
+															<div className="flex items-center gap-1.5 text-violet-500 dark:text-violet-400">
+																<Users className="h-3 w-3" />
+																<span>
+																	{repo.contributorCount >= 100
+																		? "100+"
+																		: repo.contributorCount}
+																</span>
+															</div>
+														)}
 													{repo.primaryLanguage && (
 														<span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 font-mono text-cyan-600 text-xs dark:text-cyan-400">
 															{repo.primaryLanguage}

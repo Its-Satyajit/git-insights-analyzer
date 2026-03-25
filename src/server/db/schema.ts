@@ -120,6 +120,7 @@ export const repositoriesRelations = relations(
 		files: many(files),
 		commits: many(commits),
 		analysisResults: many(analysisResults),
+		contributors: many(contributors),
 	}),
 );
 
@@ -213,6 +214,30 @@ export const analysisLogs = pgTable("analysis_logs", {
 export const analysisLogsRelations = relations(analysisLogs, ({ one }) => ({
 	repositories: one(repositories, {
 		fields: [analysisLogs.repositoryId],
+		references: [repositories.id],
+	}),
+}));
+
+export const contributors = pgTable("contributors", {
+	id: uuid("id").defaultRandom().primaryKey(),
+	repositoryId: uuid("repository_id").references(() => repositories.id),
+	githubLogin: text("github_login").notNull(),
+	avatarUrl: text("avatar_url"),
+	htmlUrl: text("html_url"),
+	contributions: integer("contributions").default(0),
+	firstContributionAt: timestamp("first_contribution_at"),
+	lastContributionAt: timestamp("last_contribution_at"),
+	createdAt: timestamp("created_at")
+		.$defaultFn(() => /* @__PURE__ */ new Date())
+		.notNull(),
+	updatedAt: timestamp("updated_at")
+		.$defaultFn(() => /* @__PURE__ */ new Date())
+		.notNull(),
+});
+
+export const contributorsRelations = relations(contributors, ({ one }) => ({
+	repositories: one(repositories, {
+		fields: [contributors.repositoryId],
 		references: [repositories.id],
 	}),
 }));

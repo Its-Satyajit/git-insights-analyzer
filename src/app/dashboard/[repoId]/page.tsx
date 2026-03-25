@@ -8,6 +8,7 @@ import {
 	FileCode,
 	FolderTree,
 	GitBranch,
+	GitGraph,
 	Loader2,
 } from "lucide-react";
 import Image from "next/image";
@@ -20,6 +21,7 @@ import { FileViewer } from "~/components/dashboard/FileViewer";
 import { StatCardsSkeleton } from "~/components/dashboard/StatCards";
 import { VirtualizedFileTree } from "~/components/dashboard/VirtualizedFileTree";
 import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 import { api } from "~/lib/eden";
 
@@ -54,6 +56,12 @@ export default function RepoPage({
 function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 	const { repoId } = use(params);
 	const [selectedFile, setSelectedFile] = useState<string | null>(null);
+	const [activeTab, setActiveTab] = useState<"explorer" | "contributors">(
+		"explorer",
+	);
+	const [contributorsSort, setContributorsSort] = useState<
+		"contributions" | "newest"
+	>("contributions");
 
 	const { data: response, isLoading } = useQuery({
 		queryKey: ["repo-dashboard", repoId],
@@ -64,6 +72,20 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 		enabled: !!repoId,
 		retry: false,
 	});
+
+	const { data: contributorsData, isLoading: isContributorsLoading } = useQuery(
+		{
+			queryKey: ["contributors", repoId, contributorsSort],
+			queryFn: async () => {
+				const res = await fetch(
+					`/api/repos/${repoId}/contributors?sort=${contributorsSort}`,
+				);
+				if (!res.ok) throw new Error("Failed to fetch contributors");
+				return res.json();
+			},
+			enabled: !!repoId && activeTab === "contributors",
+		},
+	);
 
 	const {
 		data: fileContent,
@@ -272,54 +294,177 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 				</div>
 			</section>
 			<section>
-				<div className="mb-4 flex items-center gap-2">
-					<span className="font-mono text-muted-foreground text-xs">
-						{"//"}
-					</span>
-					<span className="font-mono text-blue-400 text-xs tracking-wider">
-						EXPLORER
-					</span>
-				</div>
-
-				<div
-					className="grid gap-4 lg:grid-cols-[350px_1fr]"
-					style={{ height: "calc(100vh - 320px)" }}
+				<Tabs
+					onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+					value={activeTab}
 				>
-					<div className="overflow-hidden rounded-lg border border-border bg-card">
-						<VirtualizedFileTree
-							defaultBranch={data.defaultBranch}
-							fileTree={data.fileTree ?? []}
-							isPrivate={data.isPrivate}
-							name={data.name}
-							onFileSelect={handleFileSelect}
-							owner={data.owner}
-							repoId={data.id}
-						/>
+					<div className="mb-4 flex items-center justify-between">
+						<div className="flex items-center gap-2">
+							<span className="font-mono text-muted-foreground text-xs">
+								{"//"}
+							</span>
+							<span className="font-mono text-blue-400 text-xs tracking-wider">
+								VIEW_MODE
+							</span>
+						</div>
+						<TabsList variant="line">
+							<TabsTrigger className="gap-2" value="explorer">
+								<FolderTree className="h-4 w-4" />
+								EXPLORER
+							</TabsTrigger>
+							<TabsTrigger className="gap-2" value="contributors">
+								<GitGraph className="h-4 w-4" />
+								CONTRIBUTORS
+							</TabsTrigger>
+						</TabsList>
 					</div>
-					<div className="overflow-hidden rounded-lg border border-border bg-card">
-						{selectedFile ? (
-							<FileViewer
-								content={fileContent ?? null}
-								error={fileError ?? null}
-								filePath={selectedFile}
-								isLoading={isFileLoading ?? false}
-								repo={{
-									owner: data.owner,
-									name: data.name,
-									branch: data.defaultBranch || "main",
-									isPrivate: data.isPrivate,
-								}}
-							/>
-						) : (
-							<div className="flex h-full min-h-[400px] flex-col items-center justify-center text-muted-foreground">
-								<Code2 className="mb-4 h-12 w-12 opacity-30" />
-								<p className="font-mono text-sm">
-									Select a file to view its contents
-								</p>
+
+					<TabsContent className="mt-0" value="explorer">
+						<div
+							className="grid gap-4 lg:grid-cols-[350px_1fr]"
+							style={{ height: "calc(100vh - 320px)" }}
+						>
+							<div className="overflow-hidden rounded-lg border border-border bg-card">
+								<VirtualizedFileTree
+									defaultBranch={data.defaultBranch}
+									fileTree={data.fileTree ?? []}
+									isPrivate={data.isPrivate}
+									name={data.name}
+									onFileSelect={handleFileSelect}
+									owner={data.owner}
+									repoId={data.id}
+								/>
 							</div>
-						)}
-					</div>
-				</div>
+							<div className="overflow-hidden rounded-lg border border-border bg-card">
+								{selectedFile ? (
+									<FileViewer
+										content={fileContent ?? null}
+										error={fileError ?? null}
+										filePath={selectedFile}
+										isLoading={isFileLoading ?? false}
+										repo={{
+											owner: data.owner,
+											name: data.name,
+											branch: data.defaultBranch || "main",
+											isPrivate: data.isPrivate,
+										}}
+									/>
+								) : (
+									<div className="flex h-full min-h-[400px] flex-col items-center justify-center text-muted-foreground">
+										<Code2 className="mb-4 h-12 w-12 opacity-30" />
+										<p className="font-mono text-sm">
+											Select a file to view its contents
+										</p>
+									</div>
+								)}
+							</div>
+						</div>
+					</TabsContent>
+
+					<TabsContent className="mt-0" value="contributors">
+						<div className="rounded-lg border border-border bg-card p-4">
+							{contributorsData && contributorsData.length > 0 && (
+								<div className="mb-4 flex items-center gap-2">
+									<span className="font-mono text-muted-foreground text-xs">
+										SORT_BY:
+									</span>
+									<button
+										className={`rounded px-2 py-1 font-mono text-xs transition-colors ${
+											contributorsSort === "contributions"
+												? "bg-violet-500/20 text-violet-400"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+										onClick={() => setContributorsSort("contributions")}
+										type="button"
+									>
+										TOP_CONTRIBUTORS
+									</button>
+									<button
+										className={`rounded px-2 py-1 font-mono text-xs transition-colors ${
+											contributorsSort === "newest"
+												? "bg-violet-500/20 text-violet-400"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+										onClick={() => setContributorsSort("newest")}
+										type="button"
+									>
+										RECENTLY_ADDED
+									</button>
+								</div>
+							)}
+							{isContributorsLoading ? (
+								<div className="flex items-center justify-center p-8">
+									<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+								</div>
+							) : contributorsData && contributorsData.length > 0 ? (
+								<div
+									className="grid gap-4"
+									style={{
+										gridTemplateColumns:
+											"repeat(auto-fill, minmax(280px, 1fr))",
+									}}
+								>
+									{contributorsData.map(
+										(contributor: {
+											id: string;
+											githubLogin: string;
+											avatarUrl: string | null;
+											htmlUrl: string | null;
+											contributions: number;
+										}) => (
+											<div
+												className="flex items-center gap-4 rounded-lg border border-border bg-muted/20 p-4 transition-colors hover:bg-muted/40"
+												key={contributor.id}
+											>
+												{contributor.avatarUrl ? (
+													<Image
+														alt={contributor.githubLogin}
+														className="rounded-full"
+														height={48}
+														src={contributor.avatarUrl}
+														width={48}
+													/>
+												) : (
+													<div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+														<GitBranch className="h-6 w-6 text-muted-foreground" />
+													</div>
+												)}
+												<div className="min-w-0 flex-1">
+													<p className="truncate font-medium font-mono">
+														{contributor.githubLogin}
+													</p>
+													{contributor.htmlUrl && (
+														<a
+															className="block truncate font-mono text-muted-foreground text-xs hover:underline"
+															href={contributor.htmlUrl}
+															rel="noopener noreferrer"
+															target="_blank"
+														>
+															{contributor.htmlUrl}
+														</a>
+													)}
+												</div>
+												<div className="text-right">
+													<p className="font-bold font-mono text-foreground text-lg">
+														{contributor.contributions}
+													</p>
+													<p className="font-mono text-muted-foreground text-xs">
+														contributions
+													</p>
+												</div>
+											</div>
+										),
+									)}
+								</div>
+							) : (
+								<div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
+									<GitGraph className="mb-4 h-12 w-12 opacity-30" />
+									<p className="font-mono text-sm">No contributors found</p>
+								</div>
+							)}
+						</div>
+					</TabsContent>
+				</Tabs>
 			</section>
 			<footer className="mt-4 flex items-center justify-between border-border border-t pt-6">
 				<div className="font-mono text-muted-foreground text-xs">

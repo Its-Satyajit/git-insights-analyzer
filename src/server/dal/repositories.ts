@@ -60,6 +60,14 @@ export async function getTopRepositoriesByStars(limit: number = 10) {
 			analysisStatus: true,
 			avatarUrl: true,
 		},
+		with: {
+			contributors: {
+				columns: { contributions: true },
+			},
+		},
 	});
-	return result;
+	return result.map((repo) => ({
+		...repo,
+		contributorCount: repo.contributors?.length ?? 0,
+	}));
 }
