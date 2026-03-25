@@ -1000,9 +1000,19 @@ function AnalysisContent() {
 											// Determine max values based on the current chart axes to ensure quadrants fill the visible area
 											const xKey = chartConfig.xAxis;
 											const yKey = chartConfig.yAxis;
-											
-											const maxX = Math.max(...hotSpotData.map(d => Number(d[xKey]) || 0), 1) * 1.1; // Add 10% buffer
-											const maxY = Math.max(...hotSpotData.map(d => Number(d[yKey]) || 0), 1) * 1.1;
+
+											const maxXValue = hotSpotData.reduce((max, d) => {
+												const val = Number(d[xKey as keyof HotspotDataPoint]);
+												return !Number.isNaN(val) ? Math.max(max, val) : max;
+											}, 0);
+
+											const maxYValue = hotSpotData.reduce((max, d) => {
+												const val = Number(d[yKey as keyof HotspotDataPoint]);
+												return !Number.isNaN(val) ? Math.max(max, val) : max;
+											}, 0);
+
+											const maxX = Math.max(maxXValue, 1) * 1.1; // Add 10% buffer
+											const maxY = Math.max(maxYValue, 1) * 1.1;
 											
 											const midX = maxX / 2;
 											const midY = maxY / 2;
