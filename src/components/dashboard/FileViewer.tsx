@@ -140,23 +140,23 @@ export function FileViewer({
 
 	const getLanguageColor = (ext: string) => {
 		const colors: Record<string, string> = {
-			ts: "text-blue-400",
-			tsx: "text-blue-400",
-			js: "text-yellow-400",
-			jsx: "text-yellow-400",
-			py: "text-green-400",
-			rs: "text-orange-400",
-			go: "text-cyan-400",
-			rb: "text-red-400",
-			java: "text-red-400",
-			cpp: "text-blue-400",
-			c: "text-blue-400",
-			css: "text-purple-400",
-			html: "text-orange-400",
-			json: "text-yellow-400",
-			yaml: "text-pink-400",
-			yml: "text-pink-400",
-			md: "text-gray-400",
+			ts: "text-primary",
+			tsx: "text-primary",
+			js: "text-primary/80",
+			jsx: "text-primary/80",
+			py: "text-accent",
+			rs: "text-accent",
+			go: "text-accent",
+			rb: "text-accent",
+			java: "text-accent",
+			cpp: "text-primary",
+			c: "text-primary",
+			css: "text-accent",
+			html: "text-accent",
+			json: "text-primary/80",
+			yaml: "text-accent",
+			yml: "text-accent",
+			md: "text-muted-foreground",
 		};
 		return colors[ext] || "text-foreground/60";
 	};
@@ -164,7 +164,7 @@ export function FileViewer({
 	if (isLoading) {
 		return (
 			<div className="flex h-full min-h-[400px] flex-col items-center justify-center">
-				<Loader2 className="mb-4 h-8 w-8 animate-spin text-cyan-400" />
+				<Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" />
 				<p className="font-mono text-muted-foreground text-sm">
 					Loading file...
 				</p>
@@ -175,8 +175,8 @@ export function FileViewer({
 	if (error) {
 		return (
 			<div className="flex h-full min-h-[400px] flex-col items-center justify-center">
-				<div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4">
-					<p className="font-mono text-red-400 text-sm">
+				<div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+					<p className="font-mono text-destructive text-sm">
 						Failed to load file: {error.message}
 					</p>
 				</div>
@@ -198,7 +198,7 @@ export function FileViewer({
 		<div className="flex h-full min-h-[400px] flex-col">
 			<div className="flex items-center justify-between border-border border-b px-4 py-2">
 				<div className="flex items-center gap-3">
-					<FileCode className="h-4 w-4 text-cyan-400" />
+					<FileCode className="h-4 w-4 text-primary" />
 					<span className={`font-mono text-sm ${getLanguageColor(extension)}`}>
 						{fileName}
 					</span>
@@ -214,7 +214,7 @@ export function FileViewer({
 						variant="ghost"
 					>
 						{copied ? (
-							<span className="text-green-400">Copied!</span>
+							<span className="text-accent">Copied!</span>
 						) : (
 							<Copy className="mr-1 h-3 w-3" />
 						)}

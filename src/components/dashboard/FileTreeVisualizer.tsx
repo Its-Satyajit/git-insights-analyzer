@@ -31,44 +31,44 @@ interface TreemapNode {
 }
 
 const LANGUAGE_COLORS: Record<string, { light: string; dark: string }> = {
-	ts: { light: "#3178c6", dark: "#60a5fa" },
-	tsx: { light: "#235a97", dark: "#93c5fd" },
-	js: { light: "#b45309", dark: "#facc15" },
-	jsx: { light: "#92400e", dark: "#fbbf24" },
-	py: { light: "#15803d", dark: "#4ade80" },
-	go: { light: "#0891b2", dark: "#22d3ee" },
-	rs: { light: "#b91c1c", dark: "#f87171" },
-	java: { light: "#c2410c", dark: "#fb923c" },
-	cpp: { light: "#4338ca", dark: "#818cf8" },
-	c: { light: "#475569", dark: "#94a3b8" },
-	rb: { light: "#be185d", dark: "#fb7185" },
-	php: { light: "#7e22ce", dark: "#c084fc" },
-	swift: { light: "#db2777", dark: "#f472b6" },
-	kt: { light: "#6b21a8", dark: "#a855f7" },
-	vue: { light: "#0f766e", dark: "#34d399" },
-	svelte: { light: "#ea580c", dark: "#fb923c" },
-	css: { light: "#be185d", dark: "#f472b6" },
-	scss: { light: "#9d174d", dark: "#ec4899" },
-	html: { light: "#c2410c", dark: "#fb923c" },
-	json: { light: "#475569", dark: "#94a3b8" },
-	yaml: { light: "#e11d48", dark: "#fda4af" },
-	yml: { light: "#e11d48", dark: "#fda4af" },
-	md: { light: "#1d4ed8", dark: "#60a5fa" },
-	sql: { light: "#78350f", dark: "#fcd34d" },
-	env: { light: "#166534", dark: "#4ade80" },
-	lock: { light: "#334155", dark: "#64748b" },
-	config: { light: "#3730a3", dark: "#818cf8" },
-	toml: { light: "#9a3412", dark: "#fb923c" },
-	sh: { light: "#166534", dark: "#4ade80" },
-	bash: { light: "#166534", dark: "#4ade80" },
-	dockerfile: { light: "#0e7490", dark: "#22d3ee" },
+	ts: { light: "#3b82f6", dark: "#60a5fa" },
+	tsx: { light: "#2563eb", dark: "#93c5fd" },
+	js: { light: "#60a5fa", dark: "#93c5fd" },
+	jsx: { light: "#3b82f6", dark: "#60a5fa" },
+	py: { light: "#0d9488", dark: "#2dd4bf" },
+	go: { light: "#0f766e", dark: "#14b8a6" },
+	rs: { light: "#1e293b", dark: "#475569" },
+	java: { light: "#334155", dark: "#64748b" },
+	cpp: { light: "#475569", dark: "#94a3b8" },
+	c: { light: "#64748b", dark: "#cbd5e1" },
+	rb: { light: "#0ea5e9", dark: "#38bdf8" },
+	php: { light: "#0284c7", dark: "#7dd3fc" },
+	swift: { light: "#0ea5e9", dark: "#38bdf8" },
+	kt: { light: "#3b82f6", dark: "#60a5fa" },
+	vue: { light: "#0d9488", dark: "#2dd4bf" },
+	svelte: { light: "#14b8a6", dark: "#5eead4" },
+	css: { light: "#64748b", dark: "#94a3b8" },
+	scss: { light: "#475569", dark: "#64748b" },
+	html: { light: "#3b82f6", dark: "#60a5fa" },
+	json: { light: "#94a3b8", dark: "#cbd5e1" },
+	yaml: { light: "#94a3b8", dark: "#cbd5e1" },
+	yml: { light: "#94a3b8", dark: "#cbd5e1" },
+	md: { light: "#3b82f6", dark: "#60a5fa" },
+	sql: { light: "#1e293b", dark: "#475569" },
+	env: { light: "#0f172a", dark: "#1e293b" },
+	lock: { light: "#475569", dark: "#64748b" },
+	config: { light: "#1e293b", dark: "#334155" },
+	toml: { light: "#94a3b8", dark: "#cbd5e1" },
+	sh: { light: "#0f172a", dark: "#1e293b" },
+	bash: { light: "#0f172a", dark: "#1e293b" },
+	dockerfile: { light: "#0f172a", dark: "#1e293b" },
 };
 
 const HOTSPOT_COLORS = {
-	critical: { light: "#dc2626", dark: "#f87171" },
-	warning: { light: "#d97706", dark: "#fbbf24" },
-	normal: { light: "#16a34a", dark: "#4ade80" },
-	muted: { light: "#64748b", dark: "#94a3b8" },
+	critical: { light: "#ef4444", dark: "#ef4444" },
+	warning: { light: "#f97316", dark: "#f97316" },
+	normal: { light: "#60a5fa", dark: "#3b82f6" },
+	muted: { light: "#cbd5e1", dark: "#334155" },
 };
 
 function getLanguageColor(ext: string, isDark: boolean): string {
@@ -95,18 +95,18 @@ function getHotspotLevel(score: number): "critical" | "warning" | "normal" {
 
 function getFolderColor(depth: number, isDark: boolean): string {
 	const darkColors = [
-		"rgba(56, 189, 248, 0.35)",
-		"rgba(56, 189, 248, 0.28)",
-		"rgba(56, 189, 248, 0.22)",
-		"rgba(56, 189, 248, 0.16)",
-		"rgba(56, 189, 248, 0.12)",
+		"rgba(59, 130, 246, 0.25)",
+		"rgba(59, 130, 246, 0.18)",
+		"rgba(59, 130, 246, 0.12)",
+		"rgba(59, 130, 246, 0.08)",
+		"rgba(59, 130, 246, 0.05)",
 	];
 	const lightColors = [
-		"rgba(2, 132, 199, 0.15)",
-		"rgba(2, 132, 199, 0.12)",
-		"rgba(2, 132, 199, 0.10)",
-		"rgba(2, 132, 199, 0.08)",
-		"rgba(2, 132, 199, 0.06)",
+		"rgba(37, 99, 235, 0.12)",
+		"rgba(37, 99, 235, 0.08)",
+		"rgba(37, 99, 235, 0.05)",
+		"rgba(37, 99, 235, 0.03)",
+		"rgba(37, 99, 235, 0.02)",
 	];
 
 	const colors = isDark ? darkColors : lightColors;
@@ -121,7 +121,7 @@ function getContrastColor(hexColor: string): string {
 		const b = parseInt(hexColor.slice(5, 7), 16);
 		const yiq = (r * 299 + g * 587 + b * 114) / 1000;
 		return yiq >= 145 ? "#111827" : "#ffffff";
-	} catch (e) {
+	} catch (_) {
 		return "white";
 	}
 }
@@ -270,7 +270,7 @@ function CustomContent(props: CustomContentProps) {
 		hotspotScore && hotspotScore >= 0.7
 			? "rgba(239, 68, 68, 0.9)"
 			: hotspotScore && hotspotScore >= 0.4
-				? "rgba(245, 158, 11, 0.8)"
+				? "rgba(249, 115, 22, 0.8)"
 				: "rgba(0,0,0,0.15)";
 
 	return (
@@ -432,8 +432,8 @@ function CustomTooltip({
 							"flex h-8 w-8 items-center justify-center rounded-lg",
 							data.isDirectory
 								? isDark
-									? "bg-sky-500/20"
-									: "bg-sky-100"
+									? "bg-primary/20"
+									: "bg-primary/10"
 								: isDark
 									? "bg-white/10"
 									: "bg-gray-100",
@@ -441,7 +441,7 @@ function CustomTooltip({
 					>
 						{data.isDirectory ? (
 							<FolderTree
-								className={cn("h-4.5 w-4.5", isDark ? "text-sky-400" : "text-sky-600")}
+								className={cn("h-4.5 w-4.5", isDark ? "text-primary" : "text-primary/80")}
 							/>
 						) : (
 							<FileCode
@@ -533,9 +533,9 @@ function CustomTooltip({
 							hotspotLevel === "critical" &&
 								(isDark ? "bg-red-500/10" : "bg-red-50"),
 							hotspotLevel === "warning" &&
-								(isDark ? "bg-amber-500/10" : "bg-amber-50"),
+								(isDark ? "bg-primary/10" : "bg-primary/5"),
 							hotspotLevel === "normal" &&
-								(isDark ? "bg-emerald-500/10" : "bg-emerald-50"),
+								(isDark ? "bg-accent/10" : "bg-accent/5"),
 						)}
 					>
 						<div className="flex items-center justify-between">
@@ -549,8 +549,8 @@ function CustomTooltip({
 									className={cn(
 										"h-3.5 w-3.5",
 										hotspotLevel === "critical" && "text-red-500",
-										hotspotLevel === "warning" && "text-amber-500",
-										hotspotLevel === "normal" && "text-emerald-500",
+										hotspotLevel === "warning" && "text-primary",
+										hotspotLevel === "normal" && "text-accent",
 									)}
 								/>
 								Hotspot Risk
@@ -559,8 +559,8 @@ function CustomTooltip({
 								className={cn(
 									"font-bold font-mono text-sm",
 									hotspotLevel === "critical" && "text-red-500",
-									hotspotLevel === "warning" && "text-amber-500",
-									hotspotLevel === "normal" && "text-emerald-500",
+									hotspotLevel === "warning" && "text-primary",
+									hotspotLevel === "normal" && "text-accent",
 								)}
 							>
 								{(data.hotspotScore * 10).toFixed(2)}/10
@@ -576,8 +576,8 @@ function CustomTooltip({
 								className={cn(
 									"h-full rounded-full transition-all duration-500",
 									hotspotLevel === "critical" && "bg-red-500",
-									hotspotLevel === "warning" && "bg-amber-500",
-									hotspotLevel === "normal" && "bg-emerald-500",
+									hotspotLevel === "warning" && "bg-primary",
+									hotspotLevel === "normal" && "bg-accent",
 								)}
 								style={{ width: `${Math.min(data.hotspotScore * 100, 100)}%` }}
 							/>
@@ -661,10 +661,10 @@ export function FileTreeVisualizer({
 						<div
 							className={cn(
 								"flex h-9 w-9 items-center justify-center rounded-xl shadow-sm",
-								isDark ? "bg-sky-500/15" : "bg-sky-500/10",
+								isDark ? "bg-primary/15" : "bg-primary/10",
 							)}
 						>
-							<FolderTree className="h-4.5 w-4.5 text-sky-500" />
+							<FolderTree className="h-4.5 w-4.5 text-primary" />
 						</div>
 						<div>
 							<div className="flex items-center gap-2">
@@ -705,7 +705,7 @@ export function FileTreeVisualizer({
 							onClick={() => setColorMode("language")}
 							type="button"
 						>
-							<span className="h-2 w-2 rounded-full bg-blue-500 shadow-blue-500/40 shadow-sm" />
+							<span className="h-2 w-2 rounded-full bg-primary shadow-primary/40 shadow-sm" />
 							Language
 						</button>
 						<button
@@ -720,7 +720,7 @@ export function FileTreeVisualizer({
 							onClick={() => setColorMode("hotspot")}
 							type="button"
 						>
-							<span className="h-2 w-2 rounded-full bg-amber-500 shadow-amber-500/40 shadow-sm" />
+							<span className="h-2 w-2 rounded-full bg-primary shadow-primary/40 shadow-sm" />
 							Hotspot
 						</button>
 					</div>

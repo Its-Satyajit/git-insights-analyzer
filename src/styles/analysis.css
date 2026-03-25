@@ -14,13 +14,13 @@
 	--border-default: var(--border);
 	--border-accent: var(--ring);
 
-	--accent-amber: #f59e0b;
-	--accent-amber-dim: #b45309;
-	--accent-amber-glow: rgba(245, 158, 11, 0.15);
+	--accent-amber: var(--primary);
+	--accent-amber-dim: var(--primary);
+	--accent-amber-glow: color-mix(in srgb, var(--primary), transparent 85%);
 
-	--accent-emerald: #10b981;
-	--accent-sky: #0ea5e9;
-	--accent-rose: #f43f5e;
+	--accent-emerald: var(--accent);
+	--accent-sky: var(--primary);
+	--accent-rose: var(--destructive);
 
 	--text-primary: var(--foreground);
 	--text-secondary: var(--muted-foreground);
@@ -49,12 +49,12 @@ body {
 	background:
 		radial-gradient(
 			ellipse 80% 50% at 50% -20%,
-			rgba(245, 158, 11, 0.08),
+			color-mix(in srgb, var(--primary), transparent 92%),
 			transparent
 		),
 		radial-gradient(
 			ellipse 60% 40% at 80% 100%,
-			rgba(16, 185, 129, 0.05),
+			color-mix(in srgb, var(--accent), transparent 95%),
 			transparent
 		),
 		var(--bg-deep);
@@ -229,15 +229,15 @@ body {
 }
 
 .badge-emerald {
-	background: rgba(16, 185, 129, 0.1);
-	border-color: rgba(16, 185, 129, 0.3);
-	color: var(--accent-emerald);
+	background: color-mix(in srgb, var(--accent), transparent 90%);
+	border-color: color-mix(in srgb, var(--accent), transparent 70%);
+	color: var(--accent);
 }
 
 .badge-sky {
-	background: rgba(14, 165, 233, 0.1);
-	border-color: rgba(14, 165, 233, 0.3);
-	color: var(--accent-sky);
+	background: color-mix(in srgb, var(--primary), transparent 90%);
+	border-color: color-mix(in srgb, var(--primary), transparent 70%);
+	color: var(--primary);
 }
 
 /* Monospace link */
@@ -373,7 +373,8 @@ body {
 }
 
 .btn-primary:hover {
-	background: #fbbf24;
+	background: var(--primary);
+	filter: brightness(1.1);
 	box-shadow: 0 0 15px var(--accent-amber-glow);
 }
 

@@ -34,8 +34,8 @@ export default function RepoPage({
 		<main className="relative min-h-screen overflow-hidden bg-background pt-14">
 			<div className="absolute inset-0 -z-10">
 				<div className="mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] absolute inset-0 bg-[linear-gradient(rgba(100,100,100,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(100,100,100,0.1)_1px,transparent_1px)] bg-size-[30px_30px] dark:bg-[linear-gradient(rgba(20,20,20,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(20,20,20,0.4)_1px,transparent_1px)]" />
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(245,158,11,0.06),transparent_40%)]" />
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(6,182,212,0.05),transparent_40%)]" />
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,var(--color-primary)/0.06,transparent_40%)]" />
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,var(--color-accent)/0.05,transparent_40%)]" />
 				<div
 					className="pointer-events-none absolute inset-0 opacity-[0.02]"
 					style={{
@@ -146,13 +146,13 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 	if (isLoading) {
 		return (
 			<div className="flex flex-col items-center justify-center py-32">
-				<div className="mb-6 flex items-center gap-3 font-mono text-amber-400">
+				<div className="mb-6 flex items-center gap-3 font-mono text-primary">
 					<Loader2 className="h-5 w-5 animate-spin" />
 					<span className="text-sm tracking-wider">INITIALIZING_DASHBOARD</span>
 				</div>
 				<div className="h-1 w-48 overflow-hidden rounded-full bg-secondary">
 					<div
-						className="h-full animate-pulse bg-amber-500"
+						className="h-full animate-pulse bg-primary"
 						style={{ width: "60%" }}
 					/>
 				</div>
@@ -208,23 +208,23 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 							{data.avatarUrl ? (
 								<Image
 									alt={data.owner}
-									className="rounded-full border border-amber-500/30"
+									className="rounded-full border border-primary/30"
 									height={36}
 									src={data.avatarUrl}
 									width={36}
 								/>
 							) : (
-								<div className="flex h-9 w-9 items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/10">
-									<GitBranch className="h-4 w-4 text-amber-400" />
+								<div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+									<GitBranch className="h-4 w-4 text-primary" />
 								</div>
 							)}
 							<h1 className="font-bold font-mono text-2xl text-foreground tracking-tight">
-								<span className="text-amber-400">{data.owner}</span>
+								<span className="text-primary">{data.owner}</span>
 								<span className="text-muted-foreground">/</span>
 								<span className="text-foreground">{data.name}</span>
 							</h1>
 							{data.isPrivate && (
-								<span className="rounded border border-orange-500/30 bg-orange-500/10 px-2 py-0.5 font-mono text-orange-400 text-xs">
+								<span className="rounded border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono text-primary text-xs">
 									PRIVATE
 								</span>
 							)}
@@ -236,7 +236,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 						)}
 					</div>
 					<Link href={`/dashboard/${repoId}/analysis`}>
-						<Button className="gap-2 border border-cyan-500/30 bg-cyan-500/10 font-mono text-cyan-400 text-sm hover:bg-cyan-500/20">
+						<Button className="gap-2 border border-accent/30 bg-accent/10 font-mono text-accent text-sm hover:bg-accent/20">
 							<BarChart3 className="h-4 w-4" />
 							<span>DEEP_ANALYSIS</span>
 							<ArrowRight className="h-4 w-4" />
@@ -249,7 +249,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 					<span className="font-mono text-muted-foreground text-xs">
 						{"//"}
 					</span>
-					<span className="font-mono text-sky-400 text-xs tracking-wider">
+					<span className="font-mono text-accent text-xs tracking-wider">
 						REPOSITORY_OVERVIEW
 					</span>
 				</div>
@@ -280,7 +280,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 							value={data.primaryLanguage || "N/A"}
 						/>
 					</div>
-					<div className="flex flex-col h-full justify-center">
+					<div className="flex h-full flex-col justify-center">
 						<AnalysisProgress repoId={repoId} />
 					</div>
 				</div>
@@ -295,7 +295,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 							<span className="font-mono text-muted-foreground text-xs">
 								{"//"}
 							</span>
-							<span className="font-mono text-blue-400 text-xs tracking-wider">
+							<span className="font-mono text-primary text-xs tracking-wider">
 								VIEW_MODE
 							</span>
 						</div>
@@ -363,7 +363,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 									<button
 										className={`rounded px-2 py-1 font-mono text-xs transition-colors ${
 											contributorsSort === "contributions"
-												? "bg-violet-500/20 text-violet-400"
+												? "bg-primary/20 text-primary"
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 										onClick={() => setContributorsSort("contributions")}
@@ -374,7 +374,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 									<button
 										className={`rounded px-2 py-1 font-mono text-xs transition-colors ${
 											contributorsSort === "newest"
-												? "bg-violet-500/20 text-violet-400"
+												? "bg-primary/20 text-primary"
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 										onClick={() => setContributorsSort("newest")}
@@ -460,11 +460,11 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 			</section>
 			<footer className="mt-4 flex items-center justify-between border-border border-t pt-6">
 				<div className="font-mono text-muted-foreground text-xs">
-					<span className="text-amber-600 dark:text-amber-400">branch:</span>{" "}
+					<span className="text-primary">branch:</span>{" "}
 					{data.defaultBranch}
 				</div>
 				<div className="font-mono text-muted-foreground text-xs">
-					<span className="text-green-600 dark:text-green-400">status:</span>{" "}
+					<span className="text-accent">status:</span>{" "}
 					analyzed
 				</div>
 			</footer>{" "}
@@ -484,17 +484,17 @@ function StatCard({
 	color: "sky" | "blue" | "emerald" | "violet";
 }) {
 	const colorClasses = {
-		sky: "text-sky-400 border-sky-500/30 bg-sky-500/5",
-		blue: "text-blue-400 border-blue-500/30 bg-blue-500/5",
-		emerald: "text-emerald-400 border-emerald-500/30 bg-emerald-500/5",
-		violet: "text-violet-400 border-violet-500/30 bg-violet-500/5",
+		sky: "text-primary border-primary/30 bg-primary/5",
+		blue: "text-primary border-primary/30 bg-primary/5",
+		emerald: "text-accent border-accent/30 bg-accent/5",
+		violet: "text-accent border-accent/30 bg-accent/5",
 	};
 
 	const iconBgClasses = {
-		sky: "bg-sky-500/10",
-		blue: "bg-blue-500/10",
-		emerald: "bg-emerald-500/10",
-		violet: "bg-violet-500/10",
+		sky: "bg-primary/10",
+		blue: "bg-primary/10",
+		emerald: "bg-accent/10",
+		violet: "bg-accent/10",
 	};
 
 	return (

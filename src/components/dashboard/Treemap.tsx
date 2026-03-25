@@ -39,40 +39,40 @@ interface TreemapNode extends d3.HierarchyRectangularNode<TreemapFile> {
 }
 
 const LANGUAGE_COLORS: Record<string, string> = {
-	ts: "#60a5fa",
-	tsx: "#60a5fa",
-	js: "#facc15",
-	jsx: "#facc15",
-	py: "#4ade80",
-	go: "#22d3ee",
-	rs: "#fb923c",
-	java: "#fb923c",
-	cpp: "#818cf8",
-	c: "#94a3b8",
-	h: "#94a3b8",
-	hpp: "#818cf8",
-	rb: "#f87171",
-	php: "#a78bfa",
-	swift: "#f472b6",
-	kt: "#c084fc",
-	scala: "#f87171",
-	cs: "#4ade80",
-	vue: "#34d399",
-	svelte: "#fb923c",
-	css: "#f472b6",
-	scss: "#f472b6",
-	html: "#fb923c",
-	json: "#94a3b8",
-	yaml: "#fb7185",
-	yml: "#fb7185",
-	md: "#60a5fa",
-	sql: "#fbbf24",
-	prisma: "#60a5fa",
-	toml: "#fb923c",
-	sh: "#4ade80",
-	bash: "#4ade80",
-	zsh: "#4ade80",
-	dockerfile: "#22d3ee",
+	ts: "#3b82f6", // Blue
+	tsx: "#3b82f6",
+	js: "#60a5fa", // Lighter Blue
+	jsx: "#60a5fa",
+	py: "#14b8a6", // Teal
+	go: "#0d9488", // Darker Teal
+	rs: "#0f172a", // Dark Slate
+	java: "#334155", // Slate
+	cpp: "#475569", // Light Slate
+	c: "#475569",
+	h: "#64748b",
+	hpp: "#475569",
+	rb: "#0ea5e9", // Sky
+	php: "#0284c7", // Sky
+	swift: "#7dd3fc", // Light Sky
+	kt: "#38bdf8",
+	scala: "#0ea5e9",
+	cs: "#14b8a6",
+	vue: "#2dd4bf", // Light Teal
+	svelte: "#5eead4",
+	css: "#94a3b8",
+	scss: "#94a3b8",
+	html: "#3b82f6",
+	json: "#cbd5e1",
+	yaml: "#cbd5e1",
+	yml: "#cbd5e1",
+	md: "#94a3b8",
+	sql: "#1e293b",
+	prisma: "#3b82f6",
+	toml: "#cbd5e1",
+	sh: "#1e293b",
+	bash: "#1e293b",
+	zsh: "#1e293b",
+	dockerfile: "#0f172a",
 };
 
 function getLanguageColor(ext: string): string {
@@ -80,24 +80,22 @@ function getLanguageColor(ext: string): string {
 }
 
 function getScoreColor(score: number, maxScore: number): string {
-	if (score === 0) return "#64748b";
+	if (score === 0) return "var(--color-muted-foreground)";
 	const normalized = score / maxScore;
 
-	if (normalized > 0.7) return "#f87171";
-	if (normalized > 0.5) return "#fb923c";
-	if (normalized > 0.3) return "#facc15";
-	if (normalized > 0.15) return "#a3e635";
-	return "#4ade80";
+	if (normalized > 0.7) return "#ef4444"; // Red (Critical)
+	if (normalized > 0.5) return "#f97316"; // Orange (Warning)
+	if (normalized > 0.3) return "var(--color-primary)"; // Blue
+	if (normalized > 0.15) return "var(--color-accent)"; // Teal
+	return "#94a3b8"; // Slate
 }
 
 function getFanColor(value: number, maxValue: number): string {
-	if (value === 0) return "#475569";
+	if (value === 0) return "var(--color-muted)";
 	const normalized = Math.min(value / maxValue, 1);
 
-	const r = Math.round(59 + (234 - 59) * normalized);
-	const g = Math.round(130 + (179 - 130) * normalized);
-	const b = Math.round(246 + (100 - 246) * normalized);
-	return `rgb(${r}, ${g}, ${b})`;
+	// Interpolate between secondary and primary
+	return `color-mix(in oklch, var(--color-primary) ${normalized * 100}%, var(--color-secondary))`;
 }
 
 export function Treemap({
@@ -213,7 +211,7 @@ export function Treemap({
 		return (
 			<div className="flex h-full items-center justify-center">
 				<div className="flex flex-col items-center gap-3">
-					<div className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-amber-500" />
+					<div className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
 					<span className="font-mono text-muted-foreground text-xs">
 						Loading treemap...
 					</span>
@@ -226,7 +224,7 @@ export function Treemap({
 		return (
 			<div className="flex h-full items-center justify-center">
 				<div className="flex flex-col items-center gap-2">
-					<div className="font-mono text-red-400 text-xs">Failed to load</div>
+					<div className="font-mono text-destructive text-xs">Failed to load</div>
 					<button
 						className="text-muted-foreground text-xs hover:text-foreground"
 						onClick={() => window.location.reload()}

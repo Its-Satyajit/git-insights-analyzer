@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import React, { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import {
 	Bar,
 	BarChart,
@@ -64,14 +64,12 @@ type HotspotDataPoint = {
 };
 
 const CHART_COLORS = [
-	"#f59e0b",
-	"#10b981",
-	"#0ea5e9",
-	"#f43f5e",
-	"#8b5cf6",
-	"#ec4899",
-	"#06b6d4",
-	"#84cc16",
+	"var(--color-primary)",
+	"var(--color-accent)",
+	"color-mix(in srgb, var(--color-primary), white 20%)",
+	"color-mix(in srgb, var(--color-accent), white 20%)",
+	"color-mix(in srgb, var(--color-primary), black 20%)",
+	"color-mix(in srgb, var(--color-accent), black 20%)",
 ];
 
 const containerVariants = {
@@ -217,8 +215,8 @@ function AnalysisContent() {
 			<div className="flex min-h-screen flex-col items-center justify-center bg-mesh pt-14">
 				<div className="flex flex-col items-center gap-6">
 					<div className="relative">
-						<div className="absolute inset-0 animate-pulse rounded-full bg-amber-500/20 blur-xl" />
-						<Loader2 className="relative h-12 w-12 animate-spin text-amber-500" />
+						<div className="absolute inset-0 animate-pulse rounded-full bg-primary/20 blur-xl" />
+						<Loader2 className="relative h-12 w-12 animate-spin text-primary" />
 					</div>
 					<div className="text-center">
 						<p className="font-mono text-muted-foreground text-sm uppercase tracking-widest">
@@ -273,7 +271,7 @@ function AnalysisContent() {
 						<div className="mb-5 flex items-start justify-between">
 							<div className="flex flex-col gap-1">
 								<button
-									className="group mb-3 flex w-fit items-center gap-2 text-left font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-amber-500"
+									className="group mb-3 flex w-fit items-center gap-2 text-left font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-primary"
 									onClick={() => router.push(`/dashboard/${repoId}`)}
 									type="button"
 								>
@@ -290,8 +288,8 @@ function AnalysisContent() {
 											width={40}
 										/>
 									) : (
-										<div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/10">
-											<GitBranch className="h-5 w-5 text-amber-400" />
+										<div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+											<GitBranch className="h-5 w-5 text-primary" />
 										</div>
 									)}
 									<div>
@@ -365,8 +363,8 @@ function AnalysisContent() {
 									style={{ animationDelay: "0.1s" }}
 								>
 									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-amber-500/30">
-											<BarChart3 className="h-4 w-4 text-amber-500" />
+										<div className="icon-box border-primary/30">
+											<BarChart3 className="h-4 w-4 text-primary" />
 										</div>
 										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
 											Basic Statistics
@@ -405,8 +403,8 @@ function AnalysisContent() {
 									style={{ animationDelay: "0.15s" }}
 								>
 									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-emerald-500/30">
-											<Layers className="h-4 w-4 text-emerald-500" />
+										<div className="icon-box border-accent/30">
+											<Layers className="h-4 w-4 text-accent" />
 										</div>
 										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
 											Languages
@@ -450,8 +448,8 @@ function AnalysisContent() {
 									style={{ animationDelay: "0.2s" }}
 								>
 									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-sky-500/30">
-											<FolderTree className="h-4 w-4 text-sky-500" />
+										<div className="icon-box border-primary/30">
+											<FolderTree className="h-4 w-4 text-primary" />
 										</div>
 										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
 											Structure
@@ -486,8 +484,8 @@ function AnalysisContent() {
 									style={{ animationDelay: "0.25s" }}
 								>
 									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-violet-500/30">
-											<Network className="h-4 w-4 text-violet-500" />
+										<div className="icon-box border-primary/30">
+											<Network className="h-4 w-4 text-primary" />
 										</div>
 										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
 											Dependencies
@@ -526,7 +524,7 @@ function AnalysisContent() {
 																<span className="max-w-[180px] truncate font-data text-muted-foreground text-xs">
 																	{item.path.split("/").pop()}
 																</span>
-																<span className="font-data text-amber-500">
+																<span className="font-data text-primary">
 																	{item.fanIn}
 																</span>
 															</div>
@@ -542,8 +540,8 @@ function AnalysisContent() {
 									style={{ animationDelay: "0.3s" }}
 								>
 									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-rose-500/30">
-											<Target className="h-4 w-4 text-rose-500" />
+										<div className="icon-box border-destructive/30">
+											<Target className="h-4 w-4 text-destructive" />
 										</div>
 										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
 											Hotspots
@@ -566,7 +564,7 @@ function AnalysisContent() {
 																Score: {hotspot.score.toFixed(2)}
 															</p>
 														</div>
-														<span className="badge-amber ml-2">
+														<span className="ml-2 rounded-md border border-primary/30 bg-primary/20 px-2 py-0.5 font-data text-primary text-xs">
 															#{hotspot.rank}
 														</span>
 													</div>
@@ -584,8 +582,8 @@ function AnalysisContent() {
 									style={{ animationDelay: "0.35s" }}
 								>
 									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-cyan-500/30">
-											<FileType className="h-4 w-4 text-cyan-500" />
+										<div className="icon-box border-accent/30">
+											<FileType className="h-4 w-4 text-accent" />
 										</div>
 										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
 											File Types
@@ -613,7 +611,7 @@ function AnalysisContent() {
 						) : (
 							<div className="card-glass flex flex-col items-center justify-center rounded-lg py-16">
 								<div className="relative mb-6">
-									<div className="absolute inset-0 animate-pulse rounded-full bg-amber-500/10 blur-xl" />
+									<div className="absolute inset-0 animate-pulse rounded-full bg-primary/10 blur-xl" />
 									<BarChart3 className="relative h-12 w-12 text-muted-foreground" />
 								</div>
 								<p className="font-mono text-muted-foreground text-sm">
@@ -638,20 +636,20 @@ function AnalysisContent() {
 								<ResponsiveContainer height={280}>
 									<BarChart data={topImportedFiles} layout="vertical">
 										<XAxis
-											axisLine={{ stroke: "#262626" }}
-											tick={{ fill: "#525252", fontSize: 11 }}
+											axisLine={{ stroke: "var(--color-border)" }}
+											tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
 											type="number"
 										/>
 										<YAxis
-											axisLine={{ stroke: "#262626" }}
+											axisLine={{ stroke: "var(--color-border)" }}
 											dataKey="name"
-											tick={{ fill: "#525252", fontSize: 10 }}
+											tick={{ fill: "var(--color-muted-foreground)", fontSize: 10 }}
 											type="category"
 											width={90}
 										/>
 										<Tooltip
 											content={({ active, payload }) => {
-												if (active && payload && payload.length && payload[0]) {
+												if (active && payload?.length && payload[0]?.payload) {
 													const data = payload[0];
 													return (
 														<div className="rounded-md border border-border bg-secondary p-2 shadow-lg">
@@ -669,7 +667,7 @@ function AnalysisContent() {
 										/>
 										<Bar
 											dataKey="imports"
-											fill="#f59e0b"
+											fill="var(--color-primary)"
 											radius={[0, 4, 4, 0]}
 										/>
 									</BarChart>
@@ -707,7 +705,7 @@ function AnalysisContent() {
 										</Pie>
 										<Tooltip
 											content={({ active, payload }) => {
-												if (active && payload && payload.length && payload[0]) {
+												if (active && payload?.length && payload[0]?.payload) {
 													return (
 														<div className="rounded-md border border-border bg-secondary p-2 shadow-lg">
 															<p className="font-mono text-foreground text-xs">
@@ -746,13 +744,7 @@ function AnalysisContent() {
 										/>
 										<Tooltip
 											content={({ active, payload }) => {
-												if (
-													active &&
-													payload &&
-													payload.length &&
-													payload[0] &&
-													payload[0].payload
-												) {
+												if (active && payload?.length && payload[0]?.payload) {
 													return (
 														<div className="rounded-md border border-border bg-secondary p-2 shadow-lg">
 															<p className="font-mono text-foreground text-xs">
@@ -804,13 +796,7 @@ function AnalysisContent() {
 										/>
 										<Tooltip
 											content={({ active, payload }) => {
-												if (
-													active &&
-													payload &&
-													payload.length &&
-													payload[0] &&
-													payload[0].payload
-												) {
+												if (active && payload?.length && payload[0]?.payload) {
 													return (
 														<div className="rounded-md border border-border bg-secondary p-2 shadow-lg">
 															<p className="font-mono text-foreground text-xs">
@@ -851,32 +837,32 @@ function AnalysisContent() {
 								Dependency Overview
 							</h3>
 							<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-								<div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 text-center">
-									<p className="font-data font-semibold text-2xl text-amber-500">
+								<div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center">
+									<p className="font-data font-semibold text-2xl text-primary">
 										{graph?.metadata.totalNodes ?? 0}
 									</p>
 									<p className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 										Total Files
 									</p>
 								</div>
-								<div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
-									<p className="font-data font-semibold text-2xl text-emerald-500">
+								<div className="rounded-lg border border-accent/20 bg-accent/5 p-4 text-center">
+									<p className="font-data font-semibold text-2xl text-accent">
 										{graph?.metadata.totalEdges ?? 0}
 									</p>
 									<p className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 										Dependencies
 									</p>
 								</div>
-								<div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-4 text-center">
-									<p className="font-data font-semibold text-2xl text-orange-500">
+								<div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center">
+									<p className="font-data font-semibold text-2xl text-primary">
 										{graph?.metadata.unresolvedImports ?? 0}
 									</p>
 									<p className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 										Unresolved
 									</p>
 								</div>
-								<div className="rounded-lg border border-violet-500/20 bg-violet-500/5 p-4 text-center">
-									<p className="font-data font-semibold text-2xl text-violet-500">
+								<div className="rounded-lg border border-accent/20 bg-accent/5 p-4 text-center">
+									<p className="font-data font-semibold text-2xl text-accent">
 										{
 											Object.keys(graph?.metadata.languageBreakdown ?? {})
 												.length
@@ -932,7 +918,7 @@ function AnalysisContent() {
 												onChange={(e) =>
 													setChartConfig((c) => ({
 														...c,
-														xAxis: e.target.value as any,
+														xAxis: e.target.value as "fanIn" | "fanOut" | "loc" | "score",
 													}))
 												}
 												value={chartConfig.xAxis}
@@ -950,7 +936,7 @@ function AnalysisContent() {
 												onChange={(e) =>
 													setChartConfig((c) => ({
 														...c,
-														yAxis: e.target.value as any,
+														yAxis: e.target.value as "fanIn" | "fanOut" | "loc" | "score",
 													}))
 												}
 												value={chartConfig.yAxis}
@@ -968,7 +954,7 @@ function AnalysisContent() {
 												onChange={(e) =>
 													setChartConfig((c) => ({
 														...c,
-														colorBy: e.target.value as any,
+														colorBy: e.target.value as "risk" | "language",
 													}))
 												}
 												value={chartConfig.colorBy}
@@ -1019,36 +1005,36 @@ function AnalysisContent() {
 											const midFanOut = maxFanOut / 2;
 											return (
 												<>
-													{/* Top-right: Hubs (high both) - Red zone */}
+													{/* Top-right: Hubs - Red zone */}
 													<rect
-														fill="#f43f5e"
+														fill="var(--color-destructive)"
 														fillOpacity={0.03}
 														height={210}
 														width={window.innerWidth > 768 ? 350 : 150}
 														x={midFanIn}
 														y={0}
 													/>
-													{/* Top-left: Utilities (high fan-out, low fan-in) - Yellow zone */}
+													{/* Top-left: Utilities - Primary zone */}
 													<rect
-														fill="#f59e0b"
+														fill="var(--color-primary)"
 														fillOpacity={0.03}
 														height={210}
 														width={window.innerWidth > 768 ? 350 : 150}
 														x={0}
 														y={0}
 													/>
-													{/* Bottom-right: Dependents (high fan-in, low fan-out) - Blue zone */}
+													{/* Bottom-right: Dependents - Primary zone */}
 													<rect
-														fill="#3b82f6"
+														fill="var(--color-primary)"
 														fillOpacity={0.03}
 														height={210}
 														width={window.innerWidth > 768 ? 350 : 150}
 														x={midFanIn}
 														y={midFanOut}
 													/>
-													{/* Bottom-left: Isolated (low both) - Green zone */}
+													{/* Bottom-left: Isolated - Accent zone */}
 													<rect
-														fill="#10b981"
+														fill="var(--color-accent)"
 														fillOpacity={0.03}
 														height={210}
 														width={window.innerWidth > 768 ? 350 : 150}
@@ -1123,17 +1109,13 @@ function AnalysisContent() {
 												...hotSpotData.map((d) => d.fanIn),
 												1,
 											);
-											const maxFanOut = Math.max(
-												...hotSpotData.map((d) => d.fanOut),
-												1,
-											);
 											const midFanIn = maxFanIn / 2;
-											const midFanOut = maxFanOut / 2;
+											// Use mid values for quadrants
 											return (
 												<>
 													{/* Top-right: Hubs */}
 													<text
-														fill="#f43f5e"
+														fill="var(--color-destructive)"
 														fillOpacity={0.4}
 														fontFamily="IBM Plex Mono"
 														fontSize={10}
@@ -1146,7 +1128,7 @@ function AnalysisContent() {
 													</text>
 													{/* Top-left: Utilities */}
 													<text
-														fill="#f59e0b"
+														fill="var(--color-primary)"
 														fillOpacity={0.4}
 														fontFamily="IBM Plex Mono"
 														fontSize={10}
@@ -1159,7 +1141,7 @@ function AnalysisContent() {
 													</text>
 													{/* Bottom-right: Dependents */}
 													<text
-														fill="#3b82f6"
+														fill="var(--color-primary)"
 														fillOpacity={0.4}
 														fontFamily="IBM Plex Mono"
 														fontSize={10}
@@ -1172,7 +1154,7 @@ function AnalysisContent() {
 													</text>
 													{/* Bottom-left: Isolated */}
 													<text
-														fill="#10b981"
+														fill="var(--color-accent)"
 														fillOpacity={0.4}
 														fontFamily="IBM Plex Mono"
 														fontSize={10}
@@ -1188,7 +1170,7 @@ function AnalysisContent() {
 										})()}
 										<Tooltip
 											content={({ active, payload }) => {
-												if (active && payload && payload.length && payload[0]) {
+												if (active && payload?.length && payload[0]) {
 													const data = payload[0].payload as HotspotDataPoint;
 													const severity =
 														data.score >= 8
@@ -1198,16 +1180,16 @@ function AnalysisContent() {
 																: "normal";
 													const severityColor =
 														severity === "critical"
-															? "text-rose-400"
+															? "text-destructive"
 															: severity === "warning"
-																? "text-amber-400"
-																: "text-emerald-400";
+																? "text-primary"
+																: "text-accent";
 													const severityBg =
 														severity === "critical"
-															? "bg-rose-500/10 border-rose-500/30"
+															? "bg-destructive/10 border-destructive/30"
 															: severity === "warning"
-																? "bg-amber-500/10 border-amber-500/30"
-																: "bg-emerald-500/10 border-emerald-500/30";
+																? "bg-primary/10 border-primary/30"
+																: "bg-accent/10 border-accent/30";
 
 													return (
 														<div
@@ -1325,12 +1307,12 @@ function AnalysisContent() {
 
 												const glowColor =
 													chartConfig.colorBy === "language"
-														? `${langColors[payload.language?.toLowerCase() as keyof typeof langColors] || "#6b7280"}66`
+														? `${langColors[payload.language?.toLowerCase() as keyof typeof langColors] || "var(--color-muted-foreground)"}66`
 														: severity === "critical"
-															? "rgba(244, 63, 94, 0.4)"
+															? "color-mix(in srgb, var(--color-destructive), transparent 60%)"
 															: severity === "warning"
-																? "rgba(245, 158, 11, 0.4)"
-																: "rgba(16, 185, 129, 0.2)";
+																? "color-mix(in srgb, var(--color-primary), transparent 60%)"
+																: "color-mix(in srgb, var(--color-accent), transparent 80%)";
 
 												return (
 													<g>
@@ -1365,19 +1347,19 @@ function AnalysisContent() {
 											Risk Level:
 										</span>
 										<div className="flex items-center gap-1.5">
-											<div className="h-2.5 w-2.5 rounded-full bg-rose-500" />
+											<div className="h-2.5 w-2.5 rounded-full bg-destructive" />
 											<span className="font-mono text-muted-foreground text-xs">
 												Critical
 											</span>
 										</div>
 										<div className="flex items-center gap-1.5">
-											<div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+											<div className="h-2.5 w-2.5 rounded-full bg-primary" />
 											<span className="font-mono text-muted-foreground text-xs">
 												Warning
 											</span>
 										</div>
 										<div className="flex items-center gap-1.5">
-											<div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+											<div className="h-2.5 w-2.5 rounded-full bg-accent" />
 											<span className="font-mono text-muted-foreground text-xs">
 												Normal
 											</span>
@@ -1394,32 +1376,32 @@ function AnalysisContent() {
 
 								{/* Quadrant explanation */}
 								<div className="mt-3 grid grid-cols-2 gap-2 text-[10px] sm:grid-cols-4">
-									<div className="rounded bg-rose-500/5 p-2 text-center">
-										<span className="font-semibold text-rose-400">
+									<div className="rounded bg-destructive/5 p-2 text-center">
+										<span className="font-semibold text-destructive">
 											HOTSPOTS
 										</span>
 										<span className="block text-muted-foreground">
 											Many depend on, many imports
 										</span>
 									</div>
-									<div className="rounded bg-amber-500/5 p-2 text-center">
-										<span className="font-semibold text-amber-400">
+									<div className="rounded bg-primary/5 p-2 text-center">
+										<span className="font-semibold text-primary">
 											UTILITIES
 										</span>
 										<span className="block text-muted-foreground">
 											Few depend on, many imports
 										</span>
 									</div>
-									<div className="rounded bg-blue-500/5 p-2 text-center">
-										<span className="font-semibold text-blue-400">
+									<div className="rounded bg-primary/5 p-2 text-center">
+										<span className="font-semibold text-primary">
 											DEPENDENTS
 										</span>
 										<span className="block text-muted-foreground">
 											Many depend on, few imports
 										</span>
 									</div>
-									<div className="rounded bg-emerald-500/5 p-2 text-center">
-										<span className="font-semibold text-emerald-400">
+									<div className="rounded bg-accent/5 p-2 text-center">
+										<span className="font-semibold text-accent">
 											ISOLATED
 										</span>
 										<span className="block text-muted-foreground">
@@ -1490,7 +1472,7 @@ function AnalysisContent() {
 									<tbody>
 										{hotSpotData.map((hotspot) => (
 											<tr key={hotspot.path}>
-												<td className="font-data text-amber-500">
+												<td className="font-data text-primary">
 													{hotspot.rank}
 												</td>
 												<td className="font-data text-foreground">
@@ -1526,7 +1508,7 @@ function AnalysisContent() {
 								<DialogHeader className="border-border border-b p-4">
 									<div className="flex items-center justify-between">
 										<DialogTitle className="flex items-center gap-2 font-data text-sm">
-											<FileCode className="h-4 w-4 text-amber-500" />
+											<FileCode className="h-4 w-4 text-primary" />
 											{selectedHotspotFile?.split("/").pop()}
 										</DialogTitle>
 										<div className="flex items-center gap-2">

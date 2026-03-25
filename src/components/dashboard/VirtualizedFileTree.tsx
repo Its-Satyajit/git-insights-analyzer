@@ -128,16 +128,16 @@ function getFileIcon(filename: string): { icon: string; color: string } {
 }
 
 function getHotspotColor(score: number): string {
-	if (score >= 0.7) return "text-rose-400";
-	if (score >= 0.4) return "text-amber-400";
-	if (score >= 0.2) return "text-emerald-400";
+	if (score >= 0.7) return "text-destructive";
+	if (score >= 0.4) return "text-primary";
+	if (score >= 0.2) return "text-accent";
 	return "text-muted-foreground";
 }
 
 function getHotspotBg(score: number): string {
-	if (score >= 0.7) return "bg-rose-500/10 border-rose-500/30";
-	if (score >= 0.4) return "bg-amber-500/10 border-amber-500/30";
-	if (score >= 0.2) return "bg-emerald-500/10 border-emerald-500/30";
+	if (score >= 0.7) return "bg-destructive/10 border-destructive/30";
+	if (score >= 0.4) return "bg-primary/10 border-primary/30";
+	if (score >= 0.2) return "bg-accent/10 border-accent/30";
 	return "bg-transparent border-transparent";
 }
 
@@ -365,7 +365,7 @@ export function VirtualizedFileTree({
 										className={cn(
 											"group flex h-8 w-full cursor-pointer items-center gap-1.5 border-transparent border-l-2 px-2 text-left transition-colors",
 											isSelected
-												? "border-amber-500 bg-amber-500/10"
+												? "border-primary bg-primary/10"
 												: "hover:bg-muted/50",
 											hotspotBg && !isSelected && hotspotBg,
 										)}
@@ -399,9 +399,9 @@ export function VirtualizedFileTree({
 										{/* File/Folder icon */}
 										{node.isDirectory ? (
 											expandedPaths.has(node.id) ? (
-												<FolderOpen className="h-4 w-4 shrink-0 text-sky-400" />
+												<FolderOpen className="h-4 w-4 shrink-0 text-primary" />
 											) : (
-												<FolderOpen className="h-4 w-4 shrink-0 text-sky-400/70" />
+												<FolderOpen className="h-4 w-4 shrink-0 text-primary/70" />
 											)
 										) : (
 											<div
@@ -421,7 +421,7 @@ export function VirtualizedFileTree({
 												node.isDirectory
 													? "font-medium text-foreground/90"
 													: "font-normal text-foreground/70",
-												isSelected && "text-amber-100",
+												isSelected && "font-medium text-primary",
 											)}
 										>
 											{node.name}
@@ -481,15 +481,15 @@ export function VirtualizedFileTree({
 					{hotspotData && hotspotData.size > 0 && (
 						<div className="flex items-center gap-2">
 							<span className="flex items-center gap-1">
-								<span className="h-2 w-2 rounded-full bg-rose-500" />
+								<span className="h-2 w-2 rounded-full bg-destructive" />
 								Critical
 							</span>
 							<span className="flex items-center gap-1">
-								<span className="h-2 w-2 rounded-full bg-amber-500" />
+								<span className="h-2 w-2 rounded-full bg-primary" />
 								Warning
 							</span>
 							<span className="flex items-center gap-1">
-								<span className="h-2 w-2 rounded-full bg-emerald-500" />
+								<span className="h-2 w-2 rounded-full bg-accent" />
 								Normal
 							</span>
 						</div>

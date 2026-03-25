@@ -137,7 +137,7 @@ export function Navigation() {
 						className="group flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-all hover:bg-accent hover:text-accent-foreground"
 						href="/"
 					>
-						<div className="flex h-6 w-6 items-center justify-center rounded bg-amber-500/10 text-amber-500">
+						<div className="flex h-6 w-6 items-center justify-center rounded bg-primary/10 text-primary">
 							<Home className="h-3.5 w-3.5" />
 						</div>
 						<span className="font-medium font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors group-hover:text-foreground">
@@ -159,7 +159,7 @@ export function Navigation() {
 								<div
 									className={`flex h-6 w-6 items-center justify-center rounded transition-colors ${
 										pathname === `/dashboard/${repoId}`
-											? "bg-amber-500/20 text-amber-500"
+											? "bg-primary/20 text-primary"
 											: "bg-muted text-muted-foreground group-hover:text-foreground"
 									}`}
 								>
@@ -188,7 +188,7 @@ export function Navigation() {
 								<div
 									className={`flex h-6 w-6 items-center justify-center rounded transition-colors ${
 										pathname === `/dashboard/${repoId}/analysis`
-											? "bg-amber-500/20 text-amber-500"
+											? "bg-primary/20 text-primary"
 											: "bg-muted text-muted-foreground group-hover:text-foreground"
 									}`}
 								>
@@ -212,7 +212,7 @@ export function Navigation() {
 					{isDev && repoId && (
 						<div className="flex items-center gap-2">
 							<div className="mr-2 flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-								<span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-bold text-amber-500">
+								<span className="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-bold text-primary">
 									DEV
 								</span>
 								<span className="text-muted-foreground">Debug:</span>
@@ -302,7 +302,7 @@ export function Navigation() {
 							title="Toggle theme"
 							variant="outline"
 						>
-							<Sun className="hidden h-4 w-4 text-amber-500 dark:block" />
+							<Sun className="hidden h-4 w-4 text-primary dark:block" />
 							<Moon className="block h-4 w-4 text-foreground dark:hidden" />
 						</Button>
 					</div>
