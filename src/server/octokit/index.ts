@@ -46,9 +46,26 @@ export async function getRepoCommits({
 	const { data: commits } = await octokit.rest.repos.listCommits({
 		owner,
 		repo,
-		per_page: 10,
+		per_page: 100,
 	});
 	return commits;
+}
+
+export async function getCommitDetails({
+	owner,
+	repo,
+	sha,
+}: {
+	owner: string;
+	repo: string;
+	sha: string;
+}) {
+	const { data: commit } = await octokit.rest.repos.getCommit({
+		owner,
+		repo,
+		ref: sha,
+	});
+	return commit;
 }
 
 export async function getFileContent({
@@ -113,18 +130,16 @@ export interface Contributor {
 export async function getRepoContributors({
 	owner,
 	repo,
-	perPage = 100,
 }: {
 	owner: string;
 	repo: string;
-	perPage?: number;
 }): Promise<Contributor[]> {
-	const unauthenticatedOctokit = new Octokit();
-	const { data } = await unauthenticatedOctokit.rest.repos.listContributors({
+	const data = await octokit.paginate(octokit.rest.repos.listContributors, {
 		owner,
 		repo,
-		per_page: perPage,
+		per_page: 100,
 	});
+
 	return data
 		.filter((c) => c.login !== undefined)
 		.map((c) => ({
@@ -133,5 +148,5 @@ export async function getRepoContributors({
 			avatar_url: c.avatar_url ?? "",
 			html_url: c.html_url ?? "",
 			contributions: c.contributions ?? 0,
-		}));
+		})) as Contributor[];
 }

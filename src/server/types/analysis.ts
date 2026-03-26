@@ -22,6 +22,12 @@ export interface AnalysisData {
 	totalFiles?: number;
 	totalDirectories?: number;
 	totalLines?: number;
+	totalCodeFiles?: number;
+	samplingCoverage?: {
+		analyzedFiles: number;
+		totalFiles: number;
+		percentage: number;
+	};
 	commits: CommitData[];
 	files: FileData[];
 	fileTree: FileTreeItem[];
@@ -38,6 +44,12 @@ export interface AnalysisData {
 			source: string;
 			target: string;
 		}>;
+		metadata?: {
+			totalNodes: number;
+			totalEdges: number;
+			languageBreakdown: Record<string, number>;
+			unresolvedImports?: number;
+		};
 	};
 	hotSpotData?: Array<{
 		path: string;

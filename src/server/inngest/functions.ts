@@ -1,4 +1,7 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { lt } from "drizzle-orm";
+import { simpleGit } from "simple-git";
 import { getExtension } from "~/lib/getExtension";
 import { convertToFileTree } from "~/lib/treeUtils";
 import { getLatestAnalysis, insertAnalysisResults } from "../dal/analysis";
@@ -19,12 +22,15 @@ import {
 } from "../logic/dependencyAnalysis";
 import { performHotspotAnalysis } from "../logic/hotspotAnalysis";
 import {
+	getCommitDetails,
 	getFileContentFromRaw,
 	getRepoCommits,
 	getRepoContributors,
 	getRepoTree,
 } from "../octokit";
 import { inngest } from "./client";
+
+const TEST_FILE_PATTERN = /(\btest\b|\bspec\b|__tests__|__mocks__)/i;
 
 const CONTENT_MAX_SIZE = 50 * 1024;
 const CODE_EXTENSIONS = [
@@ -106,7 +112,7 @@ export async function coreAnalysisLogic(
 		branch: string;
 		githubUrl: string;
 	},
-	step: {
+	_step: {
 		run: <T>(name: string, fn: () => Promise<T>) => Promise<T>;
 		updateProgress?: (p: number) => Promise<void>;
 	},
@@ -143,46 +149,63 @@ export async function coreAnalysisLogic(
 		`Starting analysis for ${owner}/${repo}`,
 	);
 
-	// 1. Fetching repository data
-	const { repoTree, limitedTree, commitsData, filesData } = await step.run(
-		"fetch-repo-data",
-		async () => {
-			await updateStatus(repoId, "fetching", "Fetching repository data");
-			const [tree, commits] = await Promise.all([
-				getRepoTree({ owner, repo, branch }),
-				getRepoCommits({ owner, repo }),
-			]);
+	const tempDir = path.join(process.cwd(), ".tmp", repoId);
 
-			const commitsData = commits.map((item) => ({
-				sha: item.sha,
-				message: item.commit.message,
-				authorName: item.commit.author?.name ?? "Unknown",
-				committedAt: item.commit.author?.date
-					? new Date(item.commit.author.date)
+	// 0. Shallow Clone (Optimized content access)
+	try {
+		await fs.mkdir(path.dirname(tempDir), { recursive: true });
+		await fs.rm(tempDir, { recursive: true, force: true }); // Clean start
+		const git = simpleGit();
+		await git.clone(data.githubUrl, tempDir, [
+			"--depth",
+			"1",
+			"--branch",
+			branch,
+			"--single-branch",
+		]);
+		await logEvent(repoId, "clone.complete", "success", "initializing", `Shallow cloned to ${tempDir}`);
+	} catch (error) {
+		console.error("[ShallowClone] Failed, falling back to API:", error);
+		await logEvent(repoId, "clone.failed", "warning", "initializing", `Clone failed: ${error instanceof Error ? error.message : "unknown"}`);
+	}
+
+	try {
+		// 1. Fetching repository data
+		await updateStatus(repoId, "fetching", "Fetching repository data");
+		const [tree, commits] = await Promise.all([
+			getRepoTree({ owner, repo, branch }),
+			getRepoCommits({ owner, repo }),
+		]);
+
+		const commitsData = commits.map((item) => ({
+			sha: item.sha,
+			message: item.commit.message,
+			authorName: item.commit.author?.name ?? "Unknown",
+			committedAt: item.commit.author?.date
+				? new Date(item.commit.author.date)
+				: null,
+		}));
+
+		// Skip test files and increase limit for large repos
+		const limitedTree = tree
+			.filter((item) => item.path && !TEST_FILE_PATTERN.test(item.path))
+			.slice(0, 10000);
+
+		const filesData = limitedTree.map((item) => ({
+			id: Math.random().toString(), // fake ID for compat
+			path: item.path,
+			size: item.size ?? 0,
+			sha: item.sha,
+			isDirectory: item.type === "tree",
+			linesCount: 0,
+			extension:
+				item.type === "blob" && getExtension(item.path) !== "no-extension"
+					? getExtension(item.path)
 					: null,
-			}));
+			depth: item.path?.split("/").length ?? 0,
+		}));
 
-			const limTree = tree.slice(0, 2000);
-			const filesData = limTree.map((item) => ({
-				id: Math.random().toString(), // fake ID for compat
-				path: item.path,
-				size: item.size ?? 0,
-				sha: item.sha,
-				isDirectory: item.type === "tree",
-				linesCount: 0,
-				extension:
-					item.type === "blob" && getExtension(item.path) !== "no-extension"
-						? getExtension(item.path)
-						: null,
-				depth: item.path?.split("/").length ?? 0,
-			}));
-
-			return { repoTree: tree, limitedTree: limTree, commitsData, filesData };
-		},
-	);
-
-	// 2. Basic analysis
-	const { basicResults } = await step.run("basic-analysis", async () => {
+		// 2. Basic analysis
 		await updateStatus(repoId, "basic-analysis", "Performing basic analysis");
 
 		const fileTree = convertToFileTree(
@@ -194,23 +217,34 @@ export async function coreAnalysisLogic(
 				})),
 		);
 
-		const results = await performBasicAnalysis({
+		const basicResults = await performBasicAnalysis({
 			repoId,
-			fullTree: repoTree,
+			fullTree: tree,
 			owner,
 			repo,
 			fileTree,
 		});
 
-		return { basicResults: results };
-	});
 
-	// 3. Dependency analysis
-	await step.run("dependency-analysis", async () => {
+		// 3. Dependency analysis
 		await updateStatus(
 			repoId,
 			"dependency-analysis",
 			"Performing dependency analysis",
+		);
+
+		const changeCounts: Record<string, number> = {};
+		await Promise.all(
+			commitsData.map(async (c) => {
+				const details = await getCommitDetails({ owner, repo, sha: c.sha });
+				if (details.files) {
+					for (const f of details.files) {
+						if (f.filename) {
+							changeCounts[f.filename] = (changeCounts[f.filename] ?? 0) + 1;
+						}
+					}
+				}
+			}),
 		);
 
 		const codeFiles = limitedTree
@@ -222,8 +256,12 @@ export async function coreAnalysisLogic(
 					f.size <= CONTENT_MAX_SIZE &&
 					CODE_EXTENSIONS.includes(getExtension(f.path) || ""),
 			)
-			.sort((a, b) => (b.size || 0) - (a.size || 0))
-			.slice(0, 1000);
+			.sort((a, b) => {
+				const scoreA = (changeCounts[a.path] || 0) * 1000 + (a.size || 0);
+				const scoreB = (changeCounts[b.path] || 0) * 1000 + (b.size || 0);
+				return scoreB - scoreA;
+			})
+			.slice(0, 3000);
 
 		const BATCH_SIZE = 20;
 		const filesContent: FileContent[] = [];
@@ -233,12 +271,22 @@ export async function coreAnalysisLogic(
 			const batchResults = await Promise.all(
 				batch.map(async (file) => {
 					if (!file.path) return null;
-					const content = await getFileContentFromRaw({
-						owner,
-						repo,
-						branch,
-						path: file.path,
-					});
+					
+					let content: string | null = null;
+					// Try local FS first (Shallow Clone)
+					try {
+						const localPath = path.join(tempDir, file.path);
+						content = await fs.readFile(localPath, "utf8");
+					} catch (_e) {
+						// Fallback to API
+						content = await getFileContentFromRaw({
+							owner,
+							repo,
+							branch,
+							path: file.path,
+						});
+					}
+
 					if (!content) return null;
 					return {
 						path: file.path,
@@ -270,6 +318,12 @@ export async function coreAnalysisLogic(
 			fileTypeBreakdown: basicResults.fileTypeBreakdown,
 			dependencyGraph: dependencyResults.graph,
 			hotSpotData: hotspotResults.hotspots,
+			totalCodeFiles: basicResults.totalCodeFiles,
+			samplingCoverage: {
+				analyzedFiles: codeFiles.length,
+				totalFiles: basicResults.totalCodeFiles,
+				percentage: Math.round((codeFiles.length / basicResults.totalCodeFiles) * 100),
+			},
 		});
 
 		await insertAnalysisResults({
@@ -295,10 +349,8 @@ export async function coreAnalysisLogic(
 				skippedFiles: dependencyResults.skippedFiles,
 			},
 		);
-	});
 
-	// 4. Contributors sync
-	await step.run("contributors-sync", async () => {
+		// 4. Contributors sync
 		await updateStatus(repoId, "contributors", "Syncing contributors");
 		await deleteContributorsByRepoId(repoId);
 
@@ -325,9 +377,17 @@ export async function coreAnalysisLogic(
 			);
 		}
 		await updateStatus(repoId, "complete", "Analysis complete");
-	});
+	} finally {
+		// Final Cleanup
+		try {
+			await fs.rm(tempDir, { recursive: true, force: true });
+			console.log(`[Cleanup] Removed ${tempDir}`);
+		} catch (error) {
+			console.error("[Cleanup] Failed to remove temp dir:", error);
+		}
+	}
 
-	return { success: true, repoId };
+return { success: true, repoId };
 }
 
 // 7-day Log Cleanup Job
@@ -355,9 +415,10 @@ export const cleanupOldLogs = inngest.createFunction(
 // Inngest Background Function
 export const processAnalysisJob = inngest.createFunction(
 	{
-		id: "analyze-repo",
-		name: "Analyze Repository",
-		triggers: [{ event: "repo/analyze" }],
+		id: "process-repo-analysis",
+		name: "Process Repository Analysis",
+		concurrency: 5,
+		triggers: [{ event: "analysis/repo.requested" }],
 	},
 	async ({ event, step }) => {
 		return coreAnalysisLogic(
