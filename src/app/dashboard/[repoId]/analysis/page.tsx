@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "motion/react";
 import {
 	ArrowLeft,
 	BarChart3,
@@ -19,6 +18,7 @@ import {
 	Target,
 	X,
 } from "lucide-react";
+import { motion } from "motion/react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
@@ -27,6 +27,7 @@ import {
 	BarChart,
 	CartesianGrid,
 	Cell,
+	Label,
 	Pie,
 	PieChart,
 	ReferenceArea,
@@ -38,7 +39,6 @@ import {
 	XAxis,
 	YAxis,
 	ZAxis,
-	Label,
 } from "recharts";
 import { FileTreeVisualizer } from "~/components/dashboard/FileTreeVisualizer";
 import { Button } from "~/components/ui/button";
@@ -214,17 +214,17 @@ function AnalysisContent() {
 
 	if (isLoading) {
 		return (
-			<div className="flex min-h-screen flex-col items-center justify-center bg-mesh pt-14">
+			<div className="flex min-h-screen flex-col items-center justify-center bg-background pt-14">
 				<div className="flex flex-col items-center gap-6">
 					<div className="relative">
-						<div className="absolute inset-0 animate-pulse rounded-full bg-primary/20 blur-xl" />
-						<Loader2 className="relative h-12 w-12 animate-spin text-primary" />
+						<div className="absolute inset-0 animate-pulse rounded-full bg-accent/10 blur-xl" />
+						<Loader2 className="relative h-10 w-10 animate-spin text-foreground" />
 					</div>
 					<div className="text-center">
-						<p className="font-mono text-muted-foreground text-sm uppercase tracking-widest">
+						<p className="font-(family-name:--font-display) text-foreground text-xl">
 							Analyzing Repository
 						</p>
-						<p className="mt-1 font-mono text-muted-foreground text-xs">
+						<p className="mt-1 font-mono text-muted-foreground text-xs uppercase tracking-wider">
 							Scanning dependencies...
 						</p>
 					</div>
@@ -235,21 +235,21 @@ function AnalysisContent() {
 
 	if (error || !status) {
 		return (
-			<div className="flex min-h-screen flex-col items-center justify-center bg-mesh pt-14">
-				<div className="card-glass rounded-lg p-8 text-center">
+			<div className="flex min-h-screen flex-col items-center justify-center bg-background pt-14">
+				<div className="border border-border bg-card p-8 text-center">
 					<div className="mb-4 flex justify-center">
-						<div className="icon-box border-rose-500/30">
-							<X className="h-6 w-6 text-rose-500" />
+						<div className="flex h-10 w-10 items-center justify-center border border-destructive/30 bg-destructive/5">
+							<X className="h-5 w-5 text-destructive" />
 						</div>
 					</div>
-					<h2 className="mb-2 font-mono font-semibold text-lg tracking-tight">
+					<h2 className="font-(family-name:--font-display) mb-2 text-2xl text-foreground">
 						Unable to Load Repository
 					</h2>
-					<p className="mb-6 font-mono text-muted-foreground text-sm">
+					<p className="mb-6 font-mono text-muted-foreground text-xs uppercase tracking-wider">
 						The repository may not exist or may be private.
 					</p>
 					<button
-						className="btn-primary"
+						className="border border-foreground bg-foreground px-4 py-2 font-mono text-background text-xs uppercase tracking-wider hover:bg-foreground/90"
 						onClick={() => router.push("/")}
 						type="button"
 					>
@@ -263,42 +263,43 @@ function AnalysisContent() {
 	return (
 		<motion.div
 			animate="visible"
-			className="min-h-screen bg-grid-pattern bg-mesh pt-14"
+			className="blueprint-grid min-h-screen bg-background pt-14"
 			initial="hidden"
 			variants={containerVariants}
 		>
-			<div className="border-border border-b bg-background/50 backdrop-blur-xl">
-				<div className="mx-auto max-w-7xl px-6 py-5">
+			{/* Header */}
+			<div className="border-border border-b bg-background/95 backdrop-blur-sm">
+				<div className="mx-auto max-w-7xl px-6 py-6">
 					<motion.div variants={itemVariants}>
-						<div className="mb-5 flex items-start justify-between">
-							<div className="flex flex-col gap-1">
+						<div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+							<div className="min-w-0">
 								<button
-									className="group mb-3 flex w-fit items-center gap-2 text-left font-mono text-muted-foreground text-xs uppercase tracking-wider transition-colors hover:text-primary"
+									className="group mb-4 flex w-fit items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-widest transition-colors hover:text-foreground"
 									onClick={() => router.push(`/dashboard/${repoId}`)}
 									type="button"
 								>
 									<ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
 									Back to Dashboard
 								</button>
-								<div className="flex items-center gap-3">
+								<div className="flex items-center gap-4">
 									{metadata?.avatarUrl ? (
 										<Image
 											alt={metadata.owner}
-											className="rounded-full"
-											height={40}
+											className="border border-border"
+											height={44}
 											src={metadata.avatarUrl}
-											width={40}
+											width={44}
 										/>
 									) : (
-										<div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
-											<GitBranch className="h-5 w-5 text-primary" />
+										<div className="flex h-11 w-11 items-center justify-center border border-border bg-secondary">
+											<GitBranch className="h-5 w-5 text-muted-foreground" />
 										</div>
 									)}
-									<div>
-										<h1 className="font-bold font-mono text-2xl text-foreground tracking-tight">
+									<div className="min-w-0">
+										<h1 className="font-(family-name:--font-display) truncate text-3xl text-foreground leading-[1.15] tracking-tight md:text-4xl">
 											{metadata?.fullName ?? "..."}
 										</h1>
-										<p className="font-mono text-muted-foreground text-xs uppercase tracking-widest">
+										<p className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 											{status?.analysis?.summary
 												? "Comprehensive Analysis"
 												: "Dependency Analysis"}
@@ -306,33 +307,50 @@ function AnalysisContent() {
 									</div>
 								</div>
 							</div>
-							<div className="flex gap-3">
-								<div className="stat-card">
-									<p className="stat-value">
-										{status?.analysis?.totalFiles ?? graph?.metadata?.totalNodes ?? graph?.nodes?.length ?? 0}
-									</p>
-									<p className="stat-label">Files</p>
+
+							{/* Inline stats - architectural style */}
+							<div className="flex items-center gap-8 lg:pt-4">
+								<div className="flex flex-col gap-0.5">
+									<span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">
+										Files
+									</span>
+									<span className="font-(family-name:--font-display) text-2xl text-foreground">
+										{status?.analysis?.totalFiles ??
+											graph?.metadata?.totalNodes ??
+											graph?.nodes?.length ??
+											0}
+									</span>
 								</div>
-								<div className="stat-card">
-									<p className="stat-value">
+								<div className="h-8 w-px bg-border" />
+								<div className="flex flex-col gap-0.5">
+									<span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">
+										Connections
+									</span>
+									<span className="font-(family-name:--font-display) text-2xl text-foreground">
 										{graph?.metadata?.totalEdges ?? graph?.edges?.length ?? 0}
-									</p>
-									<p className="stat-label">Connections</p>
+									</span>
 								</div>
-								<div className="stat-card">
-									<p className="stat-value">
+								<div className="h-8 w-px bg-border" />
+								<div className="flex flex-col gap-0.5">
+									<span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">
+										Languages
+									</span>
+									<span className="font-(family-name:--font-display) text-2xl text-foreground">
 										{
-											Object.keys(status?.analysis?.fileTypeBreakdown ?? graph?.metadata?.languageBreakdown ?? {})
-												.length
+											Object.keys(
+												status?.analysis?.fileTypeBreakdown ??
+													graph?.metadata?.languageBreakdown ??
+													{},
+											).length
 										}
-									</p>
-									<p className="stat-label">Languages</p>
+									</span>
 								</div>
 							</div>
 						</div>
 
+						{/* Tabs */}
 						<Tabs
-							className="w-full"
+							className="mt-6"
 							onValueChange={(v) => setActiveTab(v as typeof activeTab)}
 							value={activeTab}
 						>
@@ -355,88 +373,85 @@ function AnalysisContent() {
 				</div>
 			</div>
 
-			<div className="mx-auto max-w-7xl p-6">
+			{/* Content */}
+			<div className="mx-auto max-w-7xl px-6 py-8">
 				{activeTab === "overview" ? (
 					<motion.div variants={itemVariants}>
 						{summary ? (
-							<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+							<div className="grid gap-0 md:grid-cols-2 lg:grid-cols-3">
+								{/* Basic Statistics */}
 								<motion.div
-									className="card-glass animate-fade-in-up rounded-lg p-5"
+									className="animate-fade-in-up border-border border-r border-b p-6"
 									style={{ animationDelay: "0.1s" }}
 								>
-									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-primary/30">
-											<BarChart3 className="h-4 w-4 text-primary" />
-										</div>
-										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
+									<div className="mb-5">
+										<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 											Basic Statistics
-										</CardTitle>
+										</span>
 									</div>
-									<div className="space-y-3">
-										<div className="flex items-center justify-between border-border border-b pb-2">
+									<div className="space-y-4">
+										<div className="flex items-baseline justify-between border-border border-b pb-3">
 											<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 												Total Files
 											</span>
-											<span className="font-data font-medium text-foreground text-sm">
+											<span className="font-(family-name:--font-display) text-2xl text-foreground">
 												{summary.basic.totalFiles}
 											</span>
 										</div>
-										<div className="flex items-center justify-between border-border border-b pb-2">
+										<div className="flex items-baseline justify-between border-border border-b pb-3">
 											<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 												Directories
 											</span>
-											<span className="font-data font-medium text-foreground text-sm">
+											<span className="font-(family-name:--font-display) text-2xl text-foreground">
 												{summary.basic.totalDirectories}
 											</span>
 										</div>
-										<div className="flex items-center justify-between pb-2">
+										<div className="flex items-baseline justify-between pb-3">
 											<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 												Lines of Code
 											</span>
-											<span className="font-data font-medium text-foreground text-sm">
+											<span className="font-(family-name:--font-display) text-2xl text-foreground">
 												{summary.basic.totalLines.toLocaleString()}
 											</span>
 										</div>
 									</div>
 								</motion.div>
 
+								{/* Languages */}
 								<motion.div
-									className="card-glass animate-fade-in-up rounded-lg p-5"
+									className="animate-fade-in-up border-border border-r border-b p-6 lg:border-r"
 									style={{ animationDelay: "0.15s" }}
 								>
-									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-accent/30">
-											<Layers className="h-4 w-4 text-accent" />
-										</div>
-										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
+									<div className="mb-5">
+										<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 											Languages
-										</CardTitle>
+										</span>
 									</div>
-									<div className="mb-4 flex items-baseline gap-2">
-										<span className="font-bold font-mono text-foreground text-xl">
+									<div className="mb-5">
+										<span className="font-(family-name:--font-display) text-3xl text-foreground">
 											{summary.languages.primaryLanguage}
 										</span>
-										<span className="font-mono text-muted-foreground text-xs uppercase">
-											(Primary)
+										<span className="ml-2 font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
+											Primary
 										</span>
 									</div>
-									<div className="space-y-2.5">
+									<div className="space-y-3">
 										{summary.languages.topLanguages.map((lang) => (
 											<div
 												className="flex items-center justify-between"
 												key={lang.name}
 											>
-												<span className="font-data text-muted-foreground text-xs">
+												<span className="font-mono text-muted-foreground text-xs">
 													{lang.name}
 												</span>
-												<div className="flex items-center gap-2">
-													<div className="progress-bar w-16">
+												<div className="flex items-center gap-3">
+													<div className="h-1 w-16 bg-border">
 														<div
-															className="progress-fill"
+															className="h-full bg-accent"
 															style={{ width: `${lang.percentage}%` }}
 														/>
 													</div>
-													<span className="w-10 text-right font-data text-muted-foreground text-xs">
+													<span className="w-12 text-right font-mono text-muted-foreground text-xs tabular-nums">
 														{lang.percentage.toFixed(1)}%
 													</span>
 												</div>
@@ -445,24 +460,22 @@ function AnalysisContent() {
 									</div>
 								</motion.div>
 
+								{/* Structure */}
 								<motion.div
-									className="card-glass animate-fade-in-up rounded-lg p-5"
+									className="animate-fade-in-up border-border border-b p-6 lg:border-r"
 									style={{ animationDelay: "0.2s" }}
 								>
-									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-primary/30">
-											<FolderTree className="h-4 w-4 text-primary" />
-										</div>
-										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
+									<div className="mb-5">
+										<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 											Structure
-										</CardTitle>
+										</span>
 									</div>
-									<div className="space-y-3">
-										<div className="flex items-center justify-between border-border border-b pb-2">
+									<div className="space-y-4">
+										<div className="flex items-baseline justify-between border-border border-b pb-3">
 											<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 												Max Depth
 											</span>
-											<span className="font-data font-medium text-foreground text-sm">
+											<span className="font-(family-name:--font-display) text-2xl text-foreground">
 												{summary.structure.maxDepth}
 											</span>
 										</div>
@@ -472,7 +485,10 @@ function AnalysisContent() {
 											</span>
 											<div className="flex flex-wrap gap-1.5">
 												{summary.structure.topLevelDirectories.map((dir) => (
-													<span className="badge" key={dir}>
+													<span
+														className="border border-border px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+														key={dir}
+													>
 														{dir}
 													</span>
 												))}
@@ -481,52 +497,50 @@ function AnalysisContent() {
 									</div>
 								</motion.div>
 
+								{/* Dependencies */}
 								<motion.div
-									className="card-glass animate-fade-in-up rounded-lg p-5"
+									className="animate-fade-in-up border-r border-b p-6 lg:border-b-0"
 									style={{ animationDelay: "0.25s" }}
 								>
-									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-primary/30">
-											<Network className="h-4 w-4 text-primary" />
-										</div>
-										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
+									<div className="mb-5">
+										<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 											Dependencies
-										</CardTitle>
+										</span>
 									</div>
-									<div className="space-y-3">
-										<div className="flex items-center justify-between border-border border-b pb-2">
+									<div className="space-y-4">
+										<div className="flex items-baseline justify-between border-border border-b pb-3">
 											<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 												Total Files
 											</span>
-											<span className="font-data font-medium text-foreground text-sm">
+											<span className="font-(family-name:--font-display) text-2xl text-foreground">
 												{summary.dependencies.totalNodes}
 											</span>
 										</div>
-										<div className="flex items-center justify-between border-border border-b pb-2">
+										<div className="flex items-baseline justify-between border-border border-b pb-3">
 											<span className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 												Connections
 											</span>
-											<span className="font-data font-medium text-foreground text-sm">
+											<span className="font-(family-name:--font-display) text-2xl text-foreground">
 												{summary.dependencies.totalEdges}
 											</span>
 										</div>
 										{summary.dependencies.mostDependedUpon.length > 0 && (
 											<div>
-												<h4 className="mb-2 font-medium font-mono text-muted-foreground text-xs uppercase tracking-wider">
+												<h4 className="mb-3 font-mono text-muted-foreground text-xs uppercase tracking-wider">
 													Most Depended Upon
 												</h4>
-												<div className="space-y-1.5">
+												<div className="space-y-2">
 													{summary.dependencies.mostDependedUpon
 														.slice(0, 5)
 														.map((item) => (
 															<div
-																className="flex items-center justify-between"
+																className="flex items-center justify-between border-border/50 border-b pb-2"
 																key={item.path}
 															>
-																<span className="max-w-[180px] truncate font-data text-muted-foreground text-xs">
+																<span className="max-w-[180px] truncate font-mono text-muted-foreground text-xs">
 																	{item.path.split("/").pop()}
 																</span>
-																<span className="font-data text-primary">
+																<span className="font-(family-name:--font-display) text-foreground text-lg">
 																	{item.fanIn}
 																</span>
 															</div>
@@ -537,17 +551,15 @@ function AnalysisContent() {
 									</div>
 								</motion.div>
 
+								{/* Hotspots */}
 								<motion.div
-									className="card-glass animate-fade-in-up rounded-lg p-5"
+									className="animate-fade-in-up border-r p-6"
 									style={{ animationDelay: "0.3s" }}
 								>
-									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-destructive/30">
-											<Target className="h-4 w-4 text-destructive" />
-										</div>
-										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
+									<div className="mb-5">
+										<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 											Hotspots
-										</CardTitle>
+										</span>
 									</div>
 									{summary.hotspots.topHotspots.length > 0 ? (
 										<div className="space-y-2">
@@ -555,18 +567,18 @@ function AnalysisContent() {
 												.slice(0, 5)
 												.map((hotspot) => (
 													<div
-														className="flex items-center justify-between rounded-md border border-border bg-secondary/50 p-2.5 transition-colors hover:border-border"
+														className="flex items-center justify-between border-border/50 border-b py-2"
 														key={hotspot.path}
 													>
 														<div className="min-w-0 flex-1">
-															<p className="truncate font-data text-foreground text-xs">
+															<p className="truncate font-mono text-foreground text-xs">
 																{hotspot.path.split("/").pop()}
 															</p>
-															<p className="font-mono text-muted-foreground text-xs">
+															<p className="font-mono text-[10px] text-muted-foreground">
 																Score: {hotspot.score.toFixed(2)}
 															</p>
 														</div>
-														<span className="ml-2 rounded-md border border-primary/30 bg-primary/20 px-2 py-0.5 font-data text-primary text-xs">
+														<span className="ml-2 border border-border px-2 py-0.5 font-mono text-muted-foreground text-xs">
 															#{hotspot.rank}
 														</span>
 													</div>
@@ -579,30 +591,26 @@ function AnalysisContent() {
 									)}
 								</motion.div>
 
+								{/* File Types */}
 								<motion.div
-									className="card-glass animate-fade-in-up rounded-lg p-5"
+									className="animate-fade-in-up p-6"
 									style={{ animationDelay: "0.35s" }}
 								>
-									<div className="mb-4 flex items-center gap-3">
-										<div className="icon-box border-accent/30">
-											<FileType className="h-4 w-4 text-accent" />
-										</div>
-										<CardTitle className="font-mono font-semibold text-sm uppercase tracking-wider">
+									<div className="mb-5">
+										<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 											File Types
-										</CardTitle>
+										</span>
 									</div>
 									<div className="space-y-2">
 										{summary.fileTypes.topExtensions.map((ext) => (
 											<div
-												className="flex items-center justify-between border-border border-b py-1.5 last:border-0"
+												className="flex items-center justify-between border-border/50 border-b py-2"
 												key={ext.extension}
 											>
-												<div className="flex items-center gap-2">
-													<span className="font-data text-muted-foreground text-xs">
-														.{ext.extension}
-													</span>
-												</div>
-												<span className="font-data text-muted-foreground text-xs">
+												<span className="font-mono text-muted-foreground text-xs">
+													.{ext.extension}
+												</span>
+												<span className="font-mono text-muted-foreground text-xs tabular-nums">
 													{ext.count}
 												</span>
 											</div>
@@ -611,41 +619,48 @@ function AnalysisContent() {
 								</motion.div>
 							</div>
 						) : (
-							<div className="card-glass flex flex-col items-center justify-center rounded-lg py-16">
+							<div className="flex flex-col items-center justify-center border border-border py-20">
 								<div className="relative mb-6">
-									<div className="absolute inset-0 animate-pulse rounded-full bg-primary/10 blur-xl" />
-									<BarChart3 className="relative h-12 w-12 text-muted-foreground" />
+									<div className="absolute inset-0 animate-pulse rounded-full bg-accent/5 blur-xl" />
+									<BarChart3 className="relative h-10 w-10 text-muted-foreground" />
 								</div>
-								<p className="font-mono text-muted-foreground text-sm">
-									Analysis in progress...
+								<p className="font-(family-name:--font-display) text-foreground text-lg">
+									Analysis in progress
 								</p>
-								<p className="mt-1 font-mono text-muted-foreground text-xs">
+								<p className="mt-1 font-mono text-muted-foreground text-xs uppercase tracking-wider">
 									Summary data will appear once analysis completes.
 								</p>
 							</div>
 						)}
 					</motion.div>
 				) : activeTab === "charts" ? (
-					<div className="space-y-4">
-						<div className="grid gap-4 lg:grid-cols-2">
+					<div className="space-y-0">
+						<div className="grid gap-0 lg:grid-cols-2">
+							{/* Top Imported Files */}
 							<motion.div
-								className="card-glass animate-fade-in-up rounded-lg p-5"
+								className="animate-fade-in-up border-border border-r border-b p-6"
 								style={{ animationDelay: "0.1s" }}
 							>
-								<h3 className="mb-4 font-mono font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+								<h3 className="mb-6 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 									Top Imported Files
 								</h3>
 								<ResponsiveContainer height={280}>
 									<BarChart data={topImportedFiles} layout="vertical">
 										<XAxis
 											axisLine={{ stroke: "var(--color-border)" }}
-											tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
+											tick={{
+												fill: "var(--color-muted-foreground)",
+												fontSize: 11,
+											}}
 											type="number"
 										/>
 										<YAxis
 											axisLine={{ stroke: "var(--color-border)" }}
 											dataKey="name"
-											tick={{ fill: "var(--color-muted-foreground)", fontSize: 10 }}
+											tick={{
+												fill: "var(--color-muted-foreground)",
+												fontSize: 10,
+											}}
 											type="category"
 											width={90}
 										/>
@@ -654,8 +669,8 @@ function AnalysisContent() {
 												if (active && payload?.length && payload[0]?.payload) {
 													const data = payload[0];
 													return (
-														<div className="rounded-md border border-border bg-secondary p-2 shadow-lg">
-															<p className="font-data text-foreground text-xs">
+														<div className="border border-border bg-card p-3 shadow-lg">
+															<p className="font-mono text-foreground text-xs">
 																{data.payload.path}
 															</p>
 															<p className="mt-1 font-mono text-muted-foreground text-xs">
@@ -670,17 +685,18 @@ function AnalysisContent() {
 										<Bar
 											dataKey="imports"
 											fill="var(--color-primary)"
-											radius={[0, 4, 4, 0]}
+											radius={[0, 2, 2, 0]}
 										/>
 									</BarChart>
 								</ResponsiveContainer>
 							</motion.div>
 
+							{/* Language Distribution */}
 							<motion.div
-								className="card-glass animate-fade-in-up rounded-lg p-5"
+								className="animate-fade-in-up border-border border-b p-6"
 								style={{ animationDelay: "0.15s" }}
 							>
-								<h3 className="mb-4 font-mono font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+								<h3 className="mb-6 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 									Language Distribution
 								</h3>
 								<ResponsiveContainer height={280}>
@@ -709,11 +725,11 @@ function AnalysisContent() {
 											content={({ active, payload }) => {
 												if (active && payload?.length && payload[0]?.payload) {
 													return (
-														<div className="rounded-md border border-border bg-secondary p-2 shadow-lg">
+														<div className="border border-border bg-card p-3 shadow-lg">
 															<p className="font-mono text-foreground text-xs">
 																{payload[0].name}
 															</p>
-															<p className="font-data text-muted-foreground text-xs">
+															<p className="font-mono text-muted-foreground text-xs">
 																{payload[0].value?.toLocaleString()} files
 															</p>
 														</div>
@@ -726,33 +742,40 @@ function AnalysisContent() {
 								</ResponsiveContainer>
 							</motion.div>
 
+							{/* Files by Language */}
 							<motion.div
-								className="card-glass animate-fade-in-up rounded-lg p-5"
+								className="animate-fade-in-up border-border border-r border-b p-6 lg:border-b-0"
 								style={{ animationDelay: "0.2s" }}
 							>
-								<h3 className="mb-4 font-mono font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+								<h3 className="mb-6 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 									Files by Language
 								</h3>
 								<ResponsiveContainer height={280}>
 									<BarChart data={filesByLanguage}>
 										<XAxis
-											axisLine={{ stroke: "#262626" }}
+											axisLine={{ stroke: "var(--color-border)" }}
 											dataKey="name"
-											tick={{ fill: "#525252", fontSize: 10 }}
+											tick={{
+												fill: "var(--color-muted-foreground)",
+												fontSize: 10,
+											}}
 										/>
 										<YAxis
-											axisLine={{ stroke: "#262626" }}
-											tick={{ fill: "#525252", fontSize: 11 }}
+											axisLine={{ stroke: "var(--color-border)" }}
+											tick={{
+												fill: "var(--color-muted-foreground)",
+												fontSize: 11,
+											}}
 										/>
 										<Tooltip
 											content={({ active, payload }) => {
 												if (active && payload?.length && payload[0]?.payload) {
 													return (
-														<div className="rounded-md border border-border bg-secondary p-2 shadow-lg">
+														<div className="border border-border bg-card p-3 shadow-lg">
 															<p className="font-mono text-foreground text-xs">
 																{payload[0].payload.name}
 															</p>
-															<p className="font-data text-muted-foreground text-xs">
+															<p className="font-mono text-muted-foreground text-xs">
 																{payload[0].value} files
 															</p>
 														</div>
@@ -761,7 +784,7 @@ function AnalysisContent() {
 												return null;
 											}}
 										/>
-										<Bar dataKey="count" radius={[4, 4, 0, 0]}>
+										<Bar dataKey="count" radius={[2, 2, 0, 0]}>
 											{filesByLanguage.map((entry) => (
 												<Cell
 													fill={
@@ -778,33 +801,40 @@ function AnalysisContent() {
 								</ResponsiveContainer>
 							</motion.div>
 
+							{/* LOC by Language */}
 							<motion.div
-								className="card-glass animate-fade-in-up rounded-lg p-5"
+								className="animate-fade-in-up border-border border-b p-6 lg:border-b-0"
 								style={{ animationDelay: "0.25s" }}
 							>
-								<h3 className="mb-4 font-mono font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+								<h3 className="mb-6 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 									Lines of Code by Language
 								</h3>
 								<ResponsiveContainer height={280}>
 									<BarChart data={locByLanguage}>
 										<XAxis
-											axisLine={{ stroke: "#262626" }}
+											axisLine={{ stroke: "var(--color-border)" }}
 											dataKey="name"
-											tick={{ fill: "#525252", fontSize: 10 }}
+											tick={{
+												fill: "var(--color-muted-foreground)",
+												fontSize: 10,
+											}}
 										/>
 										<YAxis
-											axisLine={{ stroke: "#262626" }}
-											tick={{ fill: "#525252", fontSize: 11 }}
+											axisLine={{ stroke: "var(--color-border)" }}
+											tick={{
+												fill: "var(--color-muted-foreground)",
+												fontSize: 11,
+											}}
 										/>
 										<Tooltip
 											content={({ active, payload }) => {
 												if (active && payload?.length && payload[0]?.payload) {
 													return (
-														<div className="rounded-md border border-border bg-secondary p-2 shadow-lg">
+														<div className="border border-border bg-card p-3 shadow-lg">
 															<p className="font-mono text-foreground text-xs">
 																{payload[0].payload.name}
 															</p>
-															<p className="font-data text-muted-foreground text-xs">
+															<p className="font-mono text-muted-foreground text-xs">
 																{Number(payload[0].value).toLocaleString()}{" "}
 																lines
 															</p>
@@ -814,7 +844,7 @@ function AnalysisContent() {
 												return null;
 											}}
 										/>
-										<Bar dataKey="loc" radius={[4, 4, 0, 0]}>
+										<Bar dataKey="loc" radius={[2, 2, 0, 0]}>
 											{locByLanguage.map((entry) => (
 												<Cell
 													fill={
@@ -831,46 +861,47 @@ function AnalysisContent() {
 							</motion.div>
 						</div>
 
+						{/* Dependency Overview */}
 						<motion.div
-							className="card-glass animate-fade-in-up rounded-lg p-5"
+							className="animate-fade-in-up border-border border-t p-6"
 							style={{ animationDelay: "0.3s" }}
 						>
-							<h3 className="mb-4 font-mono font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+							<h3 className="mb-6 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 								Dependency Overview
 							</h3>
-							<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-								<div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center">
-									<p className="font-data font-semibold text-2xl text-primary">
+							<div className="grid grid-cols-2 gap-0 sm:grid-cols-4">
+								<div className="border-border border-r p-6 text-center">
+									<p className="font-(family-name:--font-display) text-3xl text-foreground">
 										{graph?.metadata?.totalNodes ?? 0}
 									</p>
-									<p className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+									<p className="mt-1 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 										Total Files
 									</p>
 								</div>
-								<div className="rounded-lg border border-accent/20 bg-accent/5 p-4 text-center">
-									<p className="font-data font-semibold text-2xl text-accent">
+								<div className="border-border border-r p-6 text-center">
+									<p className="font-(family-name:--font-display) text-3xl text-accent">
 										{graph?.metadata?.totalEdges ?? 0}
 									</p>
-									<p className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+									<p className="mt-1 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 										Dependencies
 									</p>
 								</div>
-								<div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center">
-									<p className="font-data font-semibold text-2xl text-primary">
+								<div className="border-border border-r p-6 text-center">
+									<p className="font-(family-name:--font-display) text-3xl text-foreground">
 										{graph?.metadata?.unresolvedImports ?? 0}
 									</p>
-									<p className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+									<p className="mt-1 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 										Unresolved
 									</p>
 								</div>
-								<div className="rounded-lg border border-accent/20 bg-accent/5 p-4 text-center">
-									<p className="font-data font-semibold text-2xl text-accent">
+								<div className="p-6 text-center">
+									<p className="font-(family-name:--font-display) text-3xl text-accent">
 										{
 											Object.keys(graph?.metadata?.languageBreakdown ?? {})
 												.length
 										}
 									</p>
-									<p className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+									<p className="mt-1 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 										Languages
 									</p>
 								</div>
@@ -879,8 +910,8 @@ function AnalysisContent() {
 					</div>
 				) : activeTab === "hotspots" ? (
 					<motion.div variants={itemVariants}>
-						<div className="mb-4 flex items-center justify-between">
-							<h3 className="font-mono font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+						<div className="mb-6 flex items-center justify-between">
+							<h3 className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 								Hotspots
 							</h3>
 							<div className="flex gap-1.5">
@@ -889,7 +920,7 @@ function AnalysisContent() {
 									onClick={() => setHotspotViewMode("scatter")}
 									type="button"
 								>
-									<GitCommitHorizontal className="h-3.5 w-3.5" />
+									<GitCommitHorizontal className="h-3 w-3" />
 									<span>Scatter</span>
 								</button>
 								<button
@@ -897,17 +928,17 @@ function AnalysisContent() {
 									onClick={() => setHotspotViewMode("table")}
 									type="button"
 								>
-									<Table2 className="h-3.5 w-3.5" />
+									<Table2 className="h-3 w-3" />
 									<span>Table</span>
 								</button>
 							</div>
 						</div>
 
 						{hotspotViewMode === "scatter" ? (
-							<div className="card-glass rounded-lg p-5">
+							<div className="border border-border p-6">
 								{/* Header with filter */}
-								<div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-									<h4 className="font-medium font-mono text-muted-foreground text-xs uppercase tracking-wider">
+								<div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+									<h4 className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 										Complexity vs. Connectivity
 									</h4>
 									{hotSpotData && hotSpotData.length > 0 && (
@@ -916,11 +947,15 @@ function AnalysisContent() {
 												X:
 											</span>
 											<select
-												className="rounded border border-border bg-muted px-2 py-1 font-mono text-foreground text-xs"
+												className="border border-border bg-background px-2 py-1 font-mono text-foreground text-xs"
 												onChange={(e) =>
 													setChartConfig((c) => ({
 														...c,
-														xAxis: e.target.value as "fanIn" | "fanOut" | "loc" | "score",
+														xAxis: e.target.value as
+															| "fanIn"
+															| "fanOut"
+															| "loc"
+															| "score",
 													}))
 												}
 												value={chartConfig.xAxis}
@@ -934,11 +969,15 @@ function AnalysisContent() {
 												Y:
 											</span>
 											<select
-												className="rounded border border-border bg-muted px-2 py-1 font-mono text-foreground text-xs"
+												className="border border-border bg-background px-2 py-1 font-mono text-foreground text-xs"
 												onChange={(e) =>
 													setChartConfig((c) => ({
 														...c,
-														yAxis: e.target.value as "fanIn" | "fanOut" | "loc" | "score",
+														yAxis: e.target.value as
+															| "fanIn"
+															| "fanOut"
+															| "loc"
+															| "score",
 													}))
 												}
 												value={chartConfig.yAxis}
@@ -952,7 +991,7 @@ function AnalysisContent() {
 												Color:
 											</span>
 											<select
-												className="rounded border border-border bg-muted px-2 py-1 font-mono text-foreground text-xs"
+												className="border border-border bg-background px-2 py-1 font-mono text-foreground text-xs"
 												onChange={(e) =>
 													setChartConfig((c) => ({
 														...c,
@@ -969,7 +1008,7 @@ function AnalysisContent() {
 											</span>
 											<div className="flex items-center gap-2">
 												<input
-													className="h-1.5 w-24 cursor-pointer appearance-none rounded-lg bg-muted accent-amber-500 hover:accent-amber-400"
+													className="h-1 w-24 cursor-pointer appearance-none bg-border accent-accent hover:accent-accent/80"
 													max={hotSpotData.length}
 													min={5}
 													onChange={(e) =>
@@ -979,7 +1018,7 @@ function AnalysisContent() {
 													type="range"
 													value={scatterLimit}
 												/>
-												<span className="min-w-10 font-mono text-amber-500 text-xs">
+												<span className="min-w-10 font-mono text-accent text-xs tabular-nums">
 													{scatterLimit}
 												</span>
 											</div>
@@ -987,16 +1026,14 @@ function AnalysisContent() {
 									)}
 								</div>
 
-								{/* Chart with quadrant backgrounds */}
+								{/* Chart */}
 								<ResponsiveContainer height={420}>
 									<ScatterChart
 										margin={{ top: 30, right: 30, bottom: 60, left: 60 }}
 									>
-										{/* Quadrant background areas and labels */}
 										{(() => {
 											if (!hotSpotData || hotSpotData.length === 0) return null;
-											
-											// Determine max values based on the current chart axes to ensure quadrants fill the visible area
+
 											const xKey = chartConfig.xAxis;
 											const yKey = chartConfig.yAxis;
 
@@ -1010,18 +1047,17 @@ function AnalysisContent() {
 												return !Number.isNaN(val) ? Math.max(max, val) : max;
 											}, 0);
 
-											const maxX = Math.max(maxXValue, 1) * 1.1; // Add 10% buffer
+											const maxX = Math.max(maxXValue, 1) * 1.1;
 											const maxY = Math.max(maxYValue, 1) * 1.1;
-											
+
 											const midX = maxX / 2;
 											const midY = maxY / 2;
 
 											return (
 												<>
-													{/* Top-right: HOTSPOTS - Red zone */}
 													<ReferenceArea
 														fill="var(--color-destructive)"
-														fillOpacity={0.03}
+														fillOpacity={0.05}
 														x1={midX}
 														x2={maxX}
 														y1={midY}
@@ -1029,7 +1065,7 @@ function AnalysisContent() {
 													>
 														<Label
 															fill="var(--color-destructive)"
-															fillOpacity={0.4}
+															fillOpacity={0.5}
 															fontFamily="IBM Plex Mono"
 															fontSize={10}
 															fontWeight={600}
@@ -1038,10 +1074,9 @@ function AnalysisContent() {
 														/>
 													</ReferenceArea>
 
-													{/* Top-left: UTILITIES - Primary zone */}
 													<ReferenceArea
 														fill="var(--color-primary)"
-														fillOpacity={0.03}
+														fillOpacity={0.05}
 														x1={0}
 														x2={midX}
 														y1={midY}
@@ -1049,7 +1084,7 @@ function AnalysisContent() {
 													>
 														<Label
 															fill="var(--color-primary)"
-															fillOpacity={0.4}
+															fillOpacity={0.5}
 															fontFamily="IBM Plex Mono"
 															fontSize={10}
 															fontWeight={600}
@@ -1058,10 +1093,9 @@ function AnalysisContent() {
 														/>
 													</ReferenceArea>
 
-													{/* Bottom-right: DEPENDENTS - Primary zone */}
 													<ReferenceArea
 														fill="var(--color-primary)"
-														fillOpacity={0.03}
+														fillOpacity={0.05}
 														x1={midX}
 														x2={maxX}
 														y1={0}
@@ -1069,7 +1103,7 @@ function AnalysisContent() {
 													>
 														<Label
 															fill="var(--color-primary)"
-															fillOpacity={0.4}
+															fillOpacity={0.5}
 															fontFamily="IBM Plex Mono"
 															fontSize={10}
 															fontWeight={600}
@@ -1078,10 +1112,9 @@ function AnalysisContent() {
 														/>
 													</ReferenceArea>
 
-													{/* Bottom-left: ISOLATED - Accent zone */}
 													<ReferenceArea
 														fill="var(--color-accent)"
-														fillOpacity={0.03}
+														fillOpacity={0.05}
 														x1={0}
 														x2={midX}
 														y1={0}
@@ -1089,7 +1122,7 @@ function AnalysisContent() {
 													>
 														<Label
 															fill="var(--color-accent)"
-															fillOpacity={0.4}
+															fillOpacity={0.5}
 															fontFamily="IBM Plex Mono"
 															fontSize={10}
 															fontWeight={600}
@@ -1098,14 +1131,13 @@ function AnalysisContent() {
 														/>
 													</ReferenceArea>
 
-													{/* Mid-point lines for quadrants */}
 													<ReferenceLine
-														stroke="#333"
+														stroke="var(--color-border)"
 														strokeDasharray="3 3"
 														x={midX}
 													/>
 													<ReferenceLine
-														stroke="#333"
+														stroke="var(--color-border)"
 														strokeDasharray="3 3"
 														y={midY}
 													/>
@@ -1113,12 +1145,12 @@ function AnalysisContent() {
 											);
 										})()}
 										<CartesianGrid
-											stroke="#1f1f1f"
+											stroke="var(--color-border)"
 											strokeDasharray="3 3"
 											vertical={true}
 										/>
 										<XAxis
-											axisLine={{ stroke: "#333" }}
+											axisLine={{ stroke: "var(--color-border)" }}
 											dataKey={chartConfig.xAxis}
 											label={{
 												value:
@@ -1131,17 +1163,20 @@ function AnalysisContent() {
 																: "Risk Score",
 												position: "bottom",
 												offset: 40,
-												fill: "#737373",
+												fill: "var(--color-muted-foreground)",
 												fontSize: 11,
 												fontFamily: "IBM Plex Mono",
 											}}
 											name={chartConfig.xAxis}
-											tick={{ fill: "#737373", fontSize: 10 }}
-											tickLine={{ stroke: "#333" }}
+											tick={{
+												fill: "var(--color-muted-foreground)",
+												fontSize: 10,
+											}}
+											tickLine={{ stroke: "var(--color-border)" }}
 											type="number"
 										/>
 										<YAxis
-											axisLine={{ stroke: "#333" }}
+											axisLine={{ stroke: "var(--color-border)" }}
 											dataKey={chartConfig.yAxis}
 											label={{
 												value:
@@ -1155,13 +1190,16 @@ function AnalysisContent() {
 												angle: -90,
 												position: "insideLeft",
 												offset: 50,
-												fill: "#737373",
+												fill: "var(--color-muted-foreground)",
 												fontSize: 11,
 												fontFamily: "IBM Plex Mono",
 											}}
 											name="Imports"
-											tick={{ fill: "#737373", fontSize: 10 }}
-											tickLine={{ stroke: "#333" }}
+											tick={{
+												fill: "var(--color-muted-foreground)",
+												fontSize: 10,
+											}}
+											tickLine={{ stroke: "var(--color-border)" }}
 											type="number"
 										/>
 										<ZAxis
@@ -1170,7 +1208,6 @@ function AnalysisContent() {
 											name="LOC"
 											range={[80, 500]}
 										/>
-										{/* Tooltip and Scatter */}
 										<Tooltip
 											content={({ active, payload }) => {
 												if (active && payload?.length && payload[0]) {
@@ -1185,26 +1222,26 @@ function AnalysisContent() {
 														severity === "critical"
 															? "text-destructive"
 															: severity === "warning"
-																? "text-primary"
-																: "text-accent";
-													const severityBg =
+																? "text-accent"
+																: "text-foreground";
+													const severityBorder =
 														severity === "critical"
-															? "bg-destructive/10 border-destructive/30"
+															? "border-destructive/30"
 															: severity === "warning"
-																? "bg-primary/10 border-primary/30"
-																: "bg-accent/10 border-accent/30";
+																? "border-accent/30"
+																: "border-border";
 
 													return (
 														<div
-															className={`rounded-lg border ${severityBg} p-3 shadow-xl backdrop-blur-sm`}
+															className={`border ${severityBorder} bg-card p-3 shadow-xl`}
 															style={{ minWidth: 220 }}
 														>
 															<div className="mb-2 flex items-start justify-between gap-2">
-																<p className="truncate font-semibold text-foreground text-sm">
+																<p className="truncate font-mono font-semibold text-foreground text-sm">
 																	{data.path?.split("/").pop()}
 																</p>
 																<span
-																	className={`shrink-0 rounded px-1.5 py-0.5 font-mono text-[10px] uppercase ${severityColor}`}
+																	className={`shrink-0 font-mono text-[10px] uppercase ${severityColor}`}
 																>
 																	{severity}
 																</span>
@@ -1213,37 +1250,35 @@ function AnalysisContent() {
 																{data.path}
 															</p>
 															<div className="grid grid-cols-2 gap-2 text-xs">
-																<div className="rounded bg-muted/50 p-2">
-																	<div className="mb-0.5 font-mono text-[10px] text-muted-foreground uppercase">
+																<div className="border border-border p-2">
+																	<div className="mb-0.5 font-mono text-[9px] text-muted-foreground uppercase">
 																		Depended on by
 																	</div>
-																	<div className="font-semibold text-foreground">
+																	<div className="font-mono text-foreground">
 																		{data.fanIn} files
 																	</div>
 																</div>
-																<div className="rounded bg-muted/50 p-2">
-																	<div className="mb-0.5 font-mono text-[10px] text-muted-foreground uppercase">
+																<div className="border border-border p-2">
+																	<div className="mb-0.5 font-mono text-[9px] text-muted-foreground uppercase">
 																		Depends on
 																	</div>
-																	<div className="font-semibold text-foreground">
+																	<div className="font-mono text-foreground">
 																		{data.fanOut} files
 																	</div>
 																</div>
-																<div className="rounded bg-muted/50 p-2">
-																	<div className="mb-0.5 font-mono text-[10px] text-muted-foreground uppercase">
+																<div className="border border-border p-2">
+																	<div className="mb-0.5 font-mono text-[9px] text-muted-foreground uppercase">
 																		Lines of Code
 																	</div>
-																	<div className="font-semibold text-foreground">
+																	<div className="font-mono text-foreground">
 																		{data.loc?.toLocaleString()}
 																	</div>
 																</div>
-																<div className="rounded bg-muted/50 p-2">
-																	<div className="mb-0.5 font-mono text-[10px] text-muted-foreground uppercase">
+																<div className="border border-border p-2">
+																	<div className="mb-0.5 font-mono text-[9px] text-muted-foreground uppercase">
 																		Risk Score
 																	</div>
-																	<div
-																		className={`font-semibold ${severityColor}`}
-																	>
+																	<div className={`font-mono ${severityColor}`}>
 																		{data.score?.toFixed(2)}
 																	</div>
 																</div>
@@ -1265,7 +1300,6 @@ function AnalysisContent() {
 												const { cx, cy, payload } = props;
 												if (!cx || !cy || !payload) return null;
 
-												// Sqrt scale for better size differentiation
 												const maxLoc = hotSpotData
 													? Math.max(
 															...hotSpotData.map((d) => d.loc || 0),
@@ -1301,25 +1335,24 @@ function AnalysisContent() {
 												const fillColor =
 													chartConfig.colorBy === "language"
 														? langColors[payload.language?.toLowerCase()] ||
-															"#6b7280"
+															"var(--color-muted-foreground)"
 														: severity === "critical"
-															? "#f43f5e"
+															? "var(--color-destructive)"
 															: severity === "warning"
-																? "#f59e0b"
-																: "#10b981";
+																? "var(--color-accent)"
+																: "var(--color-primary)";
 
 												const glowColor =
 													chartConfig.colorBy === "language"
-														? `${langColors[payload.language?.toLowerCase() as keyof typeof langColors] || "var(--color-muted-foreground)"}66`
+														? `${langColors[payload.language?.toLowerCase() as keyof typeof langColors] || "var(--color-muted-foreground)"}33`
 														: severity === "critical"
-															? "color-mix(in srgb, var(--color-destructive), transparent 60%)"
+															? "color-mix(in srgb, var(--color-destructive), transparent 80%)"
 															: severity === "warning"
-																? "color-mix(in srgb, var(--color-primary), transparent 60%)"
-																: "color-mix(in srgb, var(--color-accent), transparent 80%)";
+																? "color-mix(in srgb, var(--color-accent), transparent 80%)"
+																: "color-mix(in srgb, var(--color-primary), transparent 80%)";
 
 												return (
 													<g>
-														{/* Glow effect for critical/language mode */}
 														{(severity === "critical" ||
 															chartConfig.colorBy === "language") && (
 															<circle
@@ -1329,12 +1362,11 @@ function AnalysisContent() {
 																r={baseRadius + 4}
 															/>
 														)}
-														{/* Main circle */}
 														<circle
 															cx={cx}
 															cy={cy}
 															fill={fillColor}
-															fillOpacity={0.6}
+															fillOpacity={0.7}
 															r={baseRadius}
 														/>
 													</g>
@@ -1345,31 +1377,31 @@ function AnalysisContent() {
 								</ResponsiveContainer>
 
 								{/* Legend */}
-								<div className="mt-4 flex flex-wrap items-center justify-center gap-4 border-border border-t pt-4">
+								<div className="mt-4 flex flex-wrap items-center justify-center gap-6 border-border border-t pt-4">
 									<div className="flex items-center gap-4">
 										<span className="font-mono text-[10px] text-muted-foreground uppercase">
 											Risk Level:
 										</span>
 										<div className="flex items-center gap-1.5">
-											<div className="h-2.5 w-2.5 rounded-full bg-destructive" />
+											<div className="h-2 w-2 rounded-full bg-destructive" />
 											<span className="font-mono text-muted-foreground text-xs">
 												Critical
 											</span>
 										</div>
 										<div className="flex items-center gap-1.5">
-											<div className="h-2.5 w-2.5 rounded-full bg-primary" />
+											<div className="h-2 w-2 rounded-full bg-accent" />
 											<span className="font-mono text-muted-foreground text-xs">
 												Warning
 											</span>
 										</div>
 										<div className="flex items-center gap-1.5">
-											<div className="h-2.5 w-2.5 rounded-full bg-accent" />
+											<div className="h-2 w-2 rounded-full bg-primary" />
 											<span className="font-mono text-muted-foreground text-xs">
 												Normal
 											</span>
 										</div>
 									</div>
-									<div className="h-4 w-px bg-muted" />
+									<div className="h-4 w-px bg-border" />
 									<div className="flex items-center gap-2">
 										<span className="text-muted-foreground text-xs">○</span>
 										<span className="font-mono text-muted-foreground text-xs">
@@ -1379,128 +1411,100 @@ function AnalysisContent() {
 								</div>
 
 								{/* Quadrant explanation */}
-								<div className="mt-3 grid grid-cols-2 gap-2 text-[10px] sm:grid-cols-4">
-									<div className="rounded bg-destructive/5 p-2 text-center">
-										<span className="font-semibold text-destructive">
-											HOTSPOTS
+								<div className="mt-4 grid grid-cols-2 gap-2 text-[10px] sm:grid-cols-4">
+									<div className="border border-destructive/20 p-2 text-center">
+										<span className="font-mono font-semibold text-destructive uppercase">
+											Hotspots
 										</span>
-										<span className="block text-muted-foreground">
+										<span className="block font-mono text-muted-foreground">
 											Many depend on, many imports
 										</span>
 									</div>
-									<div className="rounded bg-primary/5 p-2 text-center">
-										<span className="font-semibold text-primary">
-											UTILITIES
+									<div className="border border-border p-2 text-center">
+										<span className="font-mono font-semibold text-primary uppercase">
+											Utilities
 										</span>
-										<span className="block text-muted-foreground">
+										<span className="block font-mono text-muted-foreground">
 											Few depend on, many imports
 										</span>
 									</div>
-									<div className="rounded bg-primary/5 p-2 text-center">
-										<span className="font-semibold text-primary">
-											DEPENDENTS
+									<div className="border border-border p-2 text-center">
+										<span className="font-mono font-semibold text-primary uppercase">
+											Dependents
 										</span>
-										<span className="block text-muted-foreground">
+										<span className="block font-mono text-muted-foreground">
 											Many depend on, few imports
 										</span>
 									</div>
-									<div className="rounded bg-accent/5 p-2 text-center">
-										<span className="font-semibold text-accent">
-											ISOLATED
+									<div className="border border-accent/20 p-2 text-center">
+										<span className="font-mono font-semibold text-accent uppercase">
+											Isolated
 										</span>
-										<span className="block text-muted-foreground">
+										<span className="block font-mono text-muted-foreground">
 											Few depend on, few imports
 										</span>
 									</div>
 								</div>
 							</div>
-						) : isLoading ? (
-							<div className="card-glass overflow-hidden rounded-lg">
-								<table className="data-table">
+						) : (
+							<div className="overflow-hidden border border-border">
+								<table className="w-full font-mono text-xs">
 									<thead>
-										<tr>
-											<th className="w-16">Rank</th>
-											<th>File</th>
-											<th className="w-24">Language</th>
-											<th className="w-20 text-right">Fan-in</th>
-											<th className="w-20 text-right">Fan-out</th>
-											<th className="w-20 text-right">LOC</th>
-											<th className="w-24 text-right">Score</th>
+										<tr className="border-border border-b bg-secondary/30">
+											<th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider">
+												Rank
+											</th>
+											<th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider">
+												File
+											</th>
+											<th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider">
+												Language
+											</th>
+											<th className="px-4 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider">
+												Fan-in
+											</th>
+											<th className="px-4 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider">
+												Fan-out
+											</th>
+											<th className="px-4 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider">
+												LOC
+											</th>
+											<th className="px-4 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider">
+												Score
+											</th>
 										</tr>
 									</thead>
-									<tbody>
-										{Array.from({ length: 5 }).map((__, idx) => (
+									<tbody className="divide-y divide-border">
+										{hotSpotData?.map((hotspot) => (
 											<tr
-												key={`skeleton-row-${idx.toString().padStart(2, "0")}`}
+												className="transition-colors hover:bg-secondary/20"
+												key={hotspot.path}
 											>
-												<td>
-													<Skeleton className="h-4 w-8" />
-												</td>
-												<td>
-													<Skeleton className="h-4 w-48" />
-												</td>
-												<td>
-													<Skeleton className="h-4 w-16" />
-												</td>
-												<td className="text-right">
-													<Skeleton className="ml-auto h-4 w-12" />
-												</td>
-												<td className="text-right">
-													<Skeleton className="ml-auto h-4 w-12" />
-												</td>
-												<td className="text-right">
-													<Skeleton className="ml-auto h-4 w-12" />
-												</td>
-												<td className="text-right">
-													<Skeleton className="ml-auto h-4 w-16" />
-												</td>
-											</tr>
-										))}
-									</tbody>
-								</table>
-							</div>
-						) : hotSpotData && hotSpotData.length > 0 ? (
-							<div className="card-glass overflow-hidden rounded-lg">
-								<table className="data-table">
-									<thead>
-										<tr>
-											<th className="w-16">Rank</th>
-											<th>File</th>
-											<th className="w-24">Language</th>
-											<th className="w-20 text-right">Fan-in</th>
-											<th className="w-20 text-right">Fan-out</th>
-											<th className="w-20 text-right">LOC</th>
-											<th className="w-24 text-right">Score</th>
-										</tr>
-									</thead>
-									<tbody>
-										{hotSpotData.map((hotspot) => (
-											<tr key={hotspot.path}>
-												<td className="font-data text-primary">
+												<td className="px-4 py-2.5 text-accent tabular-nums">
 													{hotspot.rank}
 												</td>
-												<td className="font-data text-foreground">
+												<td className="px-4 py-2.5 text-foreground">
 													{hotspot.path}
 												</td>
-												<td>
-													<span className="badge-sky">{hotspot.language}</span>
+												<td className="px-4 py-2.5 text-muted-foreground">
+													{hotspot.language}
 												</td>
-												<td className="text-right">{hotspot.fanIn}</td>
-												<td className="text-right">{hotspot.fanOut}</td>
-												<td className="text-right">{hotspot.loc}</td>
-												<td className="text-right font-data text-foreground">
+												<td className="px-4 py-2.5 text-right tabular-nums">
+													{hotspot.fanIn}
+												</td>
+												<td className="px-4 py-2.5 text-right tabular-nums">
+													{hotspot.fanOut}
+												</td>
+												<td className="px-4 py-2.5 text-right tabular-nums">
+													{hotspot.loc}
+												</td>
+												<td className="px-4 py-2.5 text-right text-foreground tabular-nums">
 													{hotspot.score.toFixed(3)}
 												</td>
 											</tr>
 										))}
 									</tbody>
 								</table>
-							</div>
-						) : (
-							<div className="card-glass flex flex-col items-center justify-center rounded-lg py-16">
-								<p className="font-mono text-muted-foreground text-sm">
-									No hotspot data available.
-								</p>
 							</div>
 						)}
 
@@ -1511,17 +1515,17 @@ function AnalysisContent() {
 							<DialogContent className="flex max-h-[80vh] max-w-4xl flex-col overflow-hidden border-border bg-background p-0">
 								<DialogHeader className="border-border border-b p-4">
 									<div className="flex items-center justify-between">
-										<DialogTitle className="flex items-center gap-2 font-data text-sm">
-											<FileCode className="h-4 w-4 text-primary" />
+										<DialogTitle className="flex items-center gap-2 font-mono text-sm">
+											<FileCode className="h-4 w-4 text-muted-foreground" />
 											{selectedHotspotFile?.split("/").pop()}
 										</DialogTitle>
 										<div className="flex items-center gap-2">
-											<span className="badge">
+											<span className="border border-border px-2 py-0.5 font-mono text-[10px] text-muted-foreground uppercase">
 												{selectedHotspotFile?.split(".").pop()?.toLowerCase() ||
 													"text"}
 											</span>
 											<Button
-												className="h-8 bg-secondary px-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+												className="h-7 bg-secondary px-2 text-muted-foreground hover:text-foreground"
 												onClick={() => {
 													if (hotspotFileContent) {
 														navigator.clipboard.writeText(hotspotFileContent);
@@ -1533,9 +1537,9 @@ function AnalysisContent() {
 												variant="ghost"
 											>
 												{copied ? (
-													<Check className="h-4 w-4 text-emerald-500" />
+													<Check className="h-3 w-3 text-emerald-500" />
 												) : (
-													<Copy className="h-4 w-4" />
+													<Copy className="h-3 w-3" />
 												)}
 											</Button>
 										</div>
@@ -1544,19 +1548,19 @@ function AnalysisContent() {
 								<div className="flex-1 overflow-auto bg-card">
 									{isHotspotContentLoading ? (
 										<div className="flex h-full flex-col items-center justify-center gap-4">
-											<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+											<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
 											<p className="font-mono text-muted-foreground text-xs">
 												Fetching content...
 											</p>
 										</div>
 									) : (
 										<div className="flex">
-											<div className="select-none border-border border-r bg-card py-4 text-right text-muted-foreground">
+											<div className="select-none border-border border-r bg-background py-4 text-right text-muted-foreground">
 												{hotspotFileContent?.split("\n").map((line, i) => {
 													const lineNum = i + 1;
 													return (
 														<div
-															className="px-4 font-data text-xs"
+															className="px-4 font-mono text-xs"
 															key={`line-${lineNum}-${line.slice(0, 4)}`}
 														>
 															{lineNum}
@@ -1564,7 +1568,7 @@ function AnalysisContent() {
 													);
 												})}
 											</div>
-											<pre className="flex-1 whitespace-pre-wrap py-4 pr-4 pl-4 font-data text-foreground text-xs leading-relaxed">
+											<pre className="flex-1 whitespace-pre-wrap py-4 pr-4 pl-4 font-mono text-foreground text-xs leading-relaxed">
 												<code>{hotspotFileContent}</code>
 											</pre>
 										</div>
@@ -1575,7 +1579,7 @@ function AnalysisContent() {
 					</motion.div>
 				) : activeTab === "filetree" ? (
 					<motion.div className="h-[calc(100vh-200px)]" variants={itemVariants}>
-						<div className="card-glass h-full overflow-hidden rounded-lg">
+						<div className="h-full overflow-hidden border border-border">
 							<FileTreeVisualizer
 								fileTree={fileTree}
 								hotspotData={
@@ -1597,13 +1601,13 @@ function AnalysisContent() {
 
 function LoadingFallback() {
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-mesh pt-14">
+		<div className="flex min-h-screen items-center justify-center bg-background pt-14">
 			<div className="flex flex-col items-center gap-6">
 				<div className="relative">
-					<div className="absolute inset-0 animate-pulse rounded-full bg-amber-500/20 blur-xl" />
-					<Loader2 className="relative h-12 w-12 animate-spin text-amber-500" />
+					<div className="absolute inset-0 animate-pulse rounded-full bg-accent/10 blur-xl" />
+					<Loader2 className="relative h-10 w-10 animate-spin text-foreground" />
 				</div>
-				<p className="font-mono text-muted-foreground text-sm uppercase tracking-widest">
+				<p className="font-mono text-muted-foreground text-xs uppercase tracking-widest">
 					Loading Analysis
 				</p>
 			</div>

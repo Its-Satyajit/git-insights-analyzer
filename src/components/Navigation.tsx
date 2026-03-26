@@ -131,95 +131,60 @@ export function Navigation() {
 	};
 
 	return (
-		<nav className="fixed top-0 right-0 left-0 z-50 border-border border-b bg-background/80 backdrop-blur-xl">
-			<div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+		<nav className="fixed top-0 right-0 left-0 z-50 border-border border-b bg-background/95 backdrop-blur-sm">
+			<div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
 				<div className="flex items-center gap-1">
 					<Link
-						className={`group flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-all hover:bg-muted ${
-							pathname === "/" ? "text-primary" : "text-muted-foreground"
+						className={`group flex items-center gap-2 px-2 py-1 font-mono text-xs uppercase tracking-widest transition-colors ${
+							pathname === "/"
+								? "text-foreground"
+								: "text-muted-foreground hover:text-foreground"
 						}`}
 						href="/"
 					>
-						<div className="flex h-6 w-6 items-center justify-center rounded bg-primary/5 text-primary/80">
-							<Home className="h-3.5 w-3.5" />
-						</div>
-						<span className="font-medium font-mono text-xs uppercase tracking-wider transition-colors group-hover:text-foreground">
-							Home
-						</span>
+						<span className="font-medium">Analyze</span>
 						{pathname === "/" && (
 							<motion.div
-								className="h-1.5 w-1.5 self-center rounded-full bg-accent"
-								layoutId="nav-dot"
+								className="ml-1 h-1 w-1 bg-accent"
+								layoutId="nav-indicator"
 							/>
 						)}
 					</Link>
 
 					{repoId && (
 						<>
-							<span className="mx-1 text-muted-foreground">/</span>
+							<span className="mx-2 text-border">/</span>
 							<Link
-								className={`group flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-all hover:bg-muted ${
+								className={`group flex items-center gap-2 px-2 py-1 font-mono text-xs uppercase tracking-widest transition-colors ${
 									pathname === `/dashboard/${repoId}`
-										? "text-primary"
-										: "text-muted-foreground"
+										? "text-foreground"
+										: "text-muted-foreground hover:text-foreground"
 								}`}
 								href={`/dashboard/${repoId}`}
 							>
-								<div
-									className={`flex h-6 w-6 items-center justify-center rounded transition-colors ${
-										pathname === `/dashboard/${repoId}`
-											? "bg-primary/10 text-primary"
-											: "bg-muted text-muted-foreground group-hover:text-foreground"
-									}`}
-								>
-									<LayoutDashboard className="h-3.5 w-3.5" />
-								</div>
-								<span
-									className={`font-medium font-mono text-xs uppercase tracking-wider transition-colors group-hover:text-foreground ${
-										pathname === `/dashboard/${repoId}` ? "text-primary" : ""
-									}`}
-								>
-									Dashboard
-								</span>
+								<span>Dashboard</span>
 								{pathname === `/dashboard/${repoId}` && (
 									<motion.div
-										className="h-1.5 w-1.5 self-center rounded-full bg-accent"
-										layoutId="nav-dot"
+										className="ml-1 h-1 w-1 bg-accent"
+										layoutId="nav-indicator"
 									/>
 								)}
 							</Link>
 
-							<span className="mx-1 text-muted-foreground">/</span>
+							<span className="mx-2 text-border">/</span>
 							<Link
-								className={`group flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-all hover:bg-muted ${
+								className={`group flex items-center gap-2 px-2 py-1 font-mono text-xs uppercase tracking-widest transition-colors ${
 									pathname === `/dashboard/${repoId}/analysis`
-										? "text-primary"
-										: "text-muted-foreground"
+										? "text-foreground"
+										: "text-muted-foreground hover:text-foreground"
 								}`}
 								href={`/dashboard/${repoId}/analysis`}
 							>
-								<div
-									className={`flex h-6 w-6 items-center justify-center rounded transition-colors ${
-										pathname === `/dashboard/${repoId}/analysis`
-											? "bg-primary/10 text-primary"
-											: "bg-muted text-muted-foreground group-hover:text-foreground"
-									}`}
-								>
-									<GitBranch className="h-3.5 w-3.5" />
-								</div>
-								<span
-									className={`font-medium font-mono text-xs uppercase tracking-wider transition-colors group-hover:text-foreground ${
-										pathname === `/dashboard/${repoId}/analysis`
-											? "text-primary"
-											: ""
-									}`}
-								>
-									Analysis
-								</span>
+								<span>Analysis</span>
 								{pathname === `/dashboard/${repoId}/analysis` && (
 									<motion.div
-										className="h-1.5 w-1.5 self-center rounded-full bg-accent"
-										layoutId="nav-dot"
+										className="ml-1 h-1 w-1 bg-accent"
+										layoutId="nav-indicator"
 									/>
 								)}
 							</Link>
@@ -229,100 +194,96 @@ export function Navigation() {
 
 				<div className="flex items-center gap-4">
 					{isDev && repoId && (
-						<div className="flex items-center gap-2">
-							<div className="mr-2 flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-								<span className="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-bold text-primary">
-									DEV
-								</span>
-								<span className="text-muted-foreground">Debug:</span>
-							</div>
+						<div className="flex items-center gap-1">
+							<span className="mr-2 font-mono text-[9px] text-muted-foreground uppercase tracking-widest">
+								Dev
+							</span>
 
 							<Button
-								className="h-7 border-border bg-secondary px-2.5 font-mono text-muted-foreground text-xs uppercase tracking-wider hover:bg-accent hover:text-accent-foreground"
+								className="h-6 border-0 bg-transparent px-2 font-mono text-[10px] text-muted-foreground uppercase tracking-wider hover:text-accent"
 								disabled={isPending}
 								onClick={triggerAnalysis}
 								size="sm"
-								title="Re-run analysis for this repository"
-								variant="outline"
+								title="Re-run analysis"
+								variant="ghost"
 							>
 								<RefreshCw
-									className={`mr-1.5 h-3 w-3 ${isPending ? "animate-spin" : ""}`}
+									className={`mr-1 h-2.5 w-2.5 ${isPending ? "animate-spin" : ""}`}
 								/>
-								Analyze
+								<span className="hidden lg:inline">Analyze</span>
 							</Button>
 
 							<Button
-								className="h-7 border-border bg-secondary px-2.5 font-mono text-muted-foreground text-xs uppercase tracking-wider hover:bg-accent hover:text-accent-foreground"
+								className="h-6 border-0 bg-transparent px-2 font-mono text-[10px] text-muted-foreground uppercase tracking-wider hover:text-accent"
 								disabled={isPending}
 								onClick={viewDependencyGraph}
 								size="sm"
-								title="View raw dependency graph JSON"
-								variant="outline"
+								title="View graph"
+								variant="ghost"
 							>
-								<FileJson className="mr-1.5 h-3 w-3" />
-								Graph
+								<FileJson className="mr-1 h-2.5 w-2.5" />
+								<span className="hidden lg:inline">Graph</span>
 							</Button>
 
 							<Button
-								className="h-7 border-border bg-secondary px-2.5 font-mono text-muted-foreground text-xs uppercase tracking-wider hover:bg-accent hover:text-accent-foreground"
+								className="h-6 border-0 bg-transparent px-2 font-mono text-[10px] text-muted-foreground uppercase tracking-wider hover:text-accent"
 								disabled={isPending}
 								onClick={clearAnalysis}
 								size="sm"
-								title="Delete analysis results and reset status"
-								variant="outline"
+								title="Clear analysis"
+								variant="ghost"
 							>
-								<Trash2 className="mr-1.5 h-3 w-3" />
-								Clear
+								<Trash2 className="mr-1 h-2.5 w-2.5" />
+								<span className="hidden lg:inline">Clear</span>
 							</Button>
 
 							<Button
-								className="h-7 border-border bg-secondary px-2.5 font-mono text-muted-foreground text-xs uppercase tracking-wider hover:bg-accent hover:text-accent-foreground"
+								className="h-6 border-0 bg-transparent px-2 font-mono text-[10px] text-muted-foreground uppercase tracking-wider hover:text-accent"
 								disabled={isPending}
 								onClick={resetDatabase}
 								size="sm"
-								title="Reset database to initial state (warning: deletes all data)"
-								variant="outline"
+								title="Reset database"
+								variant="ghost"
 							>
-								<Database className="mr-1.5 h-3 w-3" />
-								Reset
+								<Database className="mr-1 h-2.5 w-2.5" />
+								<span className="hidden lg:inline">Reset</span>
 							</Button>
 
 							<Button
-								className="h-7 border-border bg-secondary px-2.5 font-mono text-muted-foreground text-xs uppercase tracking-wider hover:bg-accent hover:text-accent-foreground"
+								className="h-6 border-0 bg-transparent px-2 font-mono text-[10px] text-muted-foreground uppercase tracking-wider hover:text-accent"
 								disabled={isPending}
 								onClick={resetStatus}
 								size="sm"
-								title="Reset repository status to pending"
-								variant="outline"
+								title="Reset status"
+								variant="ghost"
 							>
-								<Database className="mr-1.5 h-3 w-3" />
-								Status
+								<span className="hidden lg:inline">Status</span>
 							</Button>
 							<Button
-								className="h-7 border-border bg-secondary px-2.5 font-mono text-muted-foreground text-xs uppercase tracking-wider hover:bg-accent hover:text-accent-foreground"
+								className="h-6 border-0 bg-transparent px-2 font-mono text-[10px] text-muted-foreground uppercase tracking-wider hover:text-accent"
 								disabled={isPending}
 								onClick={checkQueueStatus}
 								size="sm"
-								title="Check queue status (placeholder)"
-								variant="outline"
+								title="Check queue"
+								variant="ghost"
 							>
-								<ListTodo className="mr-1.5 h-3 w-3" />
-								Queue
+								<ListTodo className="mr-1 h-2.5 w-2.5" />
+								<span className="hidden lg:inline">Queue</span>
 							</Button>
 						</div>
 					)}
 
-					<div className="flex items-center gap-2">
+					<div className="flex items-center">
 						<Button
-							className="h-8 w-8 rounded-full border-border bg-secondary p-0 hover:bg-accent"
+							className="h-7 w-7 border-0 bg-transparent p-0 text-muted-foreground hover:text-foreground"
 							onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
 							size="icon"
 							suppressHydrationWarning
 							title="Toggle theme"
-							variant="outline"
+							variant="ghost"
 						>
-							<Sun className="hidden h-4 w-4 text-primary dark:block" />
-							<Moon className="block h-4 w-4 text-foreground dark:hidden" />
+							<Sun className="hidden h-3.5 w-3.5 dark:block" />
+							<Moon className="block h-3.5 w-3.5 dark:hidden" />
 						</Button>
 					</div>
 				</div>

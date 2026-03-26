@@ -1,14 +1,14 @@
 "use client";
 
-import { CheckCircle, Circle, Loader2, XCircle } from "lucide-react";
+import { Check, Circle, Loader2, X } from "lucide-react";
 import React from "react";
 import { type AnalysisStatus, useRepoStatus } from "~/hooks/useRepoStatus";
 
 const PHASES = [
 	{ key: "queued", label: "Queued" },
-	{ key: "fetching", label: "Fetching repository data" },
-	{ key: "basic-analysis", label: "Basic analysis" },
-	{ key: "dependency-analysis", label: "Dependency analysis" },
+	{ key: "fetching", label: "Fetching" },
+	{ key: "basic-analysis", label: "Basic" },
+	{ key: "dependency-analysis", label: "Dependencies" },
 	{ key: "complete", label: "Complete" },
 ];
 
@@ -30,34 +30,41 @@ const PhaseItem = React.memo(function PhaseItem({
 	isActive,
 	isComplete,
 	isFailed,
+	index,
 }: {
 	phase: (typeof PHASES)[number];
 	isActive: boolean;
 	isComplete: boolean;
 	isFailed: boolean;
+	index: number;
 }) {
 	return (
-		<div className="flex items-center gap-3">
-			{isComplete ? (
-				<CheckCircle className="h-5 w-5 text-accent" />
-			) : isFailed ? (
-				<XCircle className="h-5 w-5 text-destructive" />
-			) : isActive ? (
-				<Loader2 className="h-5 w-5 animate-spin text-primary" />
-			) : (
-				<Circle className="h-5 w-5 text-foreground/20" />
+		<div className="flex items-center gap-0">
+			{index > 0 && (
+				<div className={`h-px w-6 ${isComplete ? "bg-accent" : "bg-border"}`} />
 			)}
-			<span
-				className={`text-sm ${
-					isActive
-						? "font-medium text-foreground"
-						: isComplete
-							? "text-accent"
-							: "text-muted-foreground"
-				}`}
-			>
-				{phase.label}
-			</span>
+			<div className="flex items-center gap-1.5 py-1.5">
+				{isComplete ? (
+					<Check className="h-3 w-3 text-accent" strokeWidth={2.5} />
+				) : isFailed ? (
+					<X className="h-3 w-3 text-destructive" strokeWidth={2.5} />
+				) : isActive ? (
+					<Loader2 className="h-3 w-3 animate-spin text-foreground" />
+				) : (
+					<Circle className="h-2.5 w-2.5 text-border" />
+				)}
+				<span
+					className={`font-mono text-[10px] uppercase tracking-wider ${
+						isActive
+							? "text-foreground"
+							: isComplete
+								? "text-accent"
+								: "text-muted-foreground"
+					}`}
+				>
+					{phase.label}
+				</span>
+			</div>
 		</div>
 	);
 });
@@ -72,8 +79,10 @@ export const AnalysisProgress = React.memo(function AnalysisProgress({
 	if (isLoading) {
 		return (
 			<div className="flex items-center gap-2 text-muted-foreground">
-				<Loader2 className="h-4 w-4 animate-spin" />
-				<span className="text-sm">Checking analysis status...</span>
+				<Loader2 className="h-3 w-3 animate-spin" />
+				<span className="font-mono text-[10px] uppercase tracking-wider">
+					Checking...
+				</span>
 			</div>
 		);
 	}
@@ -81,9 +90,9 @@ export const AnalysisProgress = React.memo(function AnalysisProgress({
 	if (error || !status) {
 		return (
 			<div className="flex items-center gap-2 text-destructive">
-				<XCircle className="h-4 w-4" />
-				<span className="text-sm">
-					Unable to check analysis status. Please refresh.
+				<X className="h-3 w-3" />
+				<span className="font-mono text-[10px] uppercase tracking-wider">
+					Status check failed
 				</span>
 			</div>
 		);
@@ -91,30 +100,22 @@ export const AnalysisProgress = React.memo(function AnalysisProgress({
 
 	if (status.status === "failed") {
 		return (
-			<div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-				<div className="flex items-center gap-2 text-destructive">
-					<XCircle className="h-5 w-5" />
-					<span className="font-medium">Analysis Failed</span>
-				</div>
-				<p className="mt-1 text-destructive/80 text-sm">{status.phase}</p>
+			<div className="flex items-center gap-2 text-destructive">
+				<X className="h-3 w-3" />
+				<span className="font-mono text-[10px] uppercase tracking-wider">
+					Failed: {status.phase}
+				</span>
 			</div>
 		);
 	}
 
 	if (status.status === "complete") {
 		return (
-			<div className="rounded-lg border border-accent/20 bg-accent/5 p-6 text-center">
-				<div className="flex flex-col items-center gap-3 text-accent">
-					<CheckCircle className="h-8 w-8" />
-					<div className="flex flex-col gap-1">
-						<span className="font-mono font-bold text-sm tracking-tight uppercase">
-							ANALYSIS_COMPLETE
-						</span>
-						<p className="font-mono text-accent/60 text-xs">
-							System synchronized with latest repository state
-						</p>
-					</div>
-				</div>
+			<div className="flex items-center gap-2">
+				<Check className="h-3 w-3 text-accent" strokeWidth={2.5} />
+				<span className="font-mono text-[10px] text-accent uppercase tracking-wider">
+					Analysis complete
+				</span>
 			</div>
 		);
 	}
@@ -122,23 +123,17 @@ export const AnalysisProgress = React.memo(function AnalysisProgress({
 	const currentPhaseIndex = getPhaseIndex(status.status);
 
 	return (
-		<div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-			<div className="flex items-center gap-2 text-primary">
-				<Loader2 className="h-5 w-5 animate-spin" />
-				<span className="font-medium">Analyzing Repository</span>
-			</div>
-			<p className="mt-1 text-primary/80 text-sm">{status.phase}</p>
-			<div className="mt-4 space-y-2">
-				{PHASES.slice(0, -1).map((phase, idx) => (
-					<PhaseItem
-						isActive={idx === currentPhaseIndex}
-						isComplete={idx < currentPhaseIndex}
-						isFailed={false}
-						key={phase.key}
-						phase={phase}
-					/>
-				))}
-			</div>
+		<div className="flex flex-wrap items-center gap-1">
+			{PHASES.slice(0, -1).map((phase, idx) => (
+				<PhaseItem
+					index={idx}
+					isActive={idx === currentPhaseIndex}
+					isComplete={idx < currentPhaseIndex}
+					isFailed={false}
+					key={phase.key}
+					phase={phase}
+				/>
+			))}
 		</div>
 	);
 });

@@ -23,20 +23,8 @@ export default function RepoPage({
 	params: Promise<{ repoId: string }>;
 }) {
 	return (
-		<main className="relative min-h-screen overflow-hidden bg-background pt-14">
-			<div className="absolute inset-0 -z-10">
-				<div className="mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] absolute inset-0 bg-[linear-gradient(rgba(100,100,100,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(100,100,100,0.1)_1px,transparent_1px)] bg-size-[30px_30px] dark:bg-[linear-gradient(rgba(20,20,20,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(20,20,20,0.4)_1px,transparent_1px)]" />
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,var(--color-primary)/0.06,transparent_40%)]" />
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,var(--color-accent)/0.05,transparent_40%)]" />
-				<div
-					className="pointer-events-none absolute inset-0 opacity-[0.02]"
-					style={{
-						backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-					}}
-				/>
-			</div>
-
-			<div className="mx-auto max-w-[140ch] px-6 py-8">
+		<main className="blueprint-grid relative min-h-screen overflow-hidden bg-background pt-14">
+			<div className="mx-auto max-w-7xl px-6 py-8">
 				<Suspense fallback={<StatCardsSkeleton />}>
 					<DashboardData params={params} />
 				</Suspense>
@@ -139,15 +127,9 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 	if (isLoading) {
 		return (
 			<div className="flex flex-col items-center justify-center py-32">
-				<div className="mb-6 flex items-center gap-3 font-mono text-primary">
-					<Loader2 className="h-5 w-5 animate-spin" />
-					<span className="text-sm tracking-wider">INITIALIZING_DASHBOARD</span>
-				</div>
-				<div className="h-1 w-48 overflow-hidden rounded-full bg-secondary">
-					<div
-						className="h-full animate-pulse bg-primary"
-						style={{ width: "60%" }}
-					/>
+				<div className="mb-6 flex items-center gap-3 font-mono text-muted-foreground text-sm">
+					<Loader2 className="h-4 w-4 animate-spin" />
+					<span className="uppercase tracking-widest">Loading Dashboard</span>
 				</div>
 			</div>
 		);
@@ -156,12 +138,15 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 	if (!response?.data || typeof response.data !== "object") {
 		return (
 			<div className="flex flex-col items-center justify-center py-32">
-				<div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 font-mono text-red-400 text-sm">
+				<div className="mb-4 border border-destructive/30 bg-destructive/5 px-4 py-2 font-mono text-destructive text-sm">
 					ERROR: Failed to load repository
 				</div>
 				<Link href="/">
-					<Button className="font-mono text-sm" variant="outline">
-						Return to Terminal
+					<Button
+						className="font-mono text-xs uppercase tracking-wider"
+						variant="outline"
+					>
+						Return Home
 					</Button>
 				</Link>
 			</div>
@@ -196,58 +181,52 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 	};
 
 	return (
-		<div className="flex flex-col gap-8">
+		<div className="flex flex-col gap-0">
 			<DashboardHero
 				analysis={analysis}
 				contributorCount={data.contributorCount ?? contributorsData?.length}
 				repo={data}
 			/>
 
-			<section>
-				<div className="mb-4 flex items-center gap-2">
-					<span className="font-mono text-muted-foreground text-xs">
-						{"//"}
-					</span>
-					<span className="font-mono text-accent text-xs tracking-wider">
-						ANALYSIS_STATUS
-					</span>
-				</div>
-				<div className="rounded-xl border border-white/5 bg-black/10 p-6">
-					<AnalysisProgress repoId={repoId} />
-				</div>
+			{/* Analysis Status - compact inline */}
+			<section className="flex items-center gap-4 border-border border-t py-3">
+				<span className="shrink-0 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+					Status
+				</span>
+				<AnalysisProgress repoId={repoId} />
 			</section>
-			<section>
+
+			{/* Main content tabs */}
+			<section className="border-border border-t py-6">
 				<Tabs
 					onValueChange={(v) => setActiveTab(v as typeof activeTab)}
 					value={activeTab}
 				>
-					<div className="mb-4 flex items-center justify-between">
-						<div className="flex items-center gap-2">
-							<span className="font-mono text-muted-foreground text-xs">
-								{"//"}
+					<div className="mb-6 flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+								View Mode
 							</span>
-							<span className="font-mono text-primary text-xs tracking-wider">
-								VIEW_MODE
-							</span>
+							<div className="line-rule hidden flex-1 sm:block" />
 						</div>
 						<TabsList className="bg-transparent p-0">
 							<TabsTrigger className="tab-pill" value="explorer">
-								<FolderTree className="h-4 w-4" />
-								EXPLORER
+								<FolderTree className="h-3 w-3" />
+								Explorer
 							</TabsTrigger>
 							<TabsTrigger className="tab-pill" value="contributors">
-								<GitGraph className="h-4 w-4" />
-								CONTRIBUTORS
+								<GitGraph className="h-3 w-3" />
+								Contributors
 							</TabsTrigger>
 						</TabsList>
 					</div>
 
 					<TabsContent className="mt-0" value="explorer">
 						<div
-							className="grid gap-4 lg:grid-cols-[350px_1fr]"
+							className="grid gap-0 lg:grid-cols-[320px_1fr]"
 							style={{ height: "calc(100vh - 320px)" }}
 						>
-							<div className="overflow-hidden rounded-lg border border-border bg-card">
+							<div className="overflow-hidden border border-border bg-card">
 								<VirtualizedFileTree
 									defaultBranch={data.defaultBranch}
 									fileTree={data.fileTree ?? []}
@@ -258,7 +237,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 									repoId={data.id}
 								/>
 							</div>
-							<div className="overflow-hidden rounded-lg border border-border bg-card">
+							<div className="overflow-hidden border border-border border-l-0 bg-card">
 								{selectedFile ? (
 									<FileViewer
 										content={fileContent ?? null}
@@ -274,8 +253,8 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 									/>
 								) : (
 									<div className="flex h-full min-h-[400px] flex-col items-center justify-center text-muted-foreground">
-										<Code2 className="mb-4 h-12 w-12 opacity-30" />
-										<p className="font-mono text-sm">
+										<Code2 className="mb-4 h-8 w-8 opacity-20" />
+										<p className="font-mono text-xs uppercase tracking-wider">
 											Select a file to view its contents
 										</p>
 									</div>
@@ -285,15 +264,12 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 					</TabsContent>
 
 					<TabsContent className="mt-0" value="contributors">
-						<div className="rounded-lg border border-border bg-card p-4">
+						<div className="border border-border bg-card p-6">
 							{contributorsData && contributorsData.length > 0 && (
-								<div className="mb-4 flex items-center justify-between">
-									<div className="flex items-center gap-2">
-										<span className="font-mono text-muted-foreground text-xs">
-											{"//"}
-										</span>
-										<span className="font-mono text-primary text-xs tracking-wider">
-											SORT_BY
+								<div className="mb-6 flex items-center justify-between">
+									<div className="flex items-center gap-3">
+										<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+											Sort By
 										</span>
 									</div>
 									<Tabs
@@ -304,10 +280,10 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 									>
 										<TabsList className="bg-transparent p-0">
 											<TabsTrigger className="tab-pill" value="contributions">
-												TOP_CONTRIBUTORS
+												Top Contributors
 											</TabsTrigger>
 											<TabsTrigger className="tab-pill" value="newest">
-												RECENTLY_ADDED
+												Recently Added
 											</TabsTrigger>
 										</TabsList>
 									</Tabs>
@@ -315,7 +291,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 							)}
 							{isContributorsLoading ? (
 								<div className="flex items-center justify-center p-8">
-									<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+									<Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
 								</div>
 							) : contributorsData && contributorsData.length > 0 ? (
 								<div
@@ -330,22 +306,26 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 								</div>
 							) : (
 								<div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
-									<GitGraph className="mb-4 h-12 w-12 opacity-30" />
-									<p className="font-mono text-sm">No contributors found</p>
+									<GitGraph className="mb-4 h-8 w-8 opacity-20" />
+									<p className="font-mono text-xs uppercase tracking-wider">
+										No contributors found
+									</p>
 								</div>
 							)}
 						</div>
 					</TabsContent>
 				</Tabs>
 			</section>
+
+			{/* Footer - minimal */}
 			<footer className="mt-8 flex flex-col items-center justify-between gap-4 border-border border-t py-6 md:flex-row">
-				<div className="flex items-center gap-6 font-mono text-muted-foreground text-xs">
-					<div>
-						<span className="font-bold text-primary">▲</span> repo-analyzer
-					</div>
-					<div className="flex items-center gap-4">
+				<div className="flex items-center gap-6">
+					<span className="font-(family-name:--font-display) text-foreground text-sm">
+						Analyze
+					</span>
+					<div className="flex items-center gap-4 font-mono text-muted-foreground text-xs">
 						<a
-							className="flex items-center gap-1.5 transition-colors hover:text-primary"
+							className="flex items-center gap-1.5 transition-colors hover:text-foreground"
 							href="https://github.com/Its-Satyajit/git-insights-analyzer"
 							rel="noopener noreferrer"
 							target="_blank"
@@ -353,27 +333,28 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 							<SiGithub className="h-3 w-3" />
 							<span>Source</span>
 						</a>
-						<span className="text-border">|</span>
+						<span className="text-border">·</span>
 						<span>
-							built by{" "}
+							Built by{" "}
 							<a
-								className="text-foreground transition-colors hover:text-primary"
+								className="text-foreground transition-colors hover:text-accent"
 								href="https://github.com/Its-Satyajit"
 								rel="noopener noreferrer"
 								target="_blank"
 							>
-								Its-Satyajit
+								Satyajit
 							</a>
 						</span>
 					</div>
 				</div>
-				<div className="flex items-center gap-6 font-mono text-muted-foreground text-xs">
-					<div>
-						<span className="text-primary">branch:</span> {data.defaultBranch}
-					</div>
-					<div>
-						<span className="text-accent">status:</span> analyzed
-					</div>
+				<div className="flex items-center gap-6 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+					<span>
+						Branch <span className="text-foreground">{data.defaultBranch}</span>
+					</span>
+					<span className="text-border">·</span>
+					<span>
+						Status <span className="text-accent">Analyzed</span>
+					</span>
 				</div>
 			</footer>
 		</div>

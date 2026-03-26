@@ -1,7 +1,11 @@
 import "~/styles/globals.css";
 
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import {
+	DM_Serif_Display,
+	IBM_Plex_Mono,
+	IBM_Plex_Sans,
+} from "next/font/google";
 import { Suspense } from "react";
 import Navigation from "~/components/Navigation";
 import QueryProvider from "~/components/QueryProvider";
@@ -10,11 +14,11 @@ import { env } from "~/env";
 export const metadata: Metadata = {
 	metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
 	title: {
-		default: "Analyze | Code Intelligence",
-		template: "%s | Analyze",
+		default: "Analyze — Code Intelligence",
+		template: "%s — Analyze",
 	},
 	description:
-		"A premium repository analyzer for the modern developer. Visualize architecture, identify hotspots, and master your codebase with editorial precision.",
+		"A precise repository analyzer for the modern developer. Visualize architecture, identify hotspots, and understand your codebase with editorial clarity.",
 	keywords: [
 		"github analyzer",
 		"code analysis",
@@ -23,36 +27,36 @@ export const metadata: Metadata = {
 		"code hotspots",
 		"static analysis",
 	],
-	authors: [{ name: "Repository Analyzer Team" }],
-	creator: "Repository Analyzer",
+	authors: [{ name: "Analyze" }],
+	creator: "Analyze",
 	openGraph: {
 		type: "website",
 		locale: "en_US",
-		url: "https://repo-analyzer.dev",
-		siteName: "Repository Analyzer",
-		title: "Repository Analyzer - Deep Insights for Your Codebase",
+		url: "https://analyze.dev",
+		siteName: "Analyze",
+		title: "Analyze — Code Intelligence",
 		description:
-			"Get deep insights into any GitHub repository. Explore structure, analyze dependencies, find hotspots, and understand your project's architecture.",
+			"Deep insights into any GitHub repository. Explore structure, analyze dependencies, find hotspots.",
 		images: [
 			{
 				url: "/og-image.png",
 				width: 1200,
 				height: 630,
-				alt: "Repository Analyzer",
+				alt: "Analyze — Code Intelligence",
 			},
 		],
 	},
 	alternates: {
-		canonical: "https://repo-analyzer.dev",
+		canonical: "https://analyze.dev",
 		languages: {
-			en: "https://repo-analyzer.dev",
+			en: "https://analyze.dev",
 		},
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Repository Analyzer - Deep Insights for Your Codebase",
+		title: "Analyze — Code Intelligence",
 		description:
-			"Get deep insights into any GitHub repository. Explore structure, analyze dependencies, find hotspots.",
+			"Deep insights into any GitHub repository. Explore structure, analyze dependencies, find hotspots.",
 		images: ["/og-image.png"],
 	},
 	robots: {
@@ -76,9 +80,22 @@ export const metadata: Metadata = {
 	manifest: "/manifest.json",
 };
 
-const geist = Geist({
+const display = DM_Serif_Display({
 	subsets: ["latin"],
-	variable: "--font-geist-sans",
+	weight: "400",
+	variable: "--font-display",
+});
+
+const sans = IBM_Plex_Sans({
+	subsets: ["latin"],
+	weight: ["300", "400", "500", "600"],
+	variable: "--font-plex-sans",
+});
+
+const mono = IBM_Plex_Mono({
+	subsets: ["latin"],
+	weight: ["400", "500"],
+	variable: "--font-mono",
 });
 
 import { ThemeProvider } from "~/components/ThemeProvider";
@@ -89,15 +106,19 @@ export default function RootLayout({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
-		<html className={`${geist.variable}`} lang="en" suppressHydrationWarning>
-			<body suppressHydrationWarning>
-				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+		<html
+			className={`${display.variable} ${sans.variable} ${mono.variable}`}
+			lang="en"
+			suppressHydrationWarning
+		>
+			<body className="font-sans antialiased" suppressHydrationWarning>
+				<ThemeProvider attribute="class" defaultTheme="light" enableSystem>
 					<QueryProvider>
 						<TooltipProvider>
 							<Suspense>
 								<Navigation />
 							</Suspense>
-							<main className="min-h-[calc(100vh-64px)]">{children}</main>
+							<main className="min-h-[calc(100vh-56px)]">{children}</main>
 						</TooltipProvider>
 						<Toaster />
 					</QueryProvider>
