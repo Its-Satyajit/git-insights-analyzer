@@ -14,7 +14,6 @@ import {
 
 export const createTable = pgTableCreator((name) => `pg-drizzle_${name}`);
 
-
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull(),
@@ -104,6 +103,7 @@ export const repositories = pgTable(
 		stars: integer("stars"),
 		forks: integer("forks"),
 		avatarUrl: text("avatar_url"),
+		license: text("license"),
 		analysisStatus: text("analysis_status").default("pending"),
 		analysisPhase: text("analysis_phase"),
 		createdAt: timestamp("created_at")
@@ -238,5 +238,3 @@ export const repositoryContributorsRelations = relations(
 		}),
 	}),
 );
-
-
