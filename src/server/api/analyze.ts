@@ -46,6 +46,11 @@ export const analyzeRoute = new Elysia().use(analyzeRateLimit).post(
 			stars: repoMetadata.stargazers_count,
 			forks: repoMetadata.forks_count,
 			avatarUrl: repoMetadata.owner.avatar_url,
+			license:
+				repoMetadata.license?.spdx_id &&
+				repoMetadata.license.spdx_id !== "NOASSERTION"
+					? repoMetadata.license.spdx_id
+					: (repoMetadata.license?.name ?? null),
 			analysisStatus: "queued",
 		});
 

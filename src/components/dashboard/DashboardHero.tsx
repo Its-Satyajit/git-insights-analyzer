@@ -8,6 +8,7 @@ import {
 	FileCode,
 	GitBranch,
 	GitFork,
+	Scale,
 	Star,
 	Users,
 } from "lucide-react";
@@ -31,6 +32,7 @@ interface DashboardHeroProps {
 		primaryLanguage?: string;
 		isPrivate?: boolean;
 		url?: string;
+		license?: string | null;
 	};
 	analysis?: {
 		totalFiles: number;
@@ -123,7 +125,7 @@ export function DashboardHero({
 								</p>
 							)}
 
-							<div className="mt-4 flex flex-wrap items-center gap-4">
+							<div className="mt-4 flex flex-wrap items-center gap-3">
 								{repo.url && (
 									<a
 										className="group flex items-center gap-1.5 font-mono text-muted-foreground text-xs transition-colors hover:text-foreground"
@@ -142,6 +144,12 @@ export function DashboardHero({
 									<span className="flex items-center gap-1.5 border border-border px-2 py-0.5 font-mono text-muted-foreground text-xs">
 										<div className="h-1.5 w-1.5 rounded-full bg-accent" />
 										{repo.primaryLanguage}
+									</span>
+								)}
+								{repo.license && (
+									<span className="flex items-center gap-1.5 border border-border px-2 py-0.5 font-mono text-muted-foreground text-xs">
+										<Scale className="h-2.5 w-2.5" />
+										{repo.license}
 									</span>
 								)}
 							</div>

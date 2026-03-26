@@ -124,8 +124,7 @@ function flattenTree(
 		result.push({ item, path: currentPath, depth });
 
 		if ("items" in item && item.items && item.items.length > 0) {
-			// For large directories, only go deeper if not too many items
-			if (result.length < 1000) {
+			if (result.length < 5000) {
 				flattenTree(item.items, currentPath, depth + 1, maxDepth, result);
 			}
 		}
@@ -142,7 +141,7 @@ function convertToTreemapDataFlat(
 	stats: { files: number; dirs: number; totalLoc: number };
 } {
 	const flatItems: { item: FileTreeItem; path: string; depth: number }[] = [];
-	flattenTree(items, "", 0, 3, flatItems); // Limit to 3 levels deep for performance
+	flattenTree(items, "", 0, 6, flatItems); // Up to 6 levels deep
 
 	const flatData: TreemapNode[] = [];
 	let files = 0;

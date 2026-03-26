@@ -317,7 +317,7 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 				</Tabs>
 			</section>
 
-			{/* Footer - minimal */}
+			{/* Footer */}
 			<footer className="mt-8 flex flex-col items-center justify-between gap-4 border-border border-t py-6 md:flex-row">
 				<div className="flex items-center gap-6">
 					<span className="font-(family-name:--font-display) text-foreground text-sm">
@@ -345,6 +345,13 @@ function DashboardData({ params }: { params: Promise<{ repoId: string }> }) {
 								Satyajit
 							</a>
 						</span>
+						<span className="text-border">·</span>
+						<Link
+							className="transition-colors hover:text-foreground"
+							href="/legal"
+						>
+							Legal
+						</Link>
 					</div>
 				</div>
 				<div className="flex items-center gap-6 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">

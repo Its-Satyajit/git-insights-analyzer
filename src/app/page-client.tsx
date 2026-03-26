@@ -12,6 +12,7 @@ import {
 	Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
 
@@ -334,7 +335,7 @@ export default function HomeClient() {
 					)}
 				</motion.div>
 
-				{/* Footer - minimal */}
+				{/* Footer */}
 				<motion.footer
 					className="mt-24 flex flex-col items-start justify-between gap-4 border-border border-t pt-8 md:flex-row md:items-center"
 					variants={itemVariants}
@@ -369,6 +370,13 @@ export default function HomeClient() {
 								Satyajit
 							</a>
 						</span>
+						<span className="text-border">·</span>
+						<Link
+							className="transition-colors hover:text-foreground"
+							href="/legal"
+						>
+							Legal
+						</Link>
 					</div>
 					<div className="flex items-center gap-4 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
 						<span>
