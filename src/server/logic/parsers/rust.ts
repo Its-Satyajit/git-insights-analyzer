@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Language, Parser } from "web-tree-sitter";
-import type { ImportStatement, ParsedFile } from "./index";
+import {
+	ensureParserInit,
+	type ImportStatement,
+	type ParsedFile,
+} from "./index";
 
 let rustLanguage: Language | null = null;
 let parser: Parser | null = null;
@@ -109,32 +113,16 @@ function getCurrentCrate(filePath: string): string {
 
 async function getRustParser(): Promise<Parser> {
 	if (!parser) {
-		fs.appendFileSync(
-			"rust_parser_debug.log",
-			"[RustParser] Initializing Parser.init()...\n",
-		);
-		await Parser.init();
+		await ensureParserInit();
 		parser = new Parser();
 		const wasmPath = path.join(
 			process.cwd(),
 			"node_modules/@vscode/tree-sitter-wasm/wasm/tree-sitter-rust.wasm",
 		);
-		fs.appendFileSync(
-			"rust_parser_debug.log",
-			`[RustParser] Loading WASM from ${wasmPath}...\n`,
-		);
 		const wasmBuffer = fs.readFileSync(wasmPath);
-		fs.appendFileSync(
-			"rust_parser_debug.log",
-			`[RustParser] WASM Buffer size: ${wasmBuffer.length}\n`,
-		);
-		rustLanguage = await Language.load(wasmBuffer);
-		fs.appendFileSync(
-			"rust_parser_debug.log",
-			`[RustParser] Language loaded: ${!!rustLanguage}\n`,
-		);
+		// Explicitly cast to Uint8Array for compatibility
+		rustLanguage = await Language.load(new Uint8Array(wasmBuffer));
 		parser.setLanguage(rustLanguage);
-		fs.appendFileSync("rust_parser_debug.log", "[RustParser] Language set.\n");
 	}
 	return parser;
 }
@@ -202,7 +190,7 @@ export async function parseRust(
 				current += char;
 			}
 		}
-		if (current.trim()) {
+		if (current?.trim()) {
 			parts.push(current.trim());
 		}
 		return parts;
@@ -259,7 +247,7 @@ export async function parseRust(
 		const tree = p.parse(content);
 
 		if (tree && tree.rootNode) {
-			const walkTree = (node: any) => {
+			const walkTree = (node: { type: string; text: string; childCount: number; child: (i: number) => any }) => {
 				const type = node.type;
 				if (type === "use_declaration") {
 					const text = node.text.trim();

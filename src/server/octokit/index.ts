@@ -46,9 +46,26 @@ export async function getRepoCommits({
 	const { data: commits } = await octokit.rest.repos.listCommits({
 		owner,
 		repo,
-		per_page: 10,
+		per_page: 100,
 	});
 	return commits;
+}
+
+export async function getCommitDetails({
+	owner,
+	repo,
+	sha,
+}: {
+	owner: string;
+	repo: string;
+	sha: string;
+}) {
+	const { data: commit } = await octokit.rest.repos.getCommit({
+		owner,
+		repo,
+		ref: sha,
+	});
+	return commit;
 }
 
 export async function getFileContent({

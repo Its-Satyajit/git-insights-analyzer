@@ -71,27 +71,45 @@ export async function performBasicAnalysis({
 	}
 
 	// 2. Hybrid LOC Estimation
-	// Sort by size descending to get "Top 10 largest code files"
-	codeFiles.sort((a, b) => b.size - a.size);
+	// Fetch exact counts for top 10 files + 20 random samples to get a better CPL average
 	const topFiles = codeFiles.slice(0, 10);
 	const remainingFiles = codeFiles.slice(10);
+	
+	const sampledFiles = [...topFiles];
+	if (remainingFiles.length > 0) {
+		const numExtraSamples = Math.min(remainingFiles.length, 20);
+		const shuffled = [...remainingFiles].sort(() => 0.5 - Math.random());
+		sampledFiles.push(...shuffled.slice(0, numExtraSamples));
+	}
 
 	let totalLines = 0;
+	let totalSampledSize = 0;
+	let totalSampledLines = 0;
 
-	// Fetch exact counts for top files
-	const topFilesContent = await Promise.all(
-		topFiles.map((f) => getFileContent({ owner, repo, path: f.path })),
+	const sampledFilesContent = await Promise.all(
+		sampledFiles.map((f) => getFileContent({ owner, repo, path: f.path })),
 	);
 
-	for (const content of topFilesContent) {
-		if (content) {
-			totalLines += content.split("\n").length;
+	for (let i = 0; i < sampledFiles.length; i++) {
+		const file = sampledFiles[i];
+		const content = sampledFilesContent[i];
+		if (content && file) {
+			const lines = content.split("\n").length;
+			totalLines += lines;
+			totalSampledSize += file.size;
+			totalSampledLines += lines;
 		}
 	}
 
-	// Heuristic for the rest: ~45 characters per line
-	for (const file of remainingFiles) {
-		totalLines += Math.round(file.size / 45);
+	// Dynamic Heuristic: Average characters per line from samples
+	const averageCPL = totalSampledLines > 0 ? totalSampledSize / totalSampledLines : 45;
+	
+	// Apply heuristic to all non-sampled files
+	const sampledPaths = new Set(sampledFiles.map(f => f.path));
+	for (const file of codeFiles) {
+		if (!sampledPaths.has(file.path)) {
+			totalLines += Math.round(file.size / averageCPL);
+		}
 	}
 
 	// 3. Prepare result data
@@ -100,6 +118,7 @@ export async function performBasicAnalysis({
 		totalFiles,
 		totalDirectories,
 		totalLines,
+		totalCodeFiles: codeFiles.length,
 		fileTypeBreakdown: extensionBreakdown,
 		summaryText: `Analysis complete. Found ${totalFiles} files across ${totalDirectories} directories. Estimated ${totalLines} lines of code.`,
 		fileTree,

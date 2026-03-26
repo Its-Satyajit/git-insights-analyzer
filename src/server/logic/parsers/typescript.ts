@@ -1,21 +1,22 @@
 import fs from "node:fs";
 import path from "node:path";
-import { Language, Parser } from "web-tree-sitter";
-import type { ImportStatement, ParsedFile } from "./index";
+import { Parser, Language } from "web-tree-sitter";
+import { ensureParserInit, type ImportStatement, type ParsedFile } from "./index";
 
 let tsLanguage: Language | null = null;
 let parser: Parser | null = null;
 
 async function getTsParser(): Promise<Parser> {
 	if (!parser) {
-		await Parser.init();
+		await ensureParserInit();
 		parser = new Parser();
 		const wasmPath = path.join(
 			process.cwd(),
 			"node_modules/@vscode/tree-sitter-wasm/wasm/tree-sitter-typescript.wasm",
 		);
 		const wasmBuffer = fs.readFileSync(wasmPath);
-		tsLanguage = await Language.load(wasmBuffer);
+		// Explicitly cast to Uint8Array for compatibility
+		tsLanguage = await Language.load(new Uint8Array(wasmBuffer));
 		parser.setLanguage(tsLanguage);
 	}
 	return parser;
@@ -40,7 +41,7 @@ export async function parseTypescript(
 
 		const imports: ImportStatement[] = [];
 
-		const walkImportStatements = (node: any) => {
+		const walkImportStatements = (node: { type: string; startIndex: number; endIndex: number; children: any[] }) => {
 			const nodeType = node.type;
 
 			if (
@@ -109,7 +110,7 @@ export async function parseTypescript(
 }
 
 function findChildByPattern(
-	node: any,
+	node: { children?: any[] },
 	...patterns: string[]
 ): { text: string } | null {
 	if (!node.children) return null;
