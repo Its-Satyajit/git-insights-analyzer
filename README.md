@@ -33,50 +33,48 @@ A deep repository analyzer built on the T3 Stack. It provides structural analysi
 This application is built defensively to prevent database bloating by offloading heavy computational objects (parsed ASTs, dependency graphs) into compressed Blob storage.
 
 ```mermaid
-flowchart TD
-    %% Clients
-    Client([Client / Browser])
+sequenceDiagram
+    participant User as Client Browser
+    participant API as Next.js/Elysia API
+    participant PG as PostgreSQL (Drizzle)
+    participant Worker as Inngest Worker
+    participant S3 as S3 Object Storage (IDrive E2)
+    participant GH as GitHub API
 
-    %% Next.js App
-    subgraph NextJS["Next.js Application"]
-        UI["React UI (App Router)"]
-        ElysiaAPI["Elysia API Routes"]
+    User->>API: Trigger Analysis (/api/analyze)
+    API->>PG: Check 24hr Rate Limit
+    API->>Worker: Enqueue 'analysis/repo.requested'
+    API-->>User: Return Job Status
+
+    rect rgb(20, 50, 20)
+    Note over Worker: Background Processing Phase
+    Worker->>GH: Shallow Clone Repository (--depth 1)
+    Worker->>Worker: Local FS Read (by-pass rate limits)
+    Worker->>Worker: Tree-Sitter AST Parsing
+    Worker->>GH: Fetch Commit Churn (History)
+    Worker->>Worker: Hotspot Detection (Churn + Depth + LoC)
+    Worker->>Worker: MessagePack & Brotli Compression
+    Worker->>S3: Upload Compiled Insight Blobs
+    Worker->>PG: Save Meta (Contributors, Sync Status, S3 Key)
     end
 
-    %% Background Jobs
-    subgraph Workers["Inngest Workers"]
-        CloneStep["Shallow Git Clone"]
-        ASTStep["Tree-Sitter Parsing"]
-        CompressStep["MessagePack + Brotli"]
-    end
-
-    %% Storage
-    subgraph StorageLayer["Storage Layer"]
-        PG[(PostgreSQL / Drizzle)]
-        S3[("S3 Storage (IDrive E2)")]
-    end
-
-    %% External
-    GitHub[("GitHub API")]
-
-    %% Flow
-    Client -- "Fetch Insights" --> ElysiaAPI
-    UI -- "Trigger Analysis" --> ElysiaAPI
-    ElysiaAPI -- "Read/Write Metadata" --> PG
-    ElysiaAPI -- "Enqueue Job" --> Workers
-
-    CloneStep -- "Fetch Repo" --> GitHub
-    CloneStep --> ASTStep
-    ASTStep --> CompressStep
-    CompressStep -- "Upload Blobs" --> S3
-
-    ElysiaAPI -- "Fetch Compiled Insight Blobs" --> S3
-
-    classDef storage fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#fff;
-    classDef compute fill:#166534,stroke:#22c55e,stroke-width:2px,color:#fff;
-    class PG,S3 storage;
-    class Workers compute;
+    User->>API: Load Dashboard (polls /api/status)
+    API->>S3: Stream AST & Dependencies Blob
+    API-->>User: Render Virtualized D3 Treemaps
 ```
+
+### Step-by-Step Data Flow
+
+1. **API Trigger**: The Next.js client hits the Elysia API (`/api/analyze`), which validates the request and enqueues an asynchronous Inngest event.
+2. **Rate Limiting Guard**: The application checks PostgreSQL to ensure the repository wasn't analyzed within the last 24 hours, saving compute resources.
+3. **Repository Acquisition**: Instead of pure REST API calls which exhaust GitHub rate limits, the worker executes a **Shallow Git Clone** directly to the local filesystem (`.tmp/[repoId]`).
+4. **AST Generation**: Source code files are read locally and parsed by **Tree-sitter WASM modules** to extract deep structural Syntax Trees (detecting functions, imports, dependencies).
+5. **Logic Analysis**: 
+   - Uses GitHub's Commit history to count exact line-churn per file.
+   - Computes **Hotspot scores** mathematically derived from AST dependency edge weights, commit churn, and Lines of Code.
+6. **Binary Compression**: The resulting dependency graphs and tree AST JSON are massive. They are efficiently shrunk using **MessagePack** and **Brotli interning**.
+7. **Cold Storage Write**: Bypassing relational database bloat, these compressed byte-blobs are uploaded to an **S3 Bucket (IDrive E2)**. Only lightweight relational metadata (e.g. Total Files, Status, Contributors) and the unique `s3StorageKey` are synced to **PostgreSQL**.
+8. **Client Rendering**: Upon completion, the dashboard fetches the file tree from S3 and renders it inside highly optimized `@tanstack/react-virtual` DOM components alongside D3.js.
 
 ## Getting Started
 
