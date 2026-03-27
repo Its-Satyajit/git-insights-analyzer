@@ -2,17 +2,10 @@
 
 import { SiGithub } from "@icons-pack/react-simple-icons";
 import { useQuery } from "@tanstack/react-query";
-import {
-	FolderTree,
-	GitBranch,
-	GitGraph,
-	Loader2,
-	Sparkles,
-} from "lucide-react";
+import { GitBranch, GitGraph, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import React, { Suspense, use, useState } from "react";
 import { ActivitySummary } from "~/components/dashboard/ActivitySummary";
-import { AnalysisProgress } from "~/components/dashboard/AnalysisProgress";
 import { CodeQualityMetrics } from "~/components/dashboard/CodeQualityMetrics";
 import { CommitsTimeline } from "~/components/dashboard/CommitsTimeline";
 import { ContributorsList } from "~/components/dashboard/ContributorsList";
@@ -77,19 +70,30 @@ function DashboardData({
 		retry: false,
 	});
 
-	const { data: contributorsData, isLoading: isContributorsLoading } = useQuery(
-		{
-			queryKey: ["contributors", repoId, contributorsSort],
-			queryFn: async () => {
-				const res = await fetch(
-					`/api/repos/${repoId}/contributors?sort=${contributorsSort}`,
-				);
-				if (!res.ok) throw new Error("Failed to fetch contributors");
-				return res.json();
-			},
-			enabled: !!repoId,
+	const {
+		data: contributorsData,
+		isLoading: isContributorsLoading,
+		isError,
+	} = useQuery<
+		Array<{
+			id: string;
+			githubLogin: string;
+			avatarUrl: string | null;
+			htmlUrl: string | null;
+			contributions: number;
+		}>
+	>({
+		queryKey: ["contributors", repoId, contributorsSort],
+		queryFn: async () => {
+			const res = await fetch(
+				`/api/repos/${repoId}/contributors?sort=${contributorsSort}`,
+			);
+			if (!res.ok) throw new Error("Failed to fetch contributors");
+			return res.json();
 		},
-	);
+		enabled: !!repoId,
+		retry: 2,
+	});
 
 	if (isLookingUp || isLoading) {
 		return (
@@ -198,6 +202,7 @@ function DashboardData({
 				owner={data.owner}
 				primaryLanguage={data.primaryLanguage}
 				stars={data.stars}
+				status="complete"
 				updatedAt={data.updatedAt}
 				url={data.url}
 			/>
@@ -369,32 +374,6 @@ function DashboardData({
 				</div>
 			</section>
 
-			{/* Browse Files CTA */}
-			<section className="border-border border-t bg-card/50">
-				<div className="flex items-center justify-between px-6 py-4">
-					<div className="flex items-center gap-3">
-						<FolderTree className="h-4 w-4 text-muted-foreground" />
-						<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-							Explore Source
-						</span>
-					</div>
-					<Link href={`/${owner}/${repo}/files`}>
-						<Button className="gap-2" size="sm" variant="outline">
-							<FolderTree className="h-3.5 w-3.5" />
-							Browse Files
-						</Button>
-					</Link>
-				</div>
-			</section>
-
-			{/* Analysis Status */}
-			<section className="flex items-center gap-4 border-border border-t py-3">
-				<span className="shrink-0 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-					Status
-				</span>
-				<AnalysisProgress repoId={data.id} />
-			</section>
-
 			{/* Contributors Section */}
 			<section className="border-border border-t py-6">
 				<div className="mb-6 flex items-center justify-between">
@@ -427,6 +406,13 @@ function DashboardData({
 					{isContributorsLoading ? (
 						<div className="flex items-center justify-center p-8">
 							<Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+						</div>
+					) : isError ? (
+						<div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
+							<GitGraph className="mb-4 h-8 w-8 opacity-20" />
+							<p className="font-mono text-xs uppercase tracking-wider">
+								Failed to load contributors
+							</p>
 						</div>
 					) : contributorsData && contributorsData.length > 0 ? (
 						<div

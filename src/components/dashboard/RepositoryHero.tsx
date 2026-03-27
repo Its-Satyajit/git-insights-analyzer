@@ -3,7 +3,9 @@
 import { SiGithub } from "@icons-pack/react-simple-icons";
 import {
 	Calendar,
+	Check,
 	ExternalLink,
+	FileCode,
 	GitBranch,
 	GitFork,
 	Lock,
@@ -12,7 +14,18 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
+import { Button } from "~/components/ui/button";
+
+type AnalysisStatus =
+	| "complete"
+	| "pending"
+	| "queued"
+	| "fetching"
+	| "basic-analysis"
+	| "dependency-analysis"
+	| "failed";
 
 interface RepositoryHeroProps {
 	id: string;
@@ -31,6 +44,7 @@ interface RepositoryHeroProps {
 	createdAt?: string;
 	updatedAt?: string;
 	contributorCount?: number;
+	status?: AnalysisStatus;
 }
 
 const containerVariants = {
@@ -77,7 +91,7 @@ export const RepositoryHero = React.memo(function RepositoryHero({
 	id: _id,
 	owner,
 	name,
-	fullName,
+	fullName: _fullName,
 	url,
 	description,
 	avatarUrl,
@@ -90,6 +104,7 @@ export const RepositoryHero = React.memo(function RepositoryHero({
 	createdAt,
 	updatedAt,
 	contributorCount,
+	status,
 }: RepositoryHeroProps) {
 	const displayStars = stars?.toLocaleString() ?? "0";
 	const displayForks = forks?.toLocaleString() ?? "0";
@@ -188,6 +203,15 @@ export const RepositoryHero = React.memo(function RepositoryHero({
 										Updated {formatRelativeTime(updatedAt)}
 									</span>
 								)}
+
+								{status && (
+									<div className="flex items-center gap-1.5">
+										<Check className="h-3 w-3 text-accent" />
+										<span className="font-mono text-accent text-xs">
+											Analyzed
+										</span>
+									</div>
+								)}
 							</div>
 						</div>
 					</div>
@@ -236,17 +260,32 @@ export const RepositoryHero = React.memo(function RepositoryHero({
 						</div>
 					)}
 
-					{/* GitHub link */}
-					<a
-						className="ml-2 flex h-8 items-center gap-1.5 border border-foreground bg-foreground px-3 font-mono text-background text-xs uppercase tracking-wider transition-colors hover:bg-foreground/90"
-						href={repoUrl}
-						rel="noopener noreferrer"
-						target="_blank"
-					>
-						<SiGithub className="h-3 w-3" />
-						<span className="hidden sm:inline">GitHub</span>
-						<ExternalLink className="h-3 w-3" />
-					</a>
+					{/* Action buttons */}
+					<div className="ml-2 flex items-center gap-2">
+						{/* Browse Files link */}
+						<Link href={`/${owner}/${name}/files`}>
+							<Button
+								className="h-8 gap-1.5 border-border px-3 font-mono text-xs uppercase tracking-wider"
+								size="sm"
+								variant="outline"
+							>
+								<FileCode className="h-3 w-3" />
+								<span className="hidden sm:inline">Files</span>
+							</Button>
+						</Link>
+
+						{/* GitHub link */}
+						<a
+							className="flex h-8 items-center gap-1.5 border border-foreground bg-foreground px-3 font-mono text-background text-xs uppercase tracking-wider transition-colors hover:bg-foreground/90"
+							href={repoUrl}
+							rel="noopener noreferrer"
+							target="_blank"
+						>
+							<SiGithub className="h-3 w-3" />
+							<span className="hidden sm:inline">GitHub</span>
+							<ExternalLink className="h-3 w-3" />
+						</a>
+					</div>
 				</motion.div>
 			</div>
 		</motion.div>
