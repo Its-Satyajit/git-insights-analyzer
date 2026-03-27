@@ -77,19 +77,30 @@ function DashboardData({
 		retry: false,
 	});
 
-	const { data: contributorsData, isLoading: isContributorsLoading } = useQuery(
-		{
-			queryKey: ["contributors", repoId, contributorsSort],
-			queryFn: async () => {
-				const res = await fetch(
-					`/api/repos/${repoId}/contributors?sort=${contributorsSort}`,
-				);
-				if (!res.ok) throw new Error("Failed to fetch contributors");
-				return res.json();
-			},
-			enabled: !!repoId,
+	const {
+		data: contributorsData,
+		isLoading: isContributorsLoading,
+		isError,
+	} = useQuery<
+		Array<{
+			id: string;
+			githubLogin: string;
+			avatarUrl: string | null;
+			htmlUrl: string | null;
+			contributions: number;
+		}>
+	>({
+		queryKey: ["contributors", repoId, contributorsSort],
+		queryFn: async () => {
+			const res = await fetch(
+				`/api/repos/${repoId}/contributors?sort=${contributorsSort}`,
+			);
+			if (!res.ok) throw new Error("Failed to fetch contributors");
+			return res.json();
 		},
-	);
+		enabled: !!repoId,
+		retry: 2,
+	});
 
 	if (isLookingUp || isLoading) {
 		return (
@@ -427,6 +438,13 @@ function DashboardData({
 					{isContributorsLoading ? (
 						<div className="flex items-center justify-center p-8">
 							<Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+						</div>
+					) : isError ? (
+						<div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
+							<GitGraph className="mb-4 h-8 w-8 opacity-20" />
+							<p className="font-mono text-xs uppercase tracking-wider">
+								Failed to load contributors
+							</p>
 						</div>
 					) : contributorsData && contributorsData.length > 0 ? (
 						<div
