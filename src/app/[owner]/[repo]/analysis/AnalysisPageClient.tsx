@@ -105,11 +105,15 @@ const itemVariants = {
 };
 
 export function AnalysisPageClient({
+	owner,
+	repo,
 	repoId,
+	showHeader = true,
 }: {
 	owner: string;
 	repo: string;
 	repoId: string;
+	showHeader?: boolean;
 }) {
 	const router = useRouter();
 

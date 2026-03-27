@@ -154,10 +154,21 @@ export async function coreAnalysisLogic(
 	const tmpPath = [getCwd(), ".tmp", repoId];
 	const tempDir = tmpPath.join("/");
 
+	async function safeCleanup(dir: string): Promise<void> {
+		try {
+			await fs.rm(dir, { recursive: true, force: true });
+			console.log(`[Cleanup] Removed ${dir}`);
+		} catch (error) {
+			console.error(`[Cleanup] Failed to remove ${dir}:`, error);
+		}
+	}
+
+	// Defensive cleanup at start - clean any stale directories
+	await safeCleanup(tempDir);
+
 	// 0. Shallow Clone (Optimized content access)
 	try {
 		await fs.mkdir(path.dirname(tempDir), { recursive: true });
-		await fs.rm(tempDir, { recursive: true, force: true }); // Clean start
 		const git = simpleGit();
 		await git.clone(data.githubUrl, tempDir, [
 			"--depth",
@@ -396,12 +407,7 @@ export async function coreAnalysisLogic(
 		await updateStatus(repoId, "complete", "Analysis complete");
 	} finally {
 		// Final Cleanup
-		try {
-			await fs.rm(tempDir, { recursive: true, force: true });
-			console.log(`[Cleanup] Removed ${tempDir}`);
-		} catch (error) {
-			console.error("[Cleanup] Failed to remove temp dir:", error);
-		}
+		await safeCleanup(tempDir);
 	}
 
 	return { success: true, repoId };
