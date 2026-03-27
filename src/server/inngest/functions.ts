@@ -149,7 +149,10 @@ export async function coreAnalysisLogic(
 		`Starting analysis for ${owner}/${repo}`,
 	);
 
-	const tempDir = path.join(process.cwd(), ".tmp", repoId);
+	// Bypass Turbopack static fs tracing
+	const getCwd = () => process.cwd();
+	const tmpPath = [getCwd(), ".tmp", repoId];
+	const tempDir = tmpPath.join("/");
 
 	// 0. Shallow Clone (Optimized content access)
 	try {
@@ -286,7 +289,8 @@ export async function coreAnalysisLogic(
 					let content: string | null = null;
 					// Try local FS first (Shallow Clone)
 					try {
-						const localPath = path.join(tempDir, file.path);
+						// Bypass static analysis path tracing
+						const localPath = [tempDir, file.path].join("/");
 						content = await fs.readFile(localPath, "utf8");
 					} catch (_e) {
 						// Fallback to API
