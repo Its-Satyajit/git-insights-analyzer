@@ -173,29 +173,31 @@ export async function getCachedGlobalInsights() {
 	cacheLife({ stale: 86400, revalidate: 86400, expire: 86400 });
 	cacheTag("insights");
 
+	// Batch 1: Core stats
+	const [stats, languages, topRepos, topContributors] = await Promise.all([
+		getGlobalStats(),
+		getLanguageBreakdown(),
+		getTopRepos(10),
+		getTopContributors(20),
+	]);
+
+	// Batch 2: Distribution data
+	const [licenses, timeline, starDistribution, repoSizeDistribution] =
+		await Promise.all([
+			getLicenseDistribution(),
+			getGrowthTimeline(),
+			getStarDistribution(),
+			getRepoSizeDistribution(),
+		]);
+
+	// Batch 3: Detailed breakdowns
 	const [
-		stats,
-		languages,
-		topRepos,
-		topContributors,
-		licenses,
-		timeline,
-		starDistribution,
-		repoSizeDistribution,
 		topLanguagesByLoc,
 		starsForksData,
 		filesByLanguage,
 		languageLocVsFiles,
 		mostActiveContributors,
 	] = await Promise.all([
-		getGlobalStats(),
-		getLanguageBreakdown(),
-		getTopRepos(10),
-		getTopContributors(20),
-		getLicenseDistribution(),
-		getGrowthTimeline(),
-		getStarDistribution(),
-		getRepoSizeDistribution(),
 		getTopLanguagesByLoc(10),
 		getStarsForksDistribution(),
 		getFilesByLanguage(),
