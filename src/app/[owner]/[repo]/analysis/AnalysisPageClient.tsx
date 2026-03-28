@@ -498,7 +498,7 @@ export function AnalysisPageClient({
 							<div className="min-w-0">
 								<button
 									className="group mb-4 flex w-fit items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-widest transition-colors hover:text-foreground"
-									onClick={() => router.push(`/dashboard/${repoId}`)}
+									onClick={() => router.push(`/${owner}/${repo}`)}
 									type="button"
 								>
 									<ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
