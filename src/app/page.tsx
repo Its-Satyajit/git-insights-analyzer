@@ -270,7 +270,38 @@ export default function Home() {
 				</div>
 
 				{/* ===================== */}
-				{/* SECTION 2: How It Works */}
+				{/* SECTION 2: Recent Analyses */}
+				{/* ===================== */}
+				<div className="mb-16">
+					<Suspense
+						fallback={
+							<div>
+								<div className="mb-6 flex items-center gap-3">
+									<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+										Recently Analyzed
+									</span>
+									<div className="line-rule flex-1" />
+								</div>
+								<div className="space-y-0">
+									{[1, 2, 3, 4].map((n) => (
+										<div
+											className="border-border border-b py-4"
+											key={`skeleton-${n}`}
+										>
+											<Skeleton className="mb-2 h-4 w-64" />
+											<Skeleton className="h-3 w-32" />
+										</div>
+									))}
+								</div>
+							</div>
+						}
+					>
+						<RecentAnalyses />
+					</Suspense>
+				</div>
+
+				{/* ===================== */}
+				{/* SECTION 3: How It Works */}
 				{/* ===================== */}
 				<div className="mb-16">
 					<div className="mb-8 flex items-center gap-3">
@@ -349,42 +380,7 @@ export default function Home() {
 				</div>
 
 				{/* ===================== */}
-				{/* SECTION 4: Recent Analyses */}
-				{/* ===================== */}
-				<div className="mb-16">
-					<Suspense
-						fallback={
-							<div>
-								<div className="mb-8 flex items-end justify-between">
-									<div>
-										<span className="font-(family-name:--font-display) mb-2 block text-3xl text-foreground">
-											Recent
-										</span>
-										<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-											Previously analyzed repositories
-										</span>
-									</div>
-								</div>
-								<div className="space-y-0">
-									{[1, 2, 3, 4].map((n) => (
-										<div
-											className="border-border border-b py-5"
-											key={`skeleton-${n}`}
-										>
-											<Skeleton className="mb-2 h-5 w-64" />
-											<Skeleton className="h-3 w-32" />
-										</div>
-									))}
-								</div>
-							</div>
-						}
-					>
-						<RecentAnalyses />
-					</Suspense>
-				</div>
-
-				{/* ===================== */}
-				{/* SECTION 5: FAQ */}
+				{/* SECTION 4: FAQ */}
 				{/* ===================== */}
 				<div className="mb-16">
 					<div className="mb-8 flex items-center gap-3">
