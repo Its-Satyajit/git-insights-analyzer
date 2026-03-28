@@ -1,5 +1,13 @@
 {
 	"version": 2,
+	"functions": {
+		"src/app/**/*.tsx": {
+			"memory": 1024
+		}
+	},
+	"env": {
+		"TMPDIR": "/tmp"
+	},
 	"headers": [
 		{
 			"source": "/tree-sitter/(.*).wasm",
