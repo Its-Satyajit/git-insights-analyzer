@@ -5,7 +5,6 @@ import {
 	ArrowLeft,
 	BarChart3,
 	Brain,
-	Calendar,
 	Check,
 	Copy,
 	ExternalLink,
@@ -13,7 +12,6 @@ import {
 	GitBranch,
 	GitCommit,
 	GitFork,
-	History,
 	Loader2,
 	Lock,
 	LockOpen,
@@ -37,8 +35,6 @@ import {
 	Cell,
 	Tooltip as ChartTooltip,
 	Label,
-	Line,
-	LineChart,
 	Pie,
 	PieChart,
 	ReferenceArea,
@@ -53,20 +49,13 @@ import {
 import { AIInsightsPanel, HotspotAIExplainer } from "~/components/ai";
 import { FileTreeVisualizer } from "~/components/dashboard/FileTreeVisualizer";
 import { Button } from "~/components/ui/button";
-import { CardTitle } from "~/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from "~/components/ui/dialog";
-import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { env } from "~/env";
 import type { RepoStatus } from "~/hooks/useRepoStatus";
 import { useRepoStatus } from "~/hooks/useRepoStatus";

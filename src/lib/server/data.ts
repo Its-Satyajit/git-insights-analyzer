@@ -3,6 +3,21 @@
 import { and, desc, eq } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import {
+	getFilesByLanguage,
+	getGlobalStats,
+	getGrowthTimeline,
+	getLanguageBreakdown,
+	getLanguageLocVsFiles,
+	getLicenseDistribution,
+	getMostActiveContributors,
+	getRepoSizeDistribution,
+	getStarDistribution,
+	getStarsForksDistribution,
+	getTopContributors,
+	getTopLanguagesByLoc,
+	getTopRepos,
+} from "~/server/dal/insights";
+import {
 	getRepositoryByOwnerAndName,
 	getRepositoryData,
 	getTopRepositoriesByStars,
@@ -147,4 +162,60 @@ export async function getCachedRecentAnalyses(limit: number = 5) {
 	cacheLife("hours");
 	cacheTag("repositories", "analysis");
 	return getRecentAnalyses(limit);
+}
+
+/**
+ * Cached global insights data (24h cache)
+ * Aggregates statistics across all analyzed repositories
+ */
+export async function getCachedGlobalInsights() {
+	"use cache";
+	cacheLife({ stale: 86400, revalidate: 86400, expire: 86400 });
+	cacheTag("insights");
+
+	const [
+		stats,
+		languages,
+		topRepos,
+		topContributors,
+		licenses,
+		timeline,
+		starDistribution,
+		repoSizeDistribution,
+		topLanguagesByLoc,
+		starsForksData,
+		filesByLanguage,
+		languageLocVsFiles,
+		mostActiveContributors,
+	] = await Promise.all([
+		getGlobalStats(),
+		getLanguageBreakdown(),
+		getTopRepos(10),
+		getTopContributors(20),
+		getLicenseDistribution(),
+		getGrowthTimeline(),
+		getStarDistribution(),
+		getRepoSizeDistribution(),
+		getTopLanguagesByLoc(10),
+		getStarsForksDistribution(),
+		getFilesByLanguage(),
+		getLanguageLocVsFiles(),
+		getMostActiveContributors(10),
+	]);
+
+	return {
+		stats,
+		languages,
+		topRepos,
+		topContributors,
+		licenses,
+		timeline,
+		starDistribution,
+		repoSizeDistribution,
+		topLanguagesByLoc,
+		starsForksData,
+		filesByLanguage,
+		languageLocVsFiles,
+		mostActiveContributors,
+	};
 }
