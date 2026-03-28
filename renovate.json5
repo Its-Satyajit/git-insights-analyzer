@@ -1,34 +1,56 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    "group:all"
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
+    'group:all',
   ],
-  "automerge": true,
-  "packageRules": [
+  automerge: true,
+  packageRules: [
     {
-      "matchUpdateTypes": ["major"],
-      "automerge": false
+      matchUpdateTypes: [
+        'major',
+      ],
+      automerge: false,
     },
     {
-      "matchPackagePatterns": ["^@types/", "^@testing-library/"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+      automerge: true,
+      matchPackageNames: [
+        '/^@types//',
+        '/^@testing-library//',
+      ],
     },
     {
-      "matchDepTypes": ["devDependencies"],
-      "schedule": ["before 8am on Sunday"]
-    }
+      matchDepTypes: [
+        'devDependencies',
+      ],
+      schedule: [
+        'before 8am on Sunday',
+      ],
+    },
   ],
-  "prHourlyLimit": 4,
-  "prConcurrentLimit": 10,
-  "schedule": ["after 10pm on Saturday", "before 8am on Sunday"],
-  "baseBranches": ["main"],
-  "labels": ["dependencies", "renovate"],
-  "rangeStrategy": "bump",
-  "prCreation": "immediate",
-  "minimumReleaseAge": "3d",
-  "vulnerabilityAlerts": {
-    "labels": ["security"]
-  }
+  prHourlyLimit: 4,
+  prConcurrentLimit: 10,
+  schedule: [
+    'after 10pm on Saturday',
+    'before 8am on Sunday',
+  ],
+  baseBranchPatterns: [
+    'main',
+  ],
+  labels: [
+    'dependencies',
+    'renovate',
+  ],
+  rangeStrategy: 'bump',
+  prCreation: 'immediate',
+  minimumReleaseAge: '3d',
+  vulnerabilityAlerts: {
+    labels: [
+      'security',
+    ],
+  },
 }
