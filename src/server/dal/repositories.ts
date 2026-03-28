@@ -1,8 +1,8 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { Static } from "elysia";
 import type { dbSchema } from "../api/dbSchema";
 import { db } from "../db";
-import { repositories } from "../db/schema";
+import { analysisResults, repositories } from "../db/schema";
 
 type Insert = Static<typeof dbSchema.repositories.insert>;
 export async function insertRepositories(data: Insert) {
@@ -82,4 +82,44 @@ export async function getTopRepositoriesByStars(limit: number = 10) {
 		...repo,
 		contributorCount: repo.contributors?.length ?? 0,
 	}));
+}
+
+export interface GlobalStats {
+	repositoriesAnalyzed: number;
+	totalFiles: number;
+	totalLines: number;
+	contributors: number;
+}
+
+export async function getGlobalStats(): Promise<GlobalStats> {
+	const [repoCount, analysisStats, contributorCount] = await Promise.all([
+		db
+			.select({ count: sql<number>`count(*)` })
+			.from(repositories)
+			.where(eq(repositories.analysisStatus, "complete")),
+		db
+			.select({
+				totalFiles: sql<number>`coalesce(sum(${analysisResults.totalFiles}), 0)`,
+				totalLines: sql<number>`coalesce(sum(${analysisResults.totalLines}), 0)`,
+			})
+			.from(analysisResults)
+			.innerJoin(
+				repositories,
+				eq(repositories.id, analysisResults.repositoryId),
+			)
+			.where(eq(repositories.analysisStatus, "complete")),
+		db
+			.select({
+				count: sql<number>`count(distinct ${repositories.owner}||'/'||${repositories.name})`,
+			})
+			.from(repositories)
+			.where(eq(repositories.analysisStatus, "complete")),
+	]);
+
+	return {
+		repositoriesAnalyzed: repoCount[0]?.count ?? 0,
+		totalFiles: analysisStats[0]?.totalFiles ?? 0,
+		totalLines: analysisStats[0]?.totalLines ?? 0,
+		contributors: contributorCount[0]?.count ?? 0,
+	};
 }
