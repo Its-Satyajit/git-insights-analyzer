@@ -3,24 +3,11 @@ import {
 	GetObjectCommand,
 	ListObjectsV2Command,
 	PutObjectCommand,
-	S3Client,
 } from "@aws-sdk/client-s3";
-import { env } from "../../env";
+import { env } from "~/env";
+import { BUCKET_NAME, s3Client } from "../lib/s3-client";
 import type { AnalysisData } from "../types/analysis";
 import { packAnalysisData, unpackAnalysisData } from "./serialization";
-
-const s3Client = new S3Client({
-	region: env.IDRIVE_E2_REGION,
-	endpoint: env.IDRIVE_E2_ENDPOINT.startsWith("http")
-		? env.IDRIVE_E2_ENDPOINT
-		: `https://${env.IDRIVE_E2_ENDPOINT}`,
-	credentials: {
-		accessKeyId: env.IDRIVE_E2_ACCESS_KEY,
-		secretAccessKey: env.IDRIVE_E2_SECRET_KEY,
-	},
-});
-
-const BUCKET_NAME = env.IDRIVE_E2_BUCKET_NAME;
 
 /**
  * Uploads analysis data with MessagePack + Brotli compression.
