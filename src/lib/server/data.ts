@@ -29,7 +29,7 @@ import { repositories } from "~/server/db/schema";
  * Cached fetch for top repositories (used on home page)
  * Revalidates every 60 seconds using use cache directive
  */
-export async function getTopRepositories(limit: number = 10) {
+async function getTopRepositories(limit: number = 10) {
 	"use cache";
 	cacheLife("minutes");
 	cacheTag("repositories");
@@ -40,7 +40,7 @@ export async function getTopRepositories(limit: number = 10) {
  * Cached fetch for repository data (used on dashboard)
  * Revalidates every 30 seconds for active repos
  */
-export async function getCachedRepositoryData(repoId: string) {
+async function getCachedRepositoryData(repoId: string) {
 	"use cache";
 	cacheLife("minutes");
 	cacheTag("repository", `repo-${repoId}`);
@@ -50,7 +50,7 @@ export async function getCachedRepositoryData(repoId: string) {
 /**
  * Get repository with analysis results for dashboard
  */
-export async function getRepositoryWithAnalysis(repoId: string) {
+async function getRepositoryWithAnalysis(repoId: string) {
 	const result = await db.query.repositories.findFirst({
 		where: (t) => eq(t.id, repoId),
 		with: {
@@ -76,7 +76,7 @@ export async function getRepositoryWithAnalysis(repoId: string) {
 /**
  * Get repository by owner and name (for /[owner]/[repo] URLs)
  */
-export async function getRepoByPath(owner: string, name: string) {
+async function getRepoByPath(owner: string, name: string) {
 	const result = await db.query.repositories.findFirst({
 		where: (t) => and(eq(t.owner, owner), eq(t.name, name)),
 		with: {
@@ -102,7 +102,7 @@ export async function getRepoByPath(owner: string, name: string) {
 /**
  * Cached version of repository with analysis
  */
-export async function getCachedRepositoryWithAnalysis(repoId: string) {
+async function getCachedRepositoryWithAnalysis(repoId: string) {
 	"use cache";
 	cacheLife({ stale: 86400, revalidate: 86400, expire: 86400 });
 	cacheTag("repository", "analysis", `repo-${repoId}`);
@@ -123,7 +123,7 @@ export async function getCachedRepoByPath(owner: string, name: string) {
 /**
  * Get recent analyses for home page (most recently analyzed repos)
  */
-export async function getRecentAnalyses(limit: number = 5) {
+async function getRecentAnalyses(limit: number = 5) {
 	const result = await db.query.repositories.findMany({
 		where: (t) => eq(t.analysisStatus, "complete"),
 		orderBy: [desc(repositories.updatedAt)],
@@ -157,7 +157,7 @@ export async function getRecentAnalyses(limit: number = 5) {
 /**
  * Cached version of recent analyses
  */
-export async function getCachedRecentAnalyses(limit: number = 5) {
+async function getCachedRecentAnalyses(limit: number = 5) {
 	"use cache";
 	cacheLife("hours");
 	cacheTag("repositories", "analysis");

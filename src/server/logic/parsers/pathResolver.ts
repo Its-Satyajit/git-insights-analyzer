@@ -481,7 +481,7 @@ export function resolveImport(
 /**
  * Legacy function for backward compatibility
  */
-export function resolveAllImports(
+function resolveAllImports(
 	imports: { source: string }[],
 	filePath: string,
 	options?: Partial<PathResolverConfig>,

@@ -29,7 +29,7 @@ const mainLinks = [
 	{ href: "/about", label: "About" },
 ] as const;
 
-export function Navigation() {
+function Navigation() {
 	const params = useParams();
 	const pathname = usePathname();
 	const repoId = params.repoId as string | undefined;

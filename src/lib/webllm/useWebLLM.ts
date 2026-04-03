@@ -39,7 +39,7 @@ export interface ModelInfo {
 export const AVAILABLE_MODELS: Record<string, ModelInfo> = {};
 
 // Populate models from WebLLM's built-in config
-export async function loadAvailableModels(): Promise<
+async function loadAvailableModels(): Promise<
 	Record<string, ModelInfo>
 > {
 	const webllm = await import("@mlc-ai/web-llm");

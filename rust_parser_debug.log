@@ -1,0 +1,2 @@
+[RustParser] Error during Tree-sitter parsing: ENOENT: no such file or directory, open '/home/satyajit/Documents/GitHub/OSS/project-2/node_modules/@vscode/tree-sitter-wasm/wasm/tree-sitter-rust.wasm'. Falling back to regex.
+[RustParser] Error during Tree-sitter parsing: ENOENT: no such file or directory, open '/home/satyajit/Documents/GitHub/OSS/project-2/node_modules/@vscode/tree-sitter-wasm/wasm/tree-sitter-rust.wasm'. Falling back to regex.

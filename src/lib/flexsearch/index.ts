@@ -52,7 +52,7 @@ export function createIndex(
 	return new FlexSearch.Index(options);
 }
 
-export function searchFlexSearch<T>(
+function searchFlexSearch<T>(
 	query: string | null | undefined,
 	index: AnyIndex | null | undefined,
 	store: SearchStore<T> | null | undefined,
@@ -70,11 +70,11 @@ export function searchFlexSearch<T>(
 		.filter((v): v is T => v !== undefined);
 }
 
-export async function serializeIndex(index: AnyIndex): Promise<string> {
+async function serializeIndex(index: AnyIndex): Promise<string> {
 	return await (index as any).export();
 }
 
-export async function deserializeIndex(
+async function deserializeIndex(
 	serialized: string,
 	options: ConstructorParameters<typeof Index>[0] = {},
 ): Promise<AnyIndex> {

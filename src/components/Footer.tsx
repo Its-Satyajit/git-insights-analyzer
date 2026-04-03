@@ -17,7 +17,7 @@ const footerLinks = {
 	],
 };
 
-export function Footer() {
+function Footer() {
 	const currentYear = new Date().getFullYear();
 
 	return (
