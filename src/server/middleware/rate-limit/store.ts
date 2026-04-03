@@ -13,7 +13,7 @@ import type {
  * Wraps Redis operations with circuit breaker pattern.
  * Provides a clean interface for the rate limiter middleware.
  */
-export class RateLimitStore {
+class RateLimitStore {
 	private redis: Redis | null = null;
 	private limiter: SlidingWindowRateLimiter | null = null;
 	private circuitBreaker: CircuitBreaker;

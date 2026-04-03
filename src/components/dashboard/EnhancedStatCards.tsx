@@ -35,7 +35,7 @@ function formatDate(dateString?: string): string {
 	});
 }
 
-export function EnhancedStatCardsSkeleton() {
+function EnhancedStatCardsSkeleton() {
 	const skeletonKeys = [
 		"stat-1",
 		"stat-2",

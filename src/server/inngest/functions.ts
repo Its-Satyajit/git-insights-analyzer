@@ -414,7 +414,7 @@ export async function coreAnalysisLogic(
 }
 
 // 7-day Log Cleanup Job
-export const cleanupOldLogs = inngest.createFunction(
+const cleanupOldLogs = inngest.createFunction(
 	{
 		id: "cleanup-old-logs",
 		name: "Cleanup Old Analysis Logs",

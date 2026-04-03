@@ -11,7 +11,7 @@ const navItems = [
 	{ label: "Files", path: "/files" },
 ] as const;
 
-export function Breadcrumbs() {
+function Breadcrumbs() {
 	const params = useParams();
 	const pathname = usePathname();
 	const owner = params.owner as string | undefined;

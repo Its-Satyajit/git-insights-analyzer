@@ -22,7 +22,7 @@ function sortFileTreeItems(items: FileTreeItem[]): FileTreeItem[] {
 	});
 }
 
-export function CollapsibleFileTree({
+function CollapsibleFileTree({
 	fileTree,
 }: {
 	fileTree: FileTreeItem[];

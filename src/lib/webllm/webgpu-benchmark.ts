@@ -188,7 +188,7 @@ Alternative browsers with good WebGPU support:
 /**
  * Get WebGPU adapter information
  */
-export async function getWebGPUInfo(): Promise<WebGPUInfo | null> {
+async function getWebGPUInfo(): Promise<WebGPUInfo | null> {
 	if (typeof navigator === "undefined" || !navigator.gpu) return null;
 
 	try {
@@ -215,7 +215,7 @@ export async function getWebGPUInfo(): Promise<WebGPUInfo | null> {
  * Run GPU compute benchmark to estimate performance
  * Uses matrix multiplication which mimics LLM inference workload
  */
-export async function runGPUBenchmark(): Promise<GPUBenchmarkResult> {
+async function runGPUBenchmark(): Promise<GPUBenchmarkResult> {
 	if (typeof navigator === "undefined" || !navigator.gpu) {
 		return { score: 0, computeTime: Infinity, memoryBandwidth: 0 };
 	}
@@ -432,7 +432,7 @@ export async function runFullBenchmark(): Promise<BenchmarkResult> {
 /**
  * Human-readable tier description
  */
-export function getTierDescription(tier: ModelTier): string {
+function getTierDescription(tier: ModelTier): string {
 	switch (tier) {
 		case "tier-1":
 			return "Excellent GPU - Full AI features available";
