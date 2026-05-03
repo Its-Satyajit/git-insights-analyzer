@@ -4,6 +4,7 @@ import "~/env";
 const config: NextConfig = {
 	reactCompiler: true,
 	cacheComponents: true,
+	experimental: {},
 	reactStrictMode: true,
 	images: {
 		formats: ["image/avif", "image/webp"],

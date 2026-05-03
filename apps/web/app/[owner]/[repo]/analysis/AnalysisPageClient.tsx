@@ -1016,7 +1016,7 @@ export function AnalysisPageClient({
 												width={90}
 											/>
 											<ChartTooltip
-												content={({ active, payload }: TooltipContentProps<number, string>) => {
+												content={({ active, payload }: any) => {
 													if (
 														active &&
 														payload?.length &&
@@ -1077,7 +1077,7 @@ export function AnalysisPageClient({
 												))}
 											</Pie>
 											<ChartTooltip
-												content={({ active, payload }: TooltipContentProps<number, string>) => {
+												content={({ active, payload }: any) => {
 													if (active && payload?.[0]) {
 														return (
 															<div className="border border-border bg-card p-3 shadow-lg">
@@ -1123,7 +1123,7 @@ export function AnalysisPageClient({
 												}}
 											/>
 											<ChartTooltip
-												content={({ active, payload }: TooltipContentProps<number, string>) => {
+												content={({ active, payload }: any) => {
 													if (active && payload?.[0]) {
 														return (
 															<div className="border border-border bg-card p-3 shadow-lg">
@@ -1182,7 +1182,7 @@ export function AnalysisPageClient({
 												}}
 											/>
 											<ChartTooltip
-												content={({ active, payload }: TooltipContentProps<number, string>) => {
+												content={({ active, payload }: any) => {
 													if (active && payload?.[0]) {
 														return (
 															<div className="border border-border bg-card p-3 shadow-lg">
@@ -1674,7 +1674,7 @@ export function AnalysisPageClient({
 												type="number"
 											/>
 											<ChartTooltip
-												content={({ active, payload }: TooltipContentProps<number, string>) => {
+												content={({ active, payload }: any) => {
 													if (active && payload?.[0]?.payload) {
 														const data = payload[0].payload;
 														return (
@@ -2023,7 +2023,7 @@ export function AnalysisPageClient({
 												range={[80, 500]}
 											/>
 											<ChartTooltip
-												content={({ active, payload }: TooltipContentProps<number, string>) => {
+												content={({ active, payload }: any) => {
 													if (active && payload?.length && payload[0]) {
 														const data = payload[0].payload as HotspotDataPoint;
 														const severity =
