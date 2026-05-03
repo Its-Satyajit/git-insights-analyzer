@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import { SearchForm } from "~/components/home/SearchForm";
-import { getGlobalStats } from "~/server/dal/repositories";
+import { type GlobalStats, getGlobalStats } from "~/server/dal/repositories";
 
 export const metadata: Metadata = {
 	title: "Free GitHub Repository Analyzer - Code Intelligence & Hotspots",
