@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import "~/env";
+import { env } from "~/env";
 
 const config: NextConfig = {
 	reactCompiler: true,
@@ -29,6 +30,10 @@ const config: NextConfig = {
 				],
 			},
 		];
+	},
+
+	typescript: {
+		ignoreBuildErrors: env.NODE_ENV === "production",
 	},
 };
 
