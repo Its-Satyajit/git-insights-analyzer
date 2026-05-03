@@ -17,7 +17,6 @@ import {
 	Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
-import Script from "next/script";
 import { SearchForm } from "~/components/home/SearchForm";
 import { getGlobalStats } from "~/server/dal/repositories";
 
@@ -443,7 +442,7 @@ export default async function Home() {
 			</div>
 
 			{/* FAQ Schema for SEO */}
-			<Script
+			<script
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_DATA) }}
 				id="faq-schema"
 				type="application/ld+json"

@@ -45,6 +45,8 @@ import {
 	YAxis,
 	ZAxis,
 } from "recharts";
+import type { TooltipContentProps } from "recharts";
+import type { PieLabelRenderProps } from "recharts";
 import { AIInsightsPanel, HotspotAIExplainer } from "~/components/ai";
 import { FileTreeVisualizer } from "~/components/dashboard/FileTreeVisualizer";
 import { FallbackImage } from "~/components/FallbackImage";
@@ -1014,7 +1016,7 @@ export function AnalysisPageClient({
 												width={90}
 											/>
 											<ChartTooltip
-												content={({ active, payload }) => {
+												content={({ active, payload }: TooltipContentProps<number, string>) => {
 													if (
 														active &&
 														payload?.length &&
@@ -1060,7 +1062,7 @@ export function AnalysisPageClient({
 												data={languageData}
 												dataKey="value"
 												innerRadius={50}
-												label={({ name, percent = 0 }) =>
+												label={({ name, percent = 0 }: PieLabelRenderProps) =>
 													`${name} ${(percent * 100).toFixed(0)}%`
 												}
 												labelLine={false}
@@ -1075,7 +1077,7 @@ export function AnalysisPageClient({
 												))}
 											</Pie>
 											<ChartTooltip
-												content={({ active, payload }) => {
+												content={({ active, payload }: TooltipContentProps<number, string>) => {
 													if (active && payload?.[0]) {
 														return (
 															<div className="border border-border bg-card p-3 shadow-lg">
@@ -1121,7 +1123,7 @@ export function AnalysisPageClient({
 												}}
 											/>
 											<ChartTooltip
-												content={({ active, payload }) => {
+												content={({ active, payload }: TooltipContentProps<number, string>) => {
 													if (active && payload?.[0]) {
 														return (
 															<div className="border border-border bg-card p-3 shadow-lg">
@@ -1180,7 +1182,7 @@ export function AnalysisPageClient({
 												}}
 											/>
 											<ChartTooltip
-												content={({ active, payload }) => {
+												content={({ active, payload }: TooltipContentProps<number, string>) => {
 													if (active && payload?.[0]) {
 														return (
 															<div className="border border-border bg-card p-3 shadow-lg">
@@ -1672,7 +1674,7 @@ export function AnalysisPageClient({
 												type="number"
 											/>
 											<ChartTooltip
-												content={({ active, payload }) => {
+												content={({ active, payload }: TooltipContentProps<number, string>) => {
 													if (active && payload?.[0]?.payload) {
 														const data = payload[0].payload;
 														return (
@@ -1722,7 +1724,7 @@ export function AnalysisPageClient({
 												data={extensionData.slice(0, 8)}
 												dataKey="value"
 												innerRadius={40}
-												label={({ name, percent = 0 }) =>
+												label={({ name, percent = 0 }: PieLabelRenderProps) =>
 													`${name} ${(percent * 100).toFixed(0)}%`
 												}
 												labelLine={false}
@@ -1897,83 +1899,51 @@ export function AnalysisPageClient({
 												const midX = maxX / 2;
 												const midY = maxY / 2;
 
+												// recharts v3 ReferenceArea SVG prop types conflict — use cast alias
+												// eslint-disable-next-line @typescript-eslint/no-explicit-any
+												const RefArea = ReferenceArea as React.ComponentType<Record<string, unknown>>;
+
 												return (
 													<>
-														<ReferenceArea
+														<RefArea
 															fill="var(--color-destructive)"
 															fillOpacity={0.05}
+															label={{ fill: "var(--color-destructive)", fillOpacity: 0.5, fontFamily: "IBM Plex Mono", fontSize: 10, fontWeight: 600, position: "insideTopRight", value: "HOTSPOTS" }}
 															x1={midX}
 															x2={maxX}
 															y1={midY}
 															y2={maxY}
-														>
-															<Label
-																fill="var(--color-destructive)"
-																fillOpacity={0.5}
-																fontFamily="IBM Plex Mono"
-																fontSize={10}
-																fontWeight={600}
-																position="insideTopRight"
-																value="HOTSPOTS"
-															/>
-														</ReferenceArea>
+														/>
 
-														<ReferenceArea
+														<RefArea
 															fill="var(--color-primary)"
 															fillOpacity={0.05}
+															label={{ fill: "var(--color-primary)", fillOpacity: 0.5, fontFamily: "IBM Plex Mono", fontSize: 10, fontWeight: 600, position: "insideTopLeft", value: "UTILITIES" }}
 															x1={0}
 															x2={midX}
 															y1={midY}
 															y2={maxY}
-														>
-															<Label
-																fill="var(--color-primary)"
-																fillOpacity={0.5}
-																fontFamily="IBM Plex Mono"
-																fontSize={10}
-																fontWeight={600}
-																position="insideTopLeft"
-																value="UTILITIES"
-															/>
-														</ReferenceArea>
+														/>
 
-														<ReferenceArea
+														<RefArea
 															fill="var(--color-primary)"
 															fillOpacity={0.05}
+															label={{ fill: "var(--color-primary)", fillOpacity: 0.5, fontFamily: "IBM Plex Mono", fontSize: 10, fontWeight: 600, position: "insideBottomRight", value: "DEPENDENTS" }}
 															x1={midX}
 															x2={maxX}
 															y1={0}
 															y2={midY}
-														>
-															<Label
-																fill="var(--color-primary)"
-																fillOpacity={0.5}
-																fontFamily="IBM Plex Mono"
-																fontSize={10}
-																fontWeight={600}
-																position="insideBottomRight"
-																value="DEPENDENTS"
-															/>
-														</ReferenceArea>
+														/>
 
-														<ReferenceArea
+														<RefArea
 															fill="var(--color-accent)"
 															fillOpacity={0.05}
+															label={{ fill: "var(--color-accent)", fillOpacity: 0.5, fontFamily: "IBM Plex Mono", fontSize: 10, fontWeight: 600, position: "insideBottomLeft", value: "ISOLATED" }}
 															x1={0}
 															x2={midX}
 															y1={0}
 															y2={midY}
-														>
-															<Label
-																fill="var(--color-accent)"
-																fillOpacity={0.5}
-																fontFamily="IBM Plex Mono"
-																fontSize={10}
-																fontWeight={600}
-																position="insideBottomLeft"
-																value="ISOLATED"
-															/>
-														</ReferenceArea>
+														/>
 
 														<ReferenceLine
 															stroke="var(--color-border)"
@@ -2053,7 +2023,7 @@ export function AnalysisPageClient({
 												range={[80, 500]}
 											/>
 											<ChartTooltip
-												content={({ active, payload }) => {
+												content={({ active, payload }: TooltipContentProps<number, string>) => {
 													if (active && payload?.length && payload[0]) {
 														const data = payload[0].payload as HotspotDataPoint;
 														const severity =

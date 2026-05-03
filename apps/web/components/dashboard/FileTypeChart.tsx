@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import type { LabelProps } from "recharts";
 import { Label, Pie, PieChart } from "recharts";
 import type { ChartConfig } from "~/components/ui/chart";
 import {
@@ -80,7 +81,7 @@ export const FileTypeChart = memo(function FileTypeChart({
 							strokeWidth={1}
 						>
 							<Label
-								content={({ viewBox }) => {
+								content={({ viewBox }: LabelProps) => {
 									if (viewBox && "cx" in viewBox && "cy" in viewBox) {
 										return (
 											<text
