@@ -11,6 +11,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Scatter, ScatterChart, XAxis, YAxis, ZAxis } from "recharts";
+import type { TooltipContentProps } from "recharts";
 import {
 	ChartContainer,
 	ChartTooltip,
@@ -256,7 +257,7 @@ export function StarsForksScatter({ data }: StarsForksScatterProps) {
 							/>
 							<ZAxis dataKey="stars" range={[30, 200]} />
 							<ChartTooltip
-								content={({ active, payload }) => {
+								content={({ active, payload }: TooltipContentProps<number, string>) => {
 									if (active && payload?.length && payload[0]?.payload) {
 										const item = payload[0].payload;
 										return (

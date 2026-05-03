@@ -32,18 +32,20 @@ jobs:
   release-please:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
-      - uses: google-github-actions/release-please-action@v4
+      - id: release
+        uses: google-github-actions/release-please-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
-          package-name: git-insights
-          default-branch: main
+          target-branch: main
 
   build-mobile:
     needs: release-please
     if: >-
-      needs.release-please.outputs.released
+      needs.release-please.outputs.release_created
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,11 +63,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build mobile app
-        working-directory: apps/git-insights-mobile
+        working-directory: apps/mobile
         run: pnpm prebuild --platform android
 
-      - name: Build Android APK
-        working-directory: apps/git-insights-mobile
+      - name: Build Android Bundle
+        working-directory: apps/mobile
         run: |
           pnpm expo export --platform android
           mkdir -p dist
@@ -74,14 +76,14 @@ jobs:
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
-          path: apps/git-insights-mobile/dist/android
+          name: android-bundle
+          path: apps/mobile/.expo/dist
           retention-days: 30
 
   build-web:
     needs: release-please
     if: >-
-      needs.release-please.outputs.released
+      needs.release-please.outputs.release_created
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -2,9 +2,8 @@ import type { Repository } from "@git-insights/api";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Search } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-	Platform,
 	RefreshControl,
 	ScrollView,
 	StyleSheet,
@@ -13,7 +12,7 @@ import {
 	View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { api } from "~/api/client";
+import { useTheme } from "~/components/Provider";
 import {
 	Badge,
 	Card,
@@ -22,17 +21,21 @@ import {
 	Skeleton,
 	Stat,
 } from "~/components/ui";
-import { useTopRepos } from "~/hooks";
-import { BorderRadius, Colors, FontSizes, Spacing } from "~/utils/theme";
-
-import { useTheme } from "~/components/Provider";
 import { LineRule } from "~/components/ui/LineRule";
+import { useTopRepos } from "~/hooks";
+import { FontSizes, Spacing } from "~/utils/theme";
 
 export default function HomeScreen() {
 	const { colors } = useTheme();
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
-	const { data: repos, isLoading, isFetching, refetch } = useTopRepos(20);
+	const {
+		data: repos,
+		isLoading,
+		isFetching,
+		isError,
+		refetch,
+	} = useTopRepos(20);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [filtered, setFiltered] = useState<Repository[]>([]);
 
@@ -54,13 +57,21 @@ export default function HomeScreen() {
 		}
 	}, [searchQuery, repos]);
 
+	const [refreshing, setRefreshing] = useState(false);
+
+	const onRefresh = async () => {
+		setRefreshing(true);
+		try {
+			await refetch();
+		} catch (error) {
+			console.error("[Dashboard] Refresh failed:", error);
+		} finally {
+			setRefreshing(false);
+		}
+	};
+
 	const totalStars =
 		repos?.reduce((sum: number, r: Repository) => sum + r.stars, 0) ?? 0;
-	const totalContributors =
-		repos?.reduce(
-			(sum: number, r: Repository) => sum + r.contributorCount,
-			0,
-		) ?? 0;
 	const analyzedCount =
 		repos?.filter((r: Repository) => r.analysisStatus === "complete").length ??
 		0;
@@ -73,16 +84,20 @@ export default function HomeScreen() {
 			}}
 			refreshControl={
 				<RefreshControl
-					onRefresh={() => refetch()}
-					refreshing={isFetching}
-					tintColor={Colors.accent.primary}
+					onRefresh={onRefresh}
+					refreshing={refreshing || isFetching}
+					tintColor={colors.accent.primary}
 				/>
 			}
 			style={styles.container}
 		>
 			<View style={styles.header}>
-				<Text style={[styles.title, { color: colors.text.primary }]}>Git Insights</Text>
-				<Text style={[styles.subtitle, { color: colors.text.muted }]}>Developer Intelligence Platform</Text>
+				<Text style={[styles.title, { color: colors.text.primary }]}>
+					Git Insights
+				</Text>
+				<Text style={[styles.subtitle, { color: colors.text.muted }]}>
+					Developer Intelligence Platform
+				</Text>
 			</View>
 
 			<LineRule marginVertical={Spacing.md} />
@@ -102,7 +117,13 @@ export default function HomeScreen() {
 				value={searchQuery}
 			/>
 
-			{isLoading ? (
+			{isError ? (
+				<EmptyState
+					description="Couldn't load repositories. Please check your connection."
+					icon={Search}
+					title="Failed to load"
+				/>
+			) : isLoading ? (
 				<View style={styles.list}>
 					{[1, 2, 3].map((i) => (
 						<Skeleton
@@ -130,30 +151,44 @@ export default function HomeScreen() {
 							key={repo.id}
 							onPress={() => {
 								void Haptics.selectionAsync();
+								const [owner, name] = repo.fullName.split("/");
 								router.push({
-									pathname: "repo" as any,
-									params: { id: repo.id, name: repo.fullName },
+									pathname: "/[owner]/[name]",
+									params: { owner, name, id: repo.id },
 								});
 							}}
 						>
 							<Card style={styles.repoCard}>
 								<View style={styles.repoHeader}>
-									<Text style={[styles.repoName, { color: colors.text.primary }]}>{repo.fullName}</Text>
+									<Text
+										style={[styles.repoName, { color: colors.text.primary }]}
+									>
+										{repo.fullName}
+									</Text>
 									<StatusBadge status={repo.analysisStatus} />
 								</View>
 								{repo.description && (
-									<Text numberOfLines={2} style={[styles.repoDesc, { color: colors.text.secondary }]}>
+									<Text
+										numberOfLines={2}
+										style={[styles.repoDesc, { color: colors.text.secondary }]}
+									>
 										{repo.description}
 									</Text>
 								)}
 								<View style={styles.repoMeta}>
-									<Text style={[styles.metaItem, { color: colors.text.secondary }]}>
+									<Text
+										style={[styles.metaItem, { color: colors.text.secondary }]}
+									>
 										⭐ {formatNumber(repo.stars)}
 									</Text>
-									<Text style={[styles.metaItem, { color: colors.text.secondary }]}>
+									<Text
+										style={[styles.metaItem, { color: colors.text.secondary }]}
+									>
 										🔀 {formatNumber(repo.forks)}
 									</Text>
-									<Text style={[styles.metaItem, { color: colors.text.secondary }]}>
+									<Text
+										style={[styles.metaItem, { color: colors.text.secondary }]}
+									>
 										👥 {formatNumber(repo.contributorCount)}
 									</Text>
 									{repo.primaryLanguage && (
@@ -204,11 +239,9 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: FontSizes["3xl"],
 		fontWeight: "700",
-		color: Colors.text.primary,
 	},
 	subtitle: {
 		fontSize: FontSizes.md,
-		color: Colors.text.muted,
 		marginTop: Spacing.xs,
 	},
 	statsRow: {
@@ -237,13 +270,11 @@ const styles = StyleSheet.create({
 	repoName: {
 		fontSize: FontSizes.lg,
 		fontWeight: "600",
-		color: Colors.text.primary,
 		flex: 1,
 		marginRight: Spacing.sm,
 	},
 	repoDesc: {
 		fontSize: FontSizes.sm,
-		color: Colors.text.secondary,
 		marginBottom: Spacing.sm,
 	},
 	repoMeta: {
@@ -254,6 +285,5 @@ const styles = StyleSheet.create({
 	},
 	metaItem: {
 		fontSize: FontSizes.sm,
-		color: Colors.text.secondary,
 	},
 });

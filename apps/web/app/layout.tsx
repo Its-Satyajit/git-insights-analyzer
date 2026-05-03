@@ -6,7 +6,6 @@ import {
 	IBM_Plex_Mono,
 	IBM_Plex_Sans,
 } from "next/font/google";
-import Script from "next/script";
 import { Suspense } from "react";
 import Navigation from "~/components/Navigation";
 import QueryProvider from "~/components/QueryProvider";
@@ -115,7 +114,7 @@ export default function RootLayout({
 			suppressHydrationWarning
 		>
 			{/* eslint-disable-next-line react/no-danger */}
-			<Script
+			<script
 				dangerouslySetInnerHTML={{
 					__html: JSON.stringify({
 						"@context": "https://schema.org",
@@ -134,7 +133,6 @@ export default function RootLayout({
 					}),
 				}}
 				id="jsonld"
-				strategy="afterInteractive"
 				type="application/ld+json"
 			/>
 			<body
