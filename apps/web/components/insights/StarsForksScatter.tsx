@@ -257,7 +257,7 @@ export function StarsForksScatter({ data }: StarsForksScatterProps) {
 							/>
 							<ZAxis dataKey="stars" range={[30, 200]} />
 							<ChartTooltip
-								content={({ active, payload }: TooltipContentProps<number, string>) => {
+								content={({ active, payload }: any) => {
 									if (active && payload?.length && payload[0]?.payload) {
 										const item = payload[0].payload;
 										return (
