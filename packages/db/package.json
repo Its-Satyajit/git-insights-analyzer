@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "better-auth": "^1.6.9",
+    "better-auth": "^1.7.3",
     "drizzle-orm": "^0.45.2",
     "drizzle-typebox": "^0.3.3",
     "postgres": "^3.4.9"
@@ -23,6 +23,6 @@
   "devDependencies": {
     "@git-insights/config": "workspace:*",
     "drizzle-kit": "^0.31.10",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }
